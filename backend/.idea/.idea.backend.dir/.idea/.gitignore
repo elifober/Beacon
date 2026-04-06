@@ -3,9 +3,9 @@
 /workspace.xml
 # Rider ignored files
 /modules.xml
-/projectSettingsUpdater.xml
 /contentModel.xml
-/.idea.Intex II.iml
+/projectSettingsUpdater.xml
+/.idea.backend.iml
 # Ignored default folder with query files
 /queries/
 # Datasource local storage ignored files
@@ -13,5 +13,3 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
-/bin
-/obj

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/brandonprice/Desktop/Winter 2026/Intex II/backend/Beacon.API/Beacon.API.csproj": {}
+    "/Users/eliasfobert/IS Core/Semester 2/Intex/Beacon/backend/Beacon.API/Beacon.API.csproj": {}
   },
   "projects": {
-    "/Users/brandonprice/Desktop/Winter 2026/Intex II/backend/Beacon.API/Beacon.API.csproj": {
+    "/Users/eliasfobert/IS Core/Semester 2/Intex/Beacon/backend/Beacon.API/Beacon.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/brandonprice/Desktop/Winter 2026/Intex II/backend/Beacon.API/Beacon.API.csproj",
+        "projectUniqueName": "/Users/eliasfobert/IS Core/Semester 2/Intex/Beacon/backend/Beacon.API/Beacon.API.csproj",
         "projectName": "Beacon.API",
-        "projectPath": "/Users/brandonprice/Desktop/Winter 2026/Intex II/backend/Beacon.API/Beacon.API.csproj",
-        "packagesPath": "/Users/brandonprice/.nuget/packages/",
-        "outputPath": "/Users/brandonprice/Desktop/Winter 2026/Intex II/backend/Beacon.API/obj/",
+        "projectPath": "/Users/eliasfobert/IS Core/Semester 2/Intex/Beacon/backend/Beacon.API/Beacon.API.csproj",
+        "packagesPath": "/Users/eliasfobert/.nuget/packages/",
+        "outputPath": "/Users/eliasfobert/IS Core/Semester 2/Intex/Beacon/backend/Beacon.API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/brandonprice/.nuget/NuGet/NuGet.Config"
+          "/Users/eliasfobert/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"

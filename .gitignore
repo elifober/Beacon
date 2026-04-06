@@ -1,0 +1,14 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# OS
+.DS_Store
+
+# JetBrains / Rider
+.idea/
+
+# Local SQLite (Identity dev DB, etc.)
+*.db
+*.db-shm
+*.db-wal

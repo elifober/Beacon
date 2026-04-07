@@ -15,11 +15,9 @@ public class BeaconController : ControllerBase
 
     public BeaconController(PostgresContext temp) => _beaconContext = temp;
 
-    [HttpGet("AllResidents")]
-    public IEnumerable<Resident> GetResidents() => _beaconContext.Residents.ToList();
-
-    [HttpGet("ResidentList")]
-    public OkObjectResult GetResidentList()
+    //GET LIST OF ALL RESIDENTS
+    [HttpGet("Residents")]
+    public IActionResult GetResidentList()
     {
         var residents = _beaconContext.Residents
             .Join(_beaconContext.Safehouses,
@@ -29,7 +27,7 @@ public class BeaconController : ControllerBase
                 {
                     r.ResidentId,
                     Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
-                    SafehouseName = s.Name,
+                    SafehouseName = s.City,
                     r.CaseStatus,
                     r.Sex,
                     r.DateOfBirth
@@ -39,9 +37,11 @@ public class BeaconController : ControllerBase
         return Ok(residents);
     }
 
+    //GET LIST OF ALL SAFEHOUSES
     [HttpGet("Safehouses")]
     public IEnumerable<Safehouse> GetSafehouses() => _beaconContext.Safehouses.ToList();
-    
+
+    //GET LIST OF ALL PARTNERS
     [HttpGet("Partners")]
     public IEnumerable<Partner> GetPartner() => _beaconContext.Partners.ToList();
 
@@ -64,14 +64,15 @@ public class BeaconController : ControllerBase
         return Created($"/residents/{resident.ResidentId}", resident);
     }
 
+    //SEARCH BAR FUNCTIONALITY
     [HttpGet("Search")]
     public OkObjectResult Search([FromQuery] string q)
     {
         if (string.IsNullOrWhiteSpace(q))
             return Ok(Array.Empty<object>());
-       
+
         var query = q.Trim().ToLower();
-        
+
         var supporters = _beaconContext.Supporters
             .Where(s => (s.DisplayName ?? "").ToLower().Contains(query)
                         || (s.FirstName ?? "").ToLower().Contains(query)
@@ -85,7 +86,7 @@ public class BeaconController : ControllerBase
             })
             .Take(10)
             .ToList();
-        
+
         var partners = _beaconContext.Partners
             .Where(p => p.PartnerName.ToLower().Contains(query)
                         || (p.ContactName ?? "").ToLower().Contains(query))
@@ -114,32 +115,18 @@ public class BeaconController : ControllerBase
             .ToList();
         return Ok(results);
     }
-    
-    
-    
-    
-    
-    
-    //GET INDIVIDUAL DONORS, SAFEHOUSES, RESIDENTS, OR PARTNERS BY ID
-    [HttpGet("Supporter/{id}")]
-    public IActionResult GetDonor(int id)
+
+    //GET THE PERCENTAGE OF DONATIONS ALLOCATED TO EACH PROGRAM
+    [HttpGet("Allocations")]
+    public IEnumerable<object> GetAllocationList()
     {
-        var donor = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
-        if (donor == null) return NotFound();
-        return Ok(donor);
-    }
-    [HttpGet("Partner/{id}")]
-    public IActionResult GetPartner(int id)
-    {
-        var partner = _beaconContext.Partners.FirstOrDefault(p => p.PartnerId == id);
-        if (partner == null) return NotFound();
-        return Ok(partner);
-    }
-    [HttpGet("Safehouse/{id}")]
-    public IActionResult GetSafehouse(int id)
-    {
-        var safehouse = _beaconContext.Safehouses.FirstOrDefault(s => s.SafehouseId == id);
-        if (safehouse == null) return NotFound();
-        return Ok(safehouse);
+        return _beaconContext.DonationAllocations
+            .Select(d => new
+            {
+                d.DonationId,
+                d.ProgramArea,
+                d.AmountAllocated
+            })
+            .ToList();
     }
 }

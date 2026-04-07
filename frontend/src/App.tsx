@@ -9,6 +9,7 @@ import PartnerPage from './pages/PartnerPage.tsx'
 import SafehousePage from './pages/SafehousePage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import AdminResidentPage from './pages/AdminResidentPage.tsx'
+import LandingPage from './pages/LandingPage.tsx'
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
     <AuthProvider>
     <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/logout" element={<LogoutPage />} />

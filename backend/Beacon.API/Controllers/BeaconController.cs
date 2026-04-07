@@ -1,5 +1,8 @@
 using Beacon.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Beacon.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Beacon.API.Controllers;
 
@@ -38,6 +41,23 @@ public class BeaconController : ControllerBase
     [HttpGet("Partners")]
     public IEnumerable<Partner> GetPartner() => _beaconContext.Partners.ToList();
 
+    [HttpGet("admin/residents")]
+    [Authorize(Policy = AuthPolicies.ManageResidents)]
+    public async Task<IActionResult> GetResidentsForAdmin()
+    {
+        var residents = await _beaconContext.Residents.ToListAsync();
+        return Ok(residents);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = AuthPolicies.ManageResidents)]
+    public async Task<IActionResult> CreateResident([FromBody] Resident resident)
+    {
+        var nextResidentId = _beaconContext.Residents.Max(r => (int?)r.ResidentId ?? 0) + 1;
+        resident.ResidentId = nextResidentId;
+        _beaconContext.Residents.Add(resident);
+        await _beaconContext.SaveChangesAsync();
+        return Created($"/residents/{resident.ResidentId}", resident);
     [HttpGet("Search")]
     public OkObjectResult Search([FromQuery] string q)
     {

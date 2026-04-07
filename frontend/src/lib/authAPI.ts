@@ -73,12 +73,13 @@ export async function registerUser(
 
 export async function loginUser(email: string, password: string, rememberMe: boolean): Promise<void> {
     const searchParams = new URLSearchParams();
+    searchParams.set("useCookies", "true");
 
     if (rememberMe) {
-        searchParams.set('rememberMe', 'true');
+        searchParams.set('useSessionCookies', 'false');
     }
     else{
-        searchParams.set('rememberMe', 'false');
+        searchParams.set('useSessionCookies', 'true');
     }
 
     const response = await fetch(`${apiBaseUrl}/api/auth/login?${searchParams.toString()}`, {

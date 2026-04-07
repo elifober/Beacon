@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext.tsx'
 
 function Header() {
     const { authSession, isAuthenticated, isLoading} = useAuth();
+    const roles = authSession?.roles ?? [];
+    const isAdmin = roles.includes('Admin');
 
     let statusClassName = 'badge rounded-pill text-bg-secondary';
     let statusText = 'Checking auth...';
@@ -20,16 +22,17 @@ function Header() {
     return (
         <header>
             <div><h1>Beacon</h1></div>
-            <div>
-                <span className={statusClassName}>{statusText}</span>
-            </div>
-            <div>
-                <NavLink to="/login">Login</NavLink>
-                <NavLink to="/register">Register</NavLink>
-                <NavLink to="/logout">Logout</NavLink>
-            </div>
+        <div>
+            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Register</NavLink>
+            <NavLink to="/logout">Logout</NavLink>
+            {isAdmin ?( <NavLink to="/admin/residents">Admin</NavLink>) : null}
+            <span className={statusClassName} style={{ marginLeft: '0.75rem' }}>
+                {statusText}
+            </span>
+        </div>    
         </header>
-    )
+    );
 }
 
-export default Header
+export default Header;

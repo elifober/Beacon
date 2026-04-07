@@ -2,10 +2,34 @@ using Beacon.API.Data;
 using Beacon.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Beacon.API.Infrastructure;
+using Microsoft.AspNetCore.Authenication.Google
 
 var builder = WebApplication.CreateBuilder(args);
 
+var googleClientId = builder.configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.configuration["Authentication:Google:ClientSecret"];
+
 builder.Services.AddControllers();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequiredLength = 15;
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.SlidingExpiration = true;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -35,11 +59,34 @@ builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
 
 builder.Services
     .AddIdentityApiEndpoints<ApplicationUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthIdentityDbContext>();
+
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    builder.Services.AddAuthentication(GoogleDefaults.AuthenticationScheme)
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+        options.CallbackPath = "/signin-google";
+    });
+}
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthPolicies.ManageResidents, policy => policy.RequireRole(AuthRoles.Admin));
+});
 
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await AuthIdentityGenerator.GenerateDefaultIdentityAsync(scope.ServiceProvider, app.Configuration);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -51,6 +98,11 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+app.UseSecurityHeaders();
 app.UseCors("Frontend");
 
 app.UseAuthentication();

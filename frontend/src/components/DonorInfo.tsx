@@ -6,8 +6,7 @@ interface DonorInfoProps {
 
 function DonorInfo({ supporter }: DonorInfoProps) {
   const name = supporter.displayName
-    ?? [supporter.firstName, supporter.lastName].filter(Boolean).join(" ")
-    || "Unknown";
+    ?? ([supporter.firstName, supporter.lastName].filter(Boolean).join(" ") || "Unknown");
 
   return (
     <div className="card">

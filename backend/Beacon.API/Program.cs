@@ -3,12 +3,12 @@ using Beacon.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Infrastructure;
-using Microsoft.AspNetCore.Authenication.Google
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var googleClientId = builder.configuration["Authentication:Google:ClientId"];
-var googleClientSecret = builder.configuration["Authentication:Google:ClientSecret"];
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 
 builder.Services.AddControllers();
 

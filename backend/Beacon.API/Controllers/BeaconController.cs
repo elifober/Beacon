@@ -62,6 +62,8 @@ public class BeaconController : ControllerBase
         _beaconContext.Residents.Add(resident);
         await _beaconContext.SaveChangesAsync();
         return Created($"/residents/{resident.ResidentId}", resident);
+    }
+
     [HttpGet("Search")]
     public OkObjectResult Search([FromQuery] string q)
     {
@@ -112,6 +114,13 @@ public class BeaconController : ControllerBase
             .ToList();
         return Ok(results);
     }
+    
+    
+    
+    
+    
+    
+    //GET INDIVIDUAL DONORS, SAFEHOUSES, RESIDENTS, OR PARTNERS BY ID
     [HttpGet("Supporter/{id}")]
     public IActionResult GetDonor(int id)
     {

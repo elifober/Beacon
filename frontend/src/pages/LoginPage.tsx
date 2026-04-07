@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import {
   loginUser,
 } from '../lib/authAPI';
+import { useAuth } from '../context/AuthContext.tsx';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { refreshAuthSession } = useAuth();
 
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -21,6 +23,7 @@ function LoginPage() {
 
     try {
       await loginUser(email, password, rememberMe);
+      await refreshAuthSession();
       navigate('/catalog');
 
     } catch (error) {

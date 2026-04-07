@@ -4,11 +4,13 @@ import LoginPage from './pages/LoginPage.tsx'
 import RegisterPage from './pages/RegisterPage.tsx'
 import LogoutPage from './pages/LogoutPage.tsx'
 import ResidentsPage from './pages/ResidentsPage.tsx'
+import { AuthProvider } from './context/AuthContext.tsx'
 
 function App() {
 
   return (
     <>
+    <AuthProvider>
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -18,7 +20,7 @@ function App() {
       </Routes>
     </Router>
 
-    
+    </AuthProvider>
     </>
   )
 }

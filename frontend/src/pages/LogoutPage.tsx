@@ -2,17 +2,19 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { logoutUser } from '../lib/authAPI';
+import { useAuth } from '../context/AuthContext.tsx';
 
 function LogoutPage() {
   const [message, setMessage] = useState('Signing you out...');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const { refreshAuthSession } = useAuth();
   useEffect(() => {
     let isMounted = true;
 
     async function runLogout() {
       try {
         await logoutUser();
+        await refreshAuthSession();
         if (isMounted) {
           setMessage('You are now signed out.');
         }

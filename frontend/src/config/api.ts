@@ -1,1 +1,1 @@
-export const BASE_URL = "http://localhost:5169/Beacon";
+export const BASE_URL = "https://beacon-production-a89b.up.railway.app/Beacon";

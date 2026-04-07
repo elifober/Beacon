@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Beacon.API.Data;
 
+
+
 namespace Beacon.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(UseManager<ApplicationUser> userManager) : ControllerBase
+public class AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) : ControllerBase
 {
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentSession()
@@ -34,9 +36,20 @@ public class AuthController(UseManager<ApplicationUser> userManager) : Controlle
         return Ok(new {
             isAuthenticated = true,
             userName = user?.UserName ?? User.Identity?.Name,
-            email = user?.Email
+            email = user?.Email,
             roles
         });
+
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await signInManager.SignOutAsync();
+        return Ok(new {
+            message = "Logged out successfully"
+        });
+    }
+    
 
 }

@@ -13,4 +13,10 @@ public class BeaconController : ControllerBase
 
     [HttpGet("AllResidents")]
     public IEnumerable<Resident> GetResidents() => _beaconContext.Residents.ToList();
+    
+    [HttpGet("Safehouses")]
+    public IEnumerable<Safehouse> GetSafehouses() => _beaconContext.Safehouses.ToList();
+    
+    [HttpGet("Partners")]
+    public IEnumerable<Partner> GetPartner() => _beaconContext.Partners.ToList();
 }

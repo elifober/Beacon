@@ -129,4 +129,28 @@ public class BeaconController : ControllerBase
             })
             .ToList();
     }
+
+    //GET DONOR DASHBOARD: personal info + donation history with program areas
+    [HttpGet("DonorDashboard/{id}")]
+    public IActionResult GetDonorDashboard(int id)
+    {
+        var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
+        if (supporter == null) return NotFound();
+
+        var history = _beaconContext.Donations
+            .Where(d => d.SupporterId == id)
+            .Join(_beaconContext.DonationAllocations,
+                d => d.DonationId,
+                a => a.DonationId,
+                (d, a) => new
+                {
+                    d.DonationDate,
+                    d.Amount,
+                    a.ProgramArea
+                })
+            .OrderByDescending(x => x.DonationDate)
+            .ToList();
+
+        return Ok(new { supporter, donationHistory = history });
+    }
 }

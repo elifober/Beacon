@@ -10,6 +10,7 @@ import SafehousePage from './pages/SafehousePage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import AdminResidentPage from './pages/AdminResidentPage.tsx'
 import LandingPage from './pages/LandingPage.tsx'
+import DonorDashboardPage from './pages/DonorDashboardPage.tsx'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/residents" element={<ResidentsPage />} />
         <Route path="/admin/residents" element={<AdminResidentPage />} />
+        <Route path="/donor-dashboard/:id" element={<DonorDashboardPage />} />
         <Route path="/donor/:id" element={<DonorPage />} />
         <Route path="/partner/:id" element={<PartnerPage />} />
         <Route path="/safehouse/:id" element={<SafehousePage />} />

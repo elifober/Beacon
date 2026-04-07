@@ -65,7 +65,7 @@ function LandingPage() {
           {!loading && !error && breakdowns.map((b) => (
             <div key={b.programArea} className="mb-3">
               <div className="d-flex justify-content-between mb-1">
-                <span className="fw-semibold">{b.programArea}</span>
+                <span className="fw-semibold">{b.programArea} </span>
                 <span>{b.percentage}%</span>
               </div>
               <div className="progress" style={{ height: "1.25rem" }}>

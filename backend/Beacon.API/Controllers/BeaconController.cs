@@ -19,14 +19,18 @@ public class BeaconController : ControllerBase
     public OkObjectResult GetResidentList()
     {
         var residents = _beaconContext.Residents
-            .Select(r => new
-            {
-                r.ResidentId,
-                r.SafehouseId,
-                r.CaseStatus,
-                r.Sex,
-                r.DateOfBirth
-            })
+            .Join(_beaconContext.Safehouses,
+                r => r.SafehouseId,
+                s => s.SafehouseId,
+                (r, s) => new
+                {
+                    r.ResidentId,
+                    Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                    SafehouseName = s.Name,
+                    r.CaseStatus,
+                    r.Sex,
+                    r.DateOfBirth
+                })
             .ToList();
 
         return Ok(residents);

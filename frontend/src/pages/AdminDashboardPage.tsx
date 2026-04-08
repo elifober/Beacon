@@ -28,40 +28,37 @@ function AdminDashboardPage() {
           style={{
             display: "block",
             width: "100vw",
-            height: "170px",
+            height: "230px",
             objectFit: "cover",
-            objectPosition: "center 35%",
+            // Keeps the lighthouse near the visual center (tweak % if the asset changes)
+            objectPosition: "52% 38%",
           }}
         />
       </div>
 
       <div className="container pb-4">
-        <div className="d-flex justify-content-end">
-          <div className="d-flex gap-3 w-100 justify-content-end">
-            <div className="card" style={{ width: "320px", minHeight: "300px" }}>
-              <div className="card-body" />
-            </div>
+        <div className="d-flex gap-3 align-items-stretch flex-column flex-md-row w-100">
+          <div className="card admin-dashboard-placeholder flex-grow-1" style={{ minWidth: 0, minHeight: "300px" }}>
+            <div className="card-body h-100" />
+          </div>
 
-            <div className="card" style={{ width: "320px" }}>
-              <div className="card-body">
-                <div className="list-group">
-                  <Link to="/admin/all-residents" className="list-group-item list-group-item-action">
-                    Residnts
-                  </Link>
-                  <Link to="/admin/all-safehouses" className="list-group-item list-group-item-action">
-                    Safehouses
-                  </Link>
-                  <Link to="/admin/all-partners" className="list-group-item list-group-item-action">
-                    Partners
-                  </Link>
-                  <Link to="/admin/all-donors" className="list-group-item list-group-item-action">
-                    Donors
-                  </Link>
-                  <Link to="/admin/all-donations" className="list-group-item list-group-item-action">
-                    Donations
-                  </Link>
-                </div>
-              </div>
+          <div className="card admin-dashboard-menu flex-shrink-0" style={{ width: "100%", maxWidth: "280px" }}>
+            <div className="list-group list-group-flush">
+              <Link to="/admin/all-residents" className="list-group-item list-group-item-action">
+                Residents
+              </Link>
+              <Link to="/admin/all-safehouses" className="list-group-item list-group-item-action">
+                Safehouses
+              </Link>
+              <Link to="/admin/all-partners" className="list-group-item list-group-item-action">
+                Partners
+              </Link>
+              <Link to="/admin/all-donors" className="list-group-item list-group-item-action">
+                Donors
+              </Link>
+              <Link to="/admin/all-donations" className="list-group-item list-group-item-action">
+                Donations
+              </Link>
             </div>
           </div>
         </div>

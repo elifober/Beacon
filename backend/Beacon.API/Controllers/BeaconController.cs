@@ -84,7 +84,6 @@ public class BeaconController : ControllerBase
                 Name = s.DisplayName ?? (s.FirstName + " " + s.LastName),
                 Type = "Donor"
             })
-            .Take(10)
             .ToList();
 
         var partners = _beaconContext.Partners
@@ -96,7 +95,6 @@ public class BeaconController : ControllerBase
                 Name = p.PartnerName,
                 Type = "Partner"
             })
-            .Take(10)
             .ToList();
         var safehouses = _beaconContext.Safehouses
             .Where(s => s.Name.ToLower().Contains(query)
@@ -107,7 +105,6 @@ public class BeaconController : ControllerBase
                 Name = s.Name,
                 Type = "Safehouse"
             })
-            .Take(10)
             .ToList();
         var residents = _beaconContext.Residents
             .Where(r => (r.FirstName ?? "").ToLower().Contains(query)
@@ -119,7 +116,6 @@ public class BeaconController : ControllerBase
                 Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
                 Type = "Resident"
             })
-            .Take(10)
             .ToList();
 
         var results = supporters.Cast<object>()

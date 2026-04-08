@@ -38,14 +38,14 @@ function LandingPage() {
       <section className="beacon-hero text-center py-5">
         <div className="container py-5" style={{ position: "relative", zIndex: 1 }}>
           <p className="text-uppercase fw-semibold mb-3" style={{ letterSpacing: "0.15em", fontSize: "0.85rem", color: "rgba(245,213,144,0.8)" }}>
-            Beacon Sanctuary
+            The Beacon Project
           </p>
           <h1 className="display-3 fw-bold mb-3">A Light for Survivors</h1>
           <p className="lead fs-3 mb-4">
             Every Child Deserves Safety and Hope
           </p>
           <p className="mx-auto mb-5" style={{ maxWidth: 640, fontSize: "1.1rem" }}>
-            Beacon provides safe homes and rehabilitation for girls who are survivors
+            The Beacon Project provides safe homes and rehabilitation for girls who are survivors
             of sexual abuse and trafficking. Together, we can bring light to the
             darkest places.
           </p>

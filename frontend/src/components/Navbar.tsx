@@ -8,7 +8,7 @@ function Navbar() {
     <header>
       <div>
         <Link to="/" className="text-decoration-none">
-          <h1>Beacon</h1>
+          <h1>The Beacon Project</h1>
         </Link>
       </div>
       <div className="d-flex gap-2 align-items-center">

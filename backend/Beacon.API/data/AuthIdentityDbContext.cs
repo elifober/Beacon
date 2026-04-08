@@ -28,9 +28,10 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Safehouse> Safehouses { get; set; }
     public DbSet<SafehouseMonthlyMetric> SafehouseMonthlyMetrics { get; set; }
     public DbSet<SocialMediaPost> SocialMediaPosts { get; set; }
-      /// <summary>
+
+    /// <summary>
     /// Next <c>supporter_id</c> for inserts. Production DBs imported without PG IDENTITY leave the column NOT NULL
-    /// with no default; EF must supply the key explicitly.
+    /// with no default; callers must supply the key explicitly.
     /// </summary>
     public async Task<int> AllocateNextSupporterIdAsync(CancellationToken cancellationToken = default)
     {
@@ -40,6 +41,44 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
             .Select(s => s.SupporterId)
             .FirstOrDefaultAsync(cancellationToken);
         return maxId + 1;
+    }
+
+    /// <summary>
+    /// Inserts a supporter row with an explicit <c>supporter_id</c>. Uses SQL so the key is never omitted
+    /// (some legacy DBs have NOT NULL <c>supporter_id</c> without IDENTITY; EF can still omit the column).
+    /// </summary>
+    public Task InsertSupporterRowAsync(
+        int supporterId,
+        string email,
+        string identityUserId,
+        string displayName,
+        string? organizationName,
+        string? phone,
+        DateTime createdAtUtc,
+        string status,
+        CancellationToken cancellationToken = default)
+    {
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
+            INSERT INTO supporters (
+                supporter_id,
+                email,
+                identity_user_id,
+                display_name,
+                organization_name,
+                phone,
+                created_at,
+                status)
+            VALUES (
+                {supporterId},
+                {email},
+                {identityUserId},
+                {displayName},
+                {organizationName},
+                {phone},
+                {createdAtUtc},
+                {status})",
+            cancellationToken);
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

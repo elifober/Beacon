@@ -119,16 +119,15 @@ public class BeaconUserManager : UserManager<ApplicationUser>
             return;
         }
 
-        _db.Supporters.Add(new Supporter
-        {
-            SupporterId = await _db.AllocateNextSupporterIdAsync(),
-            Email = email,
-            IdentityUserId = user.Id,
-            DisplayName = user.UserName ?? email,
-            CreatedAt = DateTime.UtcNow,
-            Status = "Active",
-        });
-
-        await _db.SaveChangesAsync();
+        var supporterId = await _db.AllocateNextSupporterIdAsync();
+        await _db.InsertSupporterRowAsync(
+            supporterId,
+            email,
+            user.Id,
+            user.UserName ?? email,
+            organizationName: null,
+            phone: null,
+            DateTime.UtcNow,
+            "Active");
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Beacon.API.Data;
 
 namespace Beacon.API.Models;
 
 public partial class Supporter
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int SupporterId { get; set; }
 
     public string? SupporterType { get; set; }

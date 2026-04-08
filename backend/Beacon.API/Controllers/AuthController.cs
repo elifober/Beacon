@@ -285,17 +285,16 @@ public class AuthController(
         var supporter = await db.Supporters.FirstOrDefaultAsync(s => s.IdentityUserId == user.Id);
         if (supporter is null)
         {
-            db.Supporters.Add(new Supporter
-            {
-                SupporterId = await db.AllocateNextSupporterIdAsync(),
-                Email = email,
-                IdentityUserId = user.Id,
-                DisplayName = displayName,
-                OrganizationName = org,
-                Phone = phone,
-                CreatedAt = createdAt,
-                Status = "Active",
-            });
+            var supporterId = await db.AllocateNextSupporterIdAsync();
+            await db.InsertSupporterRowAsync(
+                supporterId,
+                email,
+                user.Id,
+                displayName,
+                org,
+                phone,
+                createdAt,
+                "Active");
         }
         else
         {
@@ -351,17 +350,16 @@ public class AuthController(
 
         if (supporter is null)
         {
-            db.Supporters.Add(new Supporter
-            {
-                SupporterId = await db.AllocateNextSupporterIdAsync(),
-                Email = email,
-                IdentityUserId = user.Id,
-                DisplayName = displayName,
-                OrganizationName = org,
-                Phone = phone,
-                CreatedAt = DateTime.UtcNow,
-                Status = "Active",
-            });
+            var supporterId = await db.AllocateNextSupporterIdAsync();
+            await db.InsertSupporterRowAsync(
+                supporterId,
+                email,
+                user.Id,
+                displayName,
+                org,
+                phone,
+                DateTime.UtcNow,
+                "Active");
         }
         else
         {

@@ -47,22 +47,57 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+if (corsAllowedOrigins.Length == 0)
+{
+    corsAllowedOrigins = ["http://localhost:5173", "https://localhost:5173"];
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-        if (origins.Length > 0)
-        {
-            policy.WithOrigins(origins);
-        }
-        else
-        {
-            policy.WithOrigins("http://localhost:5173", "https://localhost:5173");
-        }
-
+        // Use one predicate: WithOrigins + SetIsOriginAllowed together can make only the callback apply,
+        // and a thrown Uri parse breaks CORS with a 500 and no Access-Control-Allow-Origin.
         policy.SetIsOriginAllowed(origin =>
-            new Uri(origin).Host.EndsWith(".vercel.app"));
+        {
+            if (string.IsNullOrWhiteSpace(origin))
+            {
+                return false;
+            }
+
+            try
+            {
+                var uri = new Uri(origin);
+                if (uri.Scheme is not ("http" or "https"))
+                {
+                    return false;
+                }
+
+                if (corsAllowedOrigins.Contains(origin, StringComparer.Ordinal))
+                {
+                    return true;
+                }
+
+                var host = uri.IdnHost;
+                if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                    host == "127.0.0.1")
+                {
+                    return true;
+                }
+
+                if (host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (UriFormatException)
+            {
+                return false;
+            }
+        });
 
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
@@ -151,8 +186,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseForwardedHeaders();
-app.UseSecurityHeaders();
+// CORS must run before auth and before other middleware that might short-circuit with errors.
 app.UseCors("Frontend");
+app.UseSecurityHeaders();
 
 app.UseAuthentication();
 app.UseAuthorization();

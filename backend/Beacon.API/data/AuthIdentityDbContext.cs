@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Models;
 
 namespace Beacon.API.Data;
 
-public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
+public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 {
     public AuthIdentityDbContext(DbContextOptions<AuthIdentityDbContext> options)
         : base(options)
@@ -28,6 +29,8 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Safehouse> Safehouses { get; set; }
     public DbSet<SafehouseMonthlyMetric> SafehouseMonthlyMetrics { get; set; }
     public DbSet<SocialMediaPost> SocialMediaPosts { get; set; }
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     /// <summary>
     /// Next <c>supporter_id</c> for inserts. Production DBs imported without PG IDENTITY leave the column NOT NULL

@@ -1,9 +1,11 @@
 using Beacon.API.Data;
 using Beacon.API.Models;
 using Beacon.API.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.HttpOverrides;
 using Beacon.Api.Services.PostPlanner;
@@ -110,6 +112,18 @@ builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection"))
         .UseSnakeCaseNamingConvention());
 
+// Persist DP keys in Postgres so OAuth correlation survives multiple Railway instances / cold starts.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<AuthIdentityDbContext>()
+    .SetApplicationName("Beacon.API");
+
+builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme, options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+});
+
 builder.Services.AddSingleton<PostSuccessPredictor>();
 
 builder.Services
@@ -128,6 +142,9 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         options.ClientSecret = googleClientSecret;
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.CallbackPath = "/signin-google";
+        options.CorrelationCookie.SameSite = SameSiteMode.None;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.CorrelationCookie.IsEssential = true;
     });
 }
 

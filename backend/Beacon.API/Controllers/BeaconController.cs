@@ -11,9 +11,9 @@ namespace Beacon.API.Controllers;
 
 public class BeaconController : ControllerBase
 {
-    private PostgresContext _beaconContext;
+    private AuthIdentityDbContext _beaconContext;
 
-    public BeaconController(PostgresContext temp) => _beaconContext = temp;
+    public BeaconController(AuthIdentityDbContext temp) => _beaconContext = temp;
 
     //GET LIST OF ALL RESIDENTS
     [HttpGet("Residents")]

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Beacon.API.Models;
 
 public partial class DonationAllocation
 {
+    [Key]
     public int AllocationId { get; set; }
 
     public int DonationId { get; set; }

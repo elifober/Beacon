@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Beacon.API.Models;
 
 public partial class InterventionPlan
 {
+    [Key]
     public int PlanId { get; set; }
 
     public int ResidentId { get; set; }

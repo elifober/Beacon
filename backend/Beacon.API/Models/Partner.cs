@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beacon.API.Data;
 
 namespace Beacon.API.Models;
 
@@ -30,4 +31,7 @@ public partial class Partner
     public string? Notes { get; set; }
 
     public virtual ICollection<PartnerAssignment> PartnerAssignments { get; set; } = new List<PartnerAssignment>();
+    // Add this to Partner.cs
+    public string? IdentityUserId { get; set; }
+    public virtual ApplicationUser? IdentityUser { get; set; }
 }

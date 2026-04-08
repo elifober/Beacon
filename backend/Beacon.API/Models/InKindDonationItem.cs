@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Beacon.API.Models;
 
 public partial class InKindDonationItem
 {
+    [Key]
     public int ItemId { get; set; }
 
     public int DonationId { get; set; }

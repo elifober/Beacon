@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beacon.API.Data;
 
 namespace Beacon.API.Models;
 
@@ -36,4 +37,8 @@ public partial class Supporter
     public string? AcquisitionChannel { get; set; }
 
     public virtual ICollection<Donation> Donations { get; set; } = new List<Donation>();
+    
+
+    public string? IdentityUserId { get; set; }
+    public virtual ApplicationUser? IdentityUser { get; set; }
 }

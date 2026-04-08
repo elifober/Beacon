@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Google;
+using Beacon.Api.Services.PostPlanner;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection"))
         .UseSnakeCaseNamingConvention());
+
+builder.Services.AddSingleton<PostSuccessPredictor>();
+
 
 builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection")));

@@ -39,19 +39,16 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 
   return (
-    <div
-      className={className}
-      style={{ position: "fixed", bottom: "1rem", left: "50%", transform: "translateX(-50%)", zIndex: 1050 }}
-    >
+    <div className={className}>
       <nav aria-label="Pagination navigation" className="mx-auto" style={{ maxWidth: "fit-content" }}>
         <div
           className="d-flex align-items-center gap-2 rounded-pill border shadow-sm px-3 py-2"
-          style={{ backgroundColor: "#f7e3a0", borderColor: "#d39a00" }}
+          style={{ backgroundColor: "#f7f2e8", borderColor: "#d8c8a0" }}
         >
           <button
             type="button"
             className="btn btn-sm rounded-pill"
-            style={{ backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }}
+            style={{ backgroundColor: "#c78c1f", borderColor: "#c78c1f", color: "white" }}
             onClick={() => handlePageChange(clampedPage - 1)}
             disabled={isPreviousDisabled}
             aria-label="Previous page"
@@ -70,8 +67,8 @@ const Pagination: React.FC<PaginationProps> = ({
                   className="btn btn-sm rounded-pill"
                   style={
                     isActive
-                      ? { backgroundColor: "#d39a00", borderColor: "#d39a00", color: "white" }
-                      : { backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }
+                      ? { backgroundColor: "#b77b12", borderColor: "#b77b12", color: "white" }
+                      : { backgroundColor: "#c78c1f", borderColor: "#c78c1f", color: "white" }
                   }
                   onClick={() => handlePageChange(pageNumber)}
                   disabled={isActive}
@@ -85,7 +82,7 @@ const Pagination: React.FC<PaginationProps> = ({
           <button
             type="button"
             className="btn btn-sm rounded-pill"
-            style={{ backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }}
+            style={{ backgroundColor: "#c78c1f", borderColor: "#c78c1f", color: "white" }}
             onClick={() => handlePageChange(clampedPage + 1)}
             disabled={isNextDisabled}
             aria-label="Next page"

@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import type { SearchResult } from "../types/SearchResult";
 import { search } from "../api/Search";
 
-function SearchBar() {
+type SearchBarProps = {
+  maxWidth?: number;
+  inputClassName?: string;
+};
+
+function SearchBar({ maxWidth = 400, inputClassName = "" }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -43,10 +48,10 @@ function SearchBar() {
   };
 
   return (
-    <div ref={wrapperRef} style={{ position: "relative", width: "100%", maxWidth: 400 }}>
+    <div ref={wrapperRef} style={{ position: "relative", width: "100%", maxWidth }}>
       <input
         type="text"
-        className="form-control"
+        className={`form-control ${inputClassName}`.trim()}
         placeholder="Search residents, donors, partners, safehouses..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Beacon.API.Models;
 
 public partial class Resident
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int ResidentId { get; set; }
 
     public string? FirstName { get; set; }

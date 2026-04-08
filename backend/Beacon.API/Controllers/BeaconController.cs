@@ -60,8 +60,7 @@ public class BeaconController : ControllerBase
     [Authorize(Policy = AuthPolicies.AdminOnly)]
     public async Task<IActionResult> CreateResident([FromBody] Resident resident)
     {
-        var nextResidentId = _beaconContext.Residents.Max(r => (int?)r.ResidentId ?? 0) + 1;
-        resident.ResidentId = nextResidentId;
+        resident.ResidentId = await _beaconContext.AllocateNextResidentIdAsync();
         _beaconContext.Residents.Add(resident);
         await _beaconContext.SaveChangesAsync();
         return Created($"/residents/{resident.ResidentId}", resident);

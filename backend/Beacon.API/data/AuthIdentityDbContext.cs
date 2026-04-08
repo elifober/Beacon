@@ -44,6 +44,19 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     }
 
     /// <summary>
+    /// Next <c>resident_id</c> for inserts (same legacy-PK pattern as <see cref="AllocateNextSupporterIdAsync"/>).
+    /// </summary>
+    public async Task<int> AllocateNextResidentIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await Residents
+            .AsNoTracking()
+            .OrderByDescending(r => r.ResidentId)
+            .Select(r => r.ResidentId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    /// <summary>
     /// Inserts a supporter row with an explicit <c>supporter_id</c>. Uses SQL so the key is never omitted
     /// (some legacy DBs have NOT NULL <c>supporter_id</c> without IDENTITY; EF can still omit the column).
     /// </summary>
@@ -93,6 +106,10 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(s => s.IdentityUserId);
             entity.Property(s => s.SupporterId).ValueGeneratedNever();
         });
+
+        modelBuilder.Entity<Resident>()
+            .Property(r => r.ResidentId)
+            .ValueGeneratedNever();
 
         // Partner (Admin/Staff) Foreign Key Mapping
         modelBuilder.Entity<Partner>()

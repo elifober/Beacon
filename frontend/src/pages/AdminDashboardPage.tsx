@@ -1,11 +1,13 @@
-import SearchBar from "../components/SearchBar";
 import { Link } from "react-router-dom";
+import AdminSearchInput from "../components/AdminSearchInput";
 
 function AdminDashboardPage() {
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-center mb-4">
-        <SearchBar maxWidth={760} inputClassName="rounded-pill px-4 py-2" />
+        <div style={{ width: "100%", maxWidth: 760 }}>
+          <AdminSearchInput placeholder="Search will carry into admin list pages..." />
+        </div>
       </div>
 
       <div className="d-flex justify-content-end">

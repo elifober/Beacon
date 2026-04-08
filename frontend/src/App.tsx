@@ -16,6 +16,7 @@ import AdminAllPartnersPage from './pages/AdminAllPartnersPage.tsx'
 import AdminAllDonorsPage from './pages/AdminAllDonorsPage.tsx'
 import AdminAllDonationsPage from './pages/AdminAllDonationsPage.tsx'
 import AdminAllSafehousesPage from './pages/AdminAllSafehousesPage.tsx'
+import { AdminSearchProvider } from './context/AdminSearchContext.tsx'
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
     <>
     <AuthProvider>
     <Router>
+      <AdminSearchProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -40,6 +42,7 @@ function App() {
         <Route path="/admin/all-safehouses" element={<AdminAllSafehousesPage />} />
         <Route path="/resident/:id" element={<ResidentPage />} />
       </Routes>
+      </AdminSearchProvider>
     </Router>
 
     </AuthProvider>

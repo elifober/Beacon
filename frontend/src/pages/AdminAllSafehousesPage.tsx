@@ -8,7 +8,7 @@ function AdminAllSafehousesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(9);
+  const pageSize = 15;
 
   useEffect(() => {
     fetch(`${BASE_URL}/Safehouses`)
@@ -65,7 +65,6 @@ function AdminAllSafehousesPage() {
           pageSize={pageSize}
           totalCount={totalCount}
           onPageChange={setPage}
-          onPageSizeChange={setPageSize}
         />
       </div>
     </div>

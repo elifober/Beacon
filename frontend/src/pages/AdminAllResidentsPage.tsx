@@ -40,7 +40,7 @@ function AdminAllResidentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 15;
   const [view, setView] = useState<"table" | "card">("table");
 
   useEffect(() => {
@@ -131,100 +131,86 @@ function AdminAllResidentsPage() {
               </tbody>
             </table>
           </div>
-          <div className="card-footer">
-            <Pagination
-              page={currentPage}
-              pageSize={pageSize}
-              totalCount={totalCount}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          </div>
         </div>
       ) : (
-        <>
-          <div className="row g-4">
-            {visibleResidents.map((r) => (
-              <div key={r.residentId} className="col-sm-6 col-lg-4">
-                <div className="card h-100">
-                  <div className="card-body">
-                    <h5 className="card-title mb-3">{r.name}</h5>
-                    <table className="table table-sm mb-0">
-                      <tbody>
-                        {r.safehouseCity && (
-                          <tr>
-                            <th>City</th>
-                            <td>{r.safehouseCity}</td>
-                          </tr>
-                        )}
-                        {r.sex && (
-                          <tr>
-                            <th>Sex</th>
-                            <td>{r.sex}</td>
-                          </tr>
-                        )}
-                        {r.dateOfBirth && (
-                          <tr>
-                            <th>Age</th>
-                            <td>{calculateAge(r.dateOfBirth)}</td>
-                          </tr>
-                        )}
-                        {r.religion && (
-                          <tr>
-                            <th>Religion</th>
-                            <td>{r.religion}</td>
-                          </tr>
-                        )}
-                        {r.caseCategory && (
-                          <tr>
-                            <th>Category</th>
-                            <td>{r.caseCategory}</td>
-                          </tr>
-                        )}
-                        {r.caseStatus && (
-                          <tr>
-                            <th>Status</th>
-                            <td>{r.caseStatus}</td>
-                          </tr>
-                        )}
-                        {r.dateOfAdmission && (
-                          <tr>
-                            <th>Admitted</th>
-                            <td>{formatDate(r.dateOfAdmission)}</td>
-                          </tr>
-                        )}
-                        {r.reintegrationStatus && (
-                          <tr>
-                            <th>Reintegration</th>
-                            <td>{r.reintegrationStatus}</td>
-                          </tr>
-                        )}
-                        {r.currentRiskLevel && (
-                          <tr>
-                            <th>Risk Level</th>
-                            <td>{r.currentRiskLevel}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+        <div className="row g-4">
+          {visibleResidents.map((r) => (
+            <div key={r.residentId} className="col-sm-6 col-lg-4">
+              <div className="card h-100">
+                <div className="card-body">
+                  <h5 className="card-title mb-3">{r.name}</h5>
+                  <table className="table table-sm mb-0">
+                    <tbody>
+                      {r.safehouseCity && (
+                        <tr>
+                          <th>City</th>
+                          <td>{r.safehouseCity}</td>
+                        </tr>
+                      )}
+                      {r.sex && (
+                        <tr>
+                          <th>Sex</th>
+                          <td>{r.sex}</td>
+                        </tr>
+                      )}
+                      {r.dateOfBirth && (
+                        <tr>
+                          <th>Age</th>
+                          <td>{calculateAge(r.dateOfBirth)}</td>
+                        </tr>
+                      )}
+                      {r.religion && (
+                        <tr>
+                          <th>Religion</th>
+                          <td>{r.religion}</td>
+                        </tr>
+                      )}
+                      {r.caseCategory && (
+                        <tr>
+                          <th>Category</th>
+                          <td>{r.caseCategory}</td>
+                        </tr>
+                      )}
+                      {r.caseStatus && (
+                        <tr>
+                          <th>Status</th>
+                          <td>{r.caseStatus}</td>
+                        </tr>
+                      )}
+                      {r.dateOfAdmission && (
+                        <tr>
+                          <th>Admitted</th>
+                          <td>{formatDate(r.dateOfAdmission)}</td>
+                        </tr>
+                      )}
+                      {r.reintegrationStatus && (
+                        <tr>
+                          <th>Reintegration</th>
+                          <td>{r.reintegrationStatus}</td>
+                        </tr>
+                      )}
+                      {r.currentRiskLevel && (
+                        <tr>
+                          <th>Risk Level</th>
+                          <td>{r.currentRiskLevel}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="card mt-4">
-            <div className="card-footer">
-              <Pagination
-                page={currentPage}
-                pageSize={pageSize}
-                totalCount={totalCount}
-                onPageChange={setPage}
-                onPageSizeChange={setPageSize}
-              />
             </div>
-          </div>
-        </>
+          ))}
+        </div>
       )}
+
+      <Pagination
+        page={currentPage}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPage}
+        className="mt-4"
+      />
     </div>
   );
 }

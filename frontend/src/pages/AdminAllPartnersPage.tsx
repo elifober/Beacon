@@ -28,7 +28,7 @@ function AdminAllPartnersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 15;
   const [view, setView] = useState<"table" | "card">("table");
 
   useEffect(() => {
@@ -119,94 +119,80 @@ function AdminAllPartnersPage() {
               </tbody>
             </table>
           </div>
-          <div className="card-footer">
-            <Pagination
-              page={currentPage}
-              pageSize={pageSize}
-              totalCount={totalCount}
-              onPageChange={setPage}
-              onPageSizeChange={setPageSize}
-            />
-          </div>
         </div>
       ) : (
-        <>
-          <div className="row g-4">
-            {visiblePartners.map((p, i) => (
-              <div key={`${p.partnerId}-${i}`} className="col-sm-6 col-lg-4">
-                <div className="card h-100">
-                  <div className="card-body">
-                    <h5 className="card-title mb-3">{p.partnerName}</h5>
-                    <table className="table table-sm mb-0">
-                      <tbody>
-                        {p.organizationType && (
-                          <tr>
-                            <th>Org Type</th>
-                            <td>{p.organizationType}</td>
-                          </tr>
-                        )}
-                        {p.roleType && (
-                          <tr>
-                            <th>Role</th>
-                            <td>{p.roleType}</td>
-                          </tr>
-                        )}
-                        {p.email && (
-                          <tr>
-                            <th>Email</th>
-                            <td>{p.email}</td>
-                          </tr>
-                        )}
-                        {p.phone && (
-                          <tr>
-                            <th>Phone</th>
-                            <td>{p.phone}</td>
-                          </tr>
-                        )}
-                        {p.region && (
-                          <tr>
-                            <th>Region</th>
-                            <td>{p.region}</td>
-                          </tr>
-                        )}
-                        {p.status && (
-                          <tr>
-                            <th>Status</th>
-                            <td>{p.status}</td>
-                          </tr>
-                        )}
-                        {p.startDate && (
-                          <tr>
-                            <th>Start Date</th>
-                            <td>{formatDate(p.startDate)}</td>
-                          </tr>
-                        )}
-                        {p.assignedSafehouse && (
-                          <tr>
-                            <th>Safehouse</th>
-                            <td>{p.assignedSafehouse}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+        <div className="row g-4">
+          {visiblePartners.map((p, i) => (
+            <div key={`${p.partnerId}-${i}`} className="col-sm-6 col-lg-4">
+              <div className="card h-100">
+                <div className="card-body">
+                  <h5 className="card-title mb-3">{p.partnerName}</h5>
+                  <table className="table table-sm mb-0">
+                    <tbody>
+                      {p.organizationType && (
+                        <tr>
+                          <th>Org Type</th>
+                          <td>{p.organizationType}</td>
+                        </tr>
+                      )}
+                      {p.roleType && (
+                        <tr>
+                          <th>Role</th>
+                          <td>{p.roleType}</td>
+                        </tr>
+                      )}
+                      {p.email && (
+                        <tr>
+                          <th>Email</th>
+                          <td>{p.email}</td>
+                        </tr>
+                      )}
+                      {p.phone && (
+                        <tr>
+                          <th>Phone</th>
+                          <td>{p.phone}</td>
+                        </tr>
+                      )}
+                      {p.region && (
+                        <tr>
+                          <th>Region</th>
+                          <td>{p.region}</td>
+                        </tr>
+                      )}
+                      {p.status && (
+                        <tr>
+                          <th>Status</th>
+                          <td>{p.status}</td>
+                        </tr>
+                      )}
+                      {p.startDate && (
+                        <tr>
+                          <th>Start Date</th>
+                          <td>{formatDate(p.startDate)}</td>
+                        </tr>
+                      )}
+                      {p.assignedSafehouse && (
+                        <tr>
+                          <th>Safehouse</th>
+                          <td>{p.assignedSafehouse}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="card mt-4">
-            <div className="card-footer">
-              <Pagination
-                page={currentPage}
-                pageSize={pageSize}
-                totalCount={totalCount}
-                onPageChange={setPage}
-                onPageSizeChange={setPageSize}
-              />
             </div>
-          </div>
-        </>
+          ))}
+        </div>
       )}
+
+      <Pagination
+        page={currentPage}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPage}
+        className="mt-4"
+      />
     </div>
   );
 }

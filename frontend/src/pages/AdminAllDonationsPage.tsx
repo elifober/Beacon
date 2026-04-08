@@ -47,7 +47,7 @@ function AdminAllDonationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 15;
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllDonations`)
@@ -111,16 +111,14 @@ function AdminAllDonationsPage() {
             </tbody>
           </table>
         </div>
-        <div className="card-footer">
-          <Pagination
-            page={currentPage}
-            pageSize={pageSize}
-            totalCount={totalCount}
-            onPageChange={setPage}
-            onPageSizeChange={setPageSize}
-          />
-        </div>
       </div>
+      <Pagination
+        page={currentPage}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPage}
+        className="mt-4"
+      />
     </div>
   );
 }

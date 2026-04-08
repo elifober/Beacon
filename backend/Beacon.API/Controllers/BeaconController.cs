@@ -72,7 +72,7 @@ public class BeaconController : ControllerBase
             return Ok(Array.Empty<object>());
 
         var query = q.Trim().ToLower();
-
+        
         var supporters = _beaconContext.Supporters
             .Where(s => (s.DisplayName ?? "").ToLower().Contains(query)
                         || (s.FirstName ?? "").ToLower().Contains(query)
@@ -109,9 +109,23 @@ public class BeaconController : ControllerBase
             })
             .Take(10)
             .ToList();
+        var residents = _beaconContext.Residents
+            .Where(r => (r.FirstName ?? "").ToLower().Contains(query)
+                        || (r.LastInitial ?? "").ToLower().Contains(query)
+                        || (r.CaseControlNo ?? "").ToLower().Contains(query))
+            .Select(r => new
+            {
+                Id = r.ResidentId,
+                Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                Type = "Resident"
+            })
+            .Take(10)
+            .ToList();
+
         var results = supporters.Cast<object>()
             .Concat(partners)
             .Concat(safehouses)
+            .Concat(residents)
             .ToList();
         return Ok(results);
     }

@@ -11,6 +11,8 @@ import { AuthProvider } from './context/AuthContext.tsx'
 import AdminResidentPage from './pages/AdminResidentPage.tsx'
 import LandingPage from './pages/LandingPage.tsx'
 import DonorDashboardPage from './pages/DonorDashboardPage.tsx'
+import AdminDashboardPage from './pages/AdminDashboardPage.tsx'
+import ResidentDetailPage from './pages/ResidentDetailPage.tsx'
 
 function App() {
 
@@ -29,6 +31,8 @@ function App() {
         <Route path="/donor/:id" element={<DonorPage />} />
         <Route path="/partner/:id" element={<PartnerPage />} />
         <Route path="/safehouse/:id" element={<SafehousePage />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/resident/:id" element={<ResidentDetailPage />} />
       </Routes>
     </Router>
 

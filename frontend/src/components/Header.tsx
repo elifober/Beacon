@@ -21,7 +21,7 @@ function Header() {
     
     return (
         <header>
-            <div><h1>Beacon</h1></div>
+            <div><h1>The Beacon Project</h1></div>
         <div>
             <NavLink to="/login">Login</NavLink>
             <NavLink to="/register">Register</NavLink>

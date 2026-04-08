@@ -24,7 +24,7 @@ function AdminDashboardPage() {
       >
         <img
           src={beaconImage}
-          alt="Beacon"
+          alt="The Beacon Project"
           style={{
             display: "block",
             width: "100vw",

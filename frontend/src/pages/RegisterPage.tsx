@@ -183,7 +183,11 @@ function RegisterPage() {
             aria-labelledby="registerModalTitle"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
           >
-            <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            {/* Avoid modal-dialog-centered: tall forms clip the footer off-screen on phones. */}
+            <div
+              className="modal-dialog modal-dialog-scrollable my-4 mx-auto"
+              style={{ maxWidth: 'min(520px, calc(100vw - 1.5rem))' }}
+            >
               <div className="modal-content">
                 <div className="modal-header">
                   <h2 className="modal-title h5" id="registerModalTitle">
@@ -301,6 +305,15 @@ function RegisterPage() {
                         {errorMessage}
                       </div>
                     ) : null}
+                    <div className="d-grid gap-2 mt-3">
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-lg"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Creating account…' : 'Create account'}
+                      </button>
+                    </div>
                   </div>
                   <div className="modal-footer">
                     <button
@@ -310,13 +323,6 @@ function RegisterPage() {
                       onClick={closeModal}
                     >
                       Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Creating account…' : 'Submit'}
                     </button>
                   </div>
                 </form>

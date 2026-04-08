@@ -39,12 +39,19 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 
   return (
-    <div className={className} style={{ position: "sticky", bottom: "1rem", zIndex: 20 }}>
+    <div
+      className={className}
+      style={{ position: "fixed", bottom: "1rem", left: "50%", transform: "translateX(-50%)", zIndex: 1050 }}
+    >
       <nav aria-label="Pagination navigation" className="mx-auto" style={{ maxWidth: "fit-content" }}>
-        <div className="d-flex align-items-center gap-2 rounded-pill border bg-white shadow-sm px-3 py-2">
+        <div
+          className="d-flex align-items-center gap-2 rounded-pill border shadow-sm px-3 py-2"
+          style={{ backgroundColor: "#f7e3a0", borderColor: "#d39a00" }}
+        >
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary rounded-pill"
+            className="btn btn-sm rounded-pill"
+            style={{ backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }}
             onClick={() => handlePageChange(clampedPage - 1)}
             disabled={isPreviousDisabled}
             aria-label="Previous page"
@@ -60,7 +67,12 @@ const Pagination: React.FC<PaginationProps> = ({
                 {showGap && <span className="px-1 text-muted">...</span>}
                 <button
                   type="button"
-                  className={`btn btn-sm rounded-pill ${isActive ? "btn-primary" : "btn-outline-secondary"}`}
+                  className="btn btn-sm rounded-pill"
+                  style={
+                    isActive
+                      ? { backgroundColor: "#d39a00", borderColor: "#d39a00", color: "white" }
+                      : { backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }
+                  }
                   onClick={() => handlePageChange(pageNumber)}
                   disabled={isActive}
                   aria-current={isActive ? "page" : undefined}
@@ -72,14 +84,15 @@ const Pagination: React.FC<PaginationProps> = ({
           })}
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary rounded-pill"
+            className="btn btn-sm rounded-pill"
+            style={{ backgroundColor: "white", borderColor: "#d39a00", color: "#7a5600" }}
             onClick={() => handlePageChange(clampedPage + 1)}
             disabled={isNextDisabled}
             aria-label="Next page"
           >
             Next
           </button>
-          <span className="text-muted small ms-1">
+          <span className="small ms-1" style={{ color: "#7a5600" }}>
             {startItem}-{endItem} of {totalCount}
           </span>
         </div>

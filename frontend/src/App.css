@@ -5,6 +5,12 @@
   position: relative;
   overflow: hidden;
 }
+.beacon-hero-eyebrow {
+  letter-spacing: 0.15em;
+  font-size: 0.85rem;
+  color: #f0e6c8;
+}
+
 .beacon-hero::before {
   content: '';
   position: absolute;
@@ -26,7 +32,7 @@
   font-style: italic;
 }
 .beacon-hero p {
-  color: rgba(249, 246, 243, 0.8);
+  color: rgba(249, 246, 243, 0.95);
 }
 
 /* Stat cards on landing page */
@@ -45,7 +51,8 @@
   font-family: 'Playfair Display', serif;
   font-weight: 700;
   font-size: 2.5rem;
-  color: var(--beacon-primary);
+  /* Gold on cream fails contrast; navy meets AA/AAA on card backgrounds */
+  color: var(--beacon-navy);
   line-height: 1;
 }
 
@@ -58,6 +65,15 @@
 .beacon-section-subtitle {
   color: var(--beacon-text-muted);
   font-size: 1.05rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.beacon-stat-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--beacon-navy);
 }
 
 /* Nav/Header bar */
@@ -72,7 +88,7 @@ header {
   top: 0;
   z-index: 1030;
 }
-header h1 {
+header .beacon-site-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.15rem;
   margin: 0;

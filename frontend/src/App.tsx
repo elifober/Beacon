@@ -28,8 +28,12 @@ function App() {
     <>
       <AuthProvider>
         <Router>
+          <a href="#main-content" className="visually-hidden-focusable position-absolute top-0 start-0 z-3 m-2 btn btn-sm btn-primary">
+            Skip to main content
+          </a>
           <Navbar />
           <ProfileCompletionRedirect />
+          <main id="main-content" tabIndex={-1}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -150,6 +154,7 @@ function App() {
               }
             />
           </Routes>
+          </main>
         </Router>
       </AuthProvider>
     </>

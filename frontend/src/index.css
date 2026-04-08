@@ -7,7 +7,8 @@
   --beacon-bg: #F9F6F3;
   --beacon-bg-card: #FFFDF9;
   --beacon-text: #1B2636;
-  --beacon-text-muted: #6B7280;
+  /* ~7:1 on cream backgrounds for body-sized text (WCAG AA/AAA) */
+  --beacon-text-muted: #4B5563;
   --beacon-border: #E3DDD8;
   --beacon-coral: #D56A3A;
   --beacon-sage: #5A8A6A;

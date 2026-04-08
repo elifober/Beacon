@@ -11,7 +11,7 @@ function SearchBar() {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length === 0) {
       setResults([]);
       setShowDropdown(false);
       return;

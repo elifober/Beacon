@@ -18,6 +18,7 @@ function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { refreshAuthSession } = useAuth();
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
+  const [externalAuthLoadError, setExternalAuthLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -35,9 +36,17 @@ function LoginPage() {
         const hasGoogle = providers.some(
           (p) => p?.name?.toLowerCase() === 'google'
         );
-        if (!cancelled) setIsGoogleAvailable(hasGoogle);
+        if (!cancelled) {
+          setIsGoogleAvailable(hasGoogle);
+          setExternalAuthLoadError(null);
+        }
       } catch {
-        if (!cancelled) setIsGoogleAvailable(false);
+        if (!cancelled) {
+          setIsGoogleAvailable(true);
+          setExternalAuthLoadError(
+            'Google sign-in is enabled, but the app could not verify provider availability. If clicking Google does nothing, confirm VITE_API_BASE_URL is set in Vercel and redeploy.'
+          );
+        }
       }
     })();
 
@@ -68,6 +77,7 @@ function LoginPage() {
 
   return (
     <div className="container mt-4">
+      <Header />
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">
@@ -133,12 +143,23 @@ function LoginPage() {
               {isGoogleAvailable ? (
                 <>
                   <div className="text-center my-3 text-muted">or</div>
+                  {externalAuthLoadError ? (
+                    <div className="alert alert-warning" role="alert">
+                      {externalAuthLoadError}
+                    </div>
+                  ) : null}
                   <button
                     type="button"
                     className="btn btn-outline-dark w-100"
                     disabled={isSubmitting}
                     onClick={() => {
-                      window.location.assign(buildExternalLoginUrl('Google', '/'));
+                      try {
+                        window.location.assign(buildExternalLoginUrl('Google', '/'));
+                      } catch (e) {
+                        setErrorMessage(
+                          e instanceof Error ? e.message : 'Unable to start Google sign-in.'
+                        );
+                      }
                     }}
                   >
                     Continue with Google

@@ -7,6 +7,16 @@ export type ExternalAuthProvider = {
     displayName: string;
 };
 
+function requireApiBaseUrl(): string {
+    const value = apiBaseUrl.trim();
+    if (!value) {
+        throw new Error(
+            'Missing VITE_API_BASE_URL. Set it in Vercel (Production) and redeploy so the frontend can call the backend.'
+        );
+    }
+    return value;
+}
+
 
 async function readApiError(
     response: Response,
@@ -47,7 +57,8 @@ async function readApiError(
 
 
 export async function getAuthSession(): Promise<AuthSession> {
-    const response = await fetch(`${apiBaseUrl}/api/auth/me`,{
+    const baseUrl = requireApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/auth/me`,{
         credentials: 'include',
     });
 
@@ -58,7 +69,8 @@ export async function getAuthSession(): Promise<AuthSession> {
 }
 
 export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]> {
-    const response = await fetch(`${apiBaseUrl}/api/auth/providers`, {
+    const baseUrl = requireApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/auth/providers`, {
         credentials: 'include',
     });
 
@@ -73,7 +85,8 @@ export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]
 }
 
 export function buildExternalLoginUrl(provider: string, returnPath: string = '/'): string {
-    const url = new URL(`${apiBaseUrl}/api/auth/external-login`, window.location.origin);
+    const baseUrl = requireApiBaseUrl();
+    const url = new URL(`${baseUrl}/api/auth/external-login`, window.location.origin);
     url.searchParams.set('provider', provider);
     url.searchParams.set('returnPath', returnPath);
     return url.toString();
@@ -83,7 +96,8 @@ export async function registerUser(
     email: string,
     password: string,
 ): Promise<void> {
-    const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
+    const baseUrl = requireApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/auth/register`, {
         method: 'POST',
         headers:{
             'Content-Type': 'application/json',
@@ -99,6 +113,7 @@ export async function registerUser(
 }
 
 export async function loginUser(email: string, password: string, rememberMe: boolean): Promise<void> {
+    const baseUrl = requireApiBaseUrl();
     const searchParams = new URLSearchParams();
     searchParams.set("useCookies", "true");
 
@@ -109,7 +124,7 @@ export async function loginUser(email: string, password: string, rememberMe: boo
         searchParams.set('useSessionCookies', 'true');
     }
 
-    const response = await fetch(`${apiBaseUrl}/api/auth/login?${searchParams.toString()}`, {
+    const response = await fetch(`${baseUrl}/api/auth/login?${searchParams.toString()}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -125,7 +140,8 @@ export async function loginUser(email: string, password: string, rememberMe: boo
 }
 
 export async function logoutUser(): Promise<void> {
-    const response = await fetch(`${apiBaseUrl}/api/auth/logout`, {
+    const baseUrl = requireApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
     });

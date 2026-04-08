@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { getDonorDashboard } from "../api/Donors";
 import type { DonorDashboard } from "../types/DonorDashboard";
 import DonorInfo from "../components/DonorInfo";
-import DonorHistory from "../components/DonorHistory";
+import MonetaryDonationHistory from "../components/MonetaryDonationHistory";
+import NonMonetaryDonationHistory from "../components/NonMonetaryDonationHistory";
 
 function DonorDashboardPage() {
   const { id } = useParams();
@@ -46,8 +47,9 @@ function DonorDashboardPage() {
         <div className="col-lg-5">
           <DonorInfo supporter={data.supporter} />
         </div>
-        <div className="col-lg-7">
-          <DonorHistory history={data.donationHistory} />
+        <div className="col-lg-7 d-flex flex-column gap-4">
+          <MonetaryDonationHistory history={data.donationHistory} />
+          <NonMonetaryDonationHistory history={data.donationHistory} />
         </div>
       </div>
     </div>

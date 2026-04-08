@@ -1,8 +1,11 @@
 import type { Supporter } from "./Supporter";
 
 export interface DonorHistoryItem {
+  donationType?: string;
   donationDate: string;
-  amount: number;
+  amount?: number;
+  estimatedValue?: number;
+  impactUnit?: string;
   programArea: string;
 }
 

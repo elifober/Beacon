@@ -144,8 +144,11 @@ public class BeaconController : ControllerBase
                 a => a.DonationId,
                 (d, a) => new
                 {
+                    d.DonationType,
                     d.DonationDate,
                     d.Amount,
+                    d.EstimatedValue,
+                    d.ImpactUnit,
                     a.ProgramArea
                 })
             .OrderByDescending(x => x.DonationDate)

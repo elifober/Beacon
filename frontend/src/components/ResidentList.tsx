@@ -48,29 +48,28 @@ function ResidentListComponent() {
   }
 
   return (
-    <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-      {residents.map((r) => (
-        <div key={r.residentId} className="col">
-          <div className="card h-100 shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h3 className="card-title h5">Resident #{r.residentId}</h3>
-              <p className="card-text small mb-1">
-                <strong>Safehouse ID:</strong> {r.safehouseId}
-              </p>
-              <p className="card-text small mb-1">
-                <strong>Case Status:</strong> {r.caseStatus ?? "N/A"}
-              </p>
-              <p className="card-text small mb-1">
-                <strong>Sex:</strong> {r.sex ?? "N/A"}
-              </p>
-              <p className="card-text small mb-1">
-                <strong>Date of Birth:</strong> {r.dateOfBirth ?? "N/A"}
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+    <table className="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Safehouse</th>
+          <th>Case Status</th>
+          <th>Sex</th>
+          <th>Date of Birth</th>
+        </tr>
+      </thead>
+      <tbody>
+        {residents.map((r) => (
+          <tr key={r.residentId}>
+            <td>{r.name}</td>
+            <td>{r.safehouseName}</td>
+            <td>{r.caseStatus ?? "N/A"}</td>
+            <td>{r.sex ?? "N/A"}</td>
+            <td>{r.dateOfBirth ?? "N/A"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

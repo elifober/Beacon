@@ -11,7 +11,7 @@ function SearchBar() {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length === 0) {
       setResults([]);
       setShowDropdown(false);
       return;
@@ -47,7 +47,7 @@ function SearchBar() {
       <input
         type="text"
         className="form-control"
-        placeholder="Search donors, partners, safehouses..."
+        placeholder="Search residents, donors, partners, safehouses..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => results.length > 0 && setShowDropdown(true)}

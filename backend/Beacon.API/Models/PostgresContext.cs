@@ -532,6 +532,8 @@ public partial class PostgresContext : DbContext
             entity.Property(e => e.DateEnrolled).HasColumnName("date_enrolled");
             entity.Property(e => e.DateOfAdmission).HasColumnName("date_of_admission");
             entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
+            entity.Property(e => e.FirstName).HasColumnName("first_name");
+            entity.Property(e => e.LastInitial).HasColumnName("last_initial");
             entity.Property(e => e.FamilyIndigenous)
                 .HasDefaultValue(false)
                 .HasColumnName("family_indigenous");

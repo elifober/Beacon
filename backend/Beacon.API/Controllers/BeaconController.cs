@@ -15,29 +15,33 @@ public class BeaconController : ControllerBase
 
     public BeaconController(PostgresContext temp) => _beaconContext = temp;
 
-    [HttpGet("AllResidents")]
-    public IEnumerable<Resident> GetResidents() => _beaconContext.Residents.ToList();
-
-    [HttpGet("ResidentList")]
-    public OkObjectResult GetResidentList()
+    //GET LIST OF ALL RESIDENTS
+    [HttpGet("Residents")]
+    public IActionResult GetResidentList()
     {
         var residents = _beaconContext.Residents
-            .Select(r => new
-            {
-                r.ResidentId,
-                r.SafehouseId,
-                r.CaseStatus,
-                r.Sex,
-                r.DateOfBirth
-            })
+            .Join(_beaconContext.Safehouses,
+                r => r.SafehouseId,
+                s => s.SafehouseId,
+                (r, s) => new
+                {
+                    r.ResidentId,
+                    Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                    SafehouseName = s.City,
+                    r.CaseStatus,
+                    r.Sex,
+                    r.DateOfBirth
+                })
             .ToList();
 
         return Ok(residents);
     }
 
+    //GET LIST OF ALL SAFEHOUSES
     [HttpGet("Safehouses")]
     public IEnumerable<Safehouse> GetSafehouses() => _beaconContext.Safehouses.ToList();
-    
+
+    //GET LIST OF ALL PARTNERS
     [HttpGet("Partners")]
     public IEnumerable<Partner> GetPartner() => _beaconContext.Partners.ToList();
 
@@ -58,12 +62,15 @@ public class BeaconController : ControllerBase
         _beaconContext.Residents.Add(resident);
         await _beaconContext.SaveChangesAsync();
         return Created($"/residents/{resident.ResidentId}", resident);
+    }
+
+    //SEARCH BAR FUNCTIONALITY
     [HttpGet("Search")]
     public OkObjectResult Search([FromQuery] string q)
     {
         if (string.IsNullOrWhiteSpace(q))
             return Ok(Array.Empty<object>());
-       
+
         var query = q.Trim().ToLower();
         
         var supporters = _beaconContext.Supporters
@@ -77,9 +84,8 @@ public class BeaconController : ControllerBase
                 Name = s.DisplayName ?? (s.FirstName + " " + s.LastName),
                 Type = "Donor"
             })
-            .Take(10)
             .ToList();
-        
+
         var partners = _beaconContext.Partners
             .Where(p => p.PartnerName.ToLower().Contains(query)
                         || (p.ContactName ?? "").ToLower().Contains(query))
@@ -89,7 +95,6 @@ public class BeaconController : ControllerBase
                 Name = p.PartnerName,
                 Type = "Partner"
             })
-            .Take(10)
             .ToList();
         var safehouses = _beaconContext.Safehouses
             .Where(s => s.Name.ToLower().Contains(query)
@@ -100,33 +105,162 @@ public class BeaconController : ControllerBase
                 Name = s.Name,
                 Type = "Safehouse"
             })
-            .Take(10)
             .ToList();
+        var residents = _beaconContext.Residents
+            .Where(r => (r.FirstName ?? "").ToLower().Contains(query)
+                        || (r.LastInitial ?? "").ToLower().Contains(query)
+                        || (r.CaseControlNo ?? "").ToLower().Contains(query))
+            .Select(r => new
+            {
+                Id = r.ResidentId,
+                Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                Type = "Resident"
+            })
+            .ToList();
+
         var results = supporters.Cast<object>()
             .Concat(partners)
             .Concat(safehouses)
+            .Concat(residents)
             .ToList();
         return Ok(results);
     }
-    [HttpGet("Supporter/{id}")]
+
+    //GET THE PERCENTAGE OF DONATIONS ALLOCATED TO EACH PROGRAM
+    [HttpGet("Allocations")]
+    public IEnumerable<object> GetAllocationList()
+    {
+        return _beaconContext.DonationAllocations
+            .Select(d => new
+            {
+                d.DonationId,
+                d.ProgramArea,
+                d.AmountAllocated
+            })
+            .ToList();
+    }
+
+    //GET SINGLE RESIDENT WITH SAFEHOUSE CITY
+    [HttpGet("Resident/{id}")]
+    public IActionResult GetResident(int id)
+    {
+        var result = _beaconContext.Residents
+            .Where(r => r.ResidentId == id)
+            .Join(_beaconContext.Safehouses,
+                r => r.SafehouseId,
+                s => s.SafehouseId,
+                (r, s) => new
+                {
+                    Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                    r.DateOfBirth,
+                    SafehouseCity = s.City,
+                    r.Sex,
+                    r.Religion,
+                    r.CaseCategory,
+                    r.DateOfAdmission,
+                    r.CurrentRiskLevel
+                })
+            .FirstOrDefault();
+
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    //GET SINGLE DONOR WITH FULL DONATION HISTORY
+    [HttpGet("Donor/{id}")]
     public IActionResult GetDonor(int id)
     {
-        var donor = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
-        if (donor == null) return NotFound();
-        return Ok(donor);
+        var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
+        if (supporter == null) return NotFound();
+
+        var history = _beaconContext.Donations
+            .Where(d => d.SupporterId == id)
+            .Join(_beaconContext.DonationAllocations,
+                d => d.DonationId,
+                a => a.DonationId,
+                (d, a) => new
+                {
+                    d.DonationType,
+                    d.DonationDate,
+                    d.Amount,
+                    d.EstimatedValue,
+                    d.ImpactUnit,
+                    d.Notes,
+                    a.ProgramArea
+                })
+            .OrderByDescending(x => x.DonationDate)
+            .ToList();
+
+        return Ok(new { supporter, donationHistory = history });
     }
+
+    //GET SINGLE PARTNER WITH SAFEHOUSE ASSIGNMENTS
     [HttpGet("Partner/{id}")]
     public IActionResult GetPartner(int id)
     {
         var partner = _beaconContext.Partners.FirstOrDefault(p => p.PartnerId == id);
         if (partner == null) return NotFound();
-        return Ok(partner);
+
+        var assignments = _beaconContext.PartnerAssignments
+            .Where(pa => pa.PartnerId == id)
+            .Join(_beaconContext.Safehouses,
+                pa => pa.SafehouseId,
+                s => s.SafehouseId,
+                (pa, s) => new
+                {
+                    SafehouseName = s.Name,
+                    SafehouseCity = s.City,
+                    pa.ProgramArea,
+                    pa.Status
+                })
+            .ToList();
+
+        return Ok(new { partner, safehouseAssignments = assignments });
     }
+
+    //GET SINGLE SAFEHOUSE WITH ASSIGNED PARTNER NAMES
     [HttpGet("Safehouse/{id}")]
     public IActionResult GetSafehouse(int id)
     {
         var safehouse = _beaconContext.Safehouses.FirstOrDefault(s => s.SafehouseId == id);
         if (safehouse == null) return NotFound();
-        return Ok(safehouse);
+
+        var partners = _beaconContext.PartnerAssignments
+            .Where(pa => pa.SafehouseId == id)
+            .Join(_beaconContext.Partners,
+                pa => pa.PartnerId,
+                p => p.PartnerId,
+                (pa, p) => p.PartnerName)
+            .Distinct()
+            .ToList();
+
+        return Ok(new { safehouse, assignedPartners = partners });
+    }
+
+    //GET DONOR DASHBOARD: personal info + donation history with program areas
+    [HttpGet("DonorDashboard/{id}")]
+    public IActionResult GetDonorDashboard(int id)
+    {
+        var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
+        if (supporter == null) return NotFound();
+
+        var history = _beaconContext.Donations
+            .Where(d => d.SupporterId == id)
+            .Join(_beaconContext.DonationAllocations,
+                d => d.DonationId,
+                a => a.DonationId,
+                (d, a) => new
+                {
+                    d.DonationType,
+                    d.DonationDate,
+                    d.Amount,
+                    d.EstimatedValue,
+                    d.ImpactUnit,
+                    a.ProgramArea
+                })
+            .OrderByDescending(x => x.DonationDate)
+            .ToList();
+
+        return Ok(new { supporter, donationHistory = history });
     }
 }

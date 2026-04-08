@@ -9,6 +9,9 @@ import type { Safehouse } from "./Safehouse";
 export interface Resident {
   residentId: number;
 
+  firstName?: string;
+  lastInitial?: string;
+
   caseControlNo?: string;
   internalCode?: string;
 

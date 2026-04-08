@@ -24,7 +24,7 @@ namespace Beacon.API.Data
 
             var adminSection = configuration.GetSection("GenerateDefaultIdentityAdmin");
             var adminEmail = adminSection["Email"] ?? "admin@example.com";
-            var adminPassword = adminSection["Password"] ?? "Admin123!";
+            var adminPassword = adminSection["Password"] ?? "AdminPassword12345!";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)

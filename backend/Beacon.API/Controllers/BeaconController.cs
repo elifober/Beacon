@@ -144,6 +144,103 @@ public class BeaconController : ControllerBase
             .ToList();
     }
 
+    //GET SINGLE RESIDENT WITH SAFEHOUSE CITY
+    [HttpGet("Resident/{id}")]
+    public IActionResult GetResident(int id)
+    {
+        var result = _beaconContext.Residents
+            .Where(r => r.ResidentId == id)
+            .Join(_beaconContext.Safehouses,
+                r => r.SafehouseId,
+                s => s.SafehouseId,
+                (r, s) => new
+                {
+                    Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+                    r.DateOfBirth,
+                    SafehouseCity = s.City,
+                    r.Sex,
+                    r.Religion,
+                    r.CaseCategory,
+                    r.DateOfAdmission,
+                    r.CurrentRiskLevel
+                })
+            .FirstOrDefault();
+
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    //GET SINGLE DONOR WITH FULL DONATION HISTORY
+    [HttpGet("Donor/{id}")]
+    public IActionResult GetDonor(int id)
+    {
+        var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
+        if (supporter == null) return NotFound();
+
+        var history = _beaconContext.Donations
+            .Where(d => d.SupporterId == id)
+            .Join(_beaconContext.DonationAllocations,
+                d => d.DonationId,
+                a => a.DonationId,
+                (d, a) => new
+                {
+                    d.DonationType,
+                    d.DonationDate,
+                    d.Amount,
+                    d.EstimatedValue,
+                    d.ImpactUnit,
+                    d.Notes,
+                    a.ProgramArea
+                })
+            .OrderByDescending(x => x.DonationDate)
+            .ToList();
+
+        return Ok(new { supporter, donationHistory = history });
+    }
+
+    //GET SINGLE PARTNER WITH SAFEHOUSE ASSIGNMENTS
+    [HttpGet("Partner/{id}")]
+    public IActionResult GetPartner(int id)
+    {
+        var partner = _beaconContext.Partners.FirstOrDefault(p => p.PartnerId == id);
+        if (partner == null) return NotFound();
+
+        var assignments = _beaconContext.PartnerAssignments
+            .Where(pa => pa.PartnerId == id)
+            .Join(_beaconContext.Safehouses,
+                pa => pa.SafehouseId,
+                s => s.SafehouseId,
+                (pa, s) => new
+                {
+                    SafehouseName = s.Name,
+                    SafehouseCity = s.City,
+                    pa.ProgramArea,
+                    pa.Status
+                })
+            .ToList();
+
+        return Ok(new { partner, safehouseAssignments = assignments });
+    }
+
+    //GET SINGLE SAFEHOUSE WITH ASSIGNED PARTNER NAMES
+    [HttpGet("Safehouse/{id}")]
+    public IActionResult GetSafehouse(int id)
+    {
+        var safehouse = _beaconContext.Safehouses.FirstOrDefault(s => s.SafehouseId == id);
+        if (safehouse == null) return NotFound();
+
+        var partners = _beaconContext.PartnerAssignments
+            .Where(pa => pa.SafehouseId == id)
+            .Join(_beaconContext.Partners,
+                pa => pa.PartnerId,
+                p => p.PartnerId,
+                (pa, p) => p.PartnerName)
+            .Distinct()
+            .ToList();
+
+        return Ok(new { safehouse, assignedPartners = partners });
+    }
+
     //GET DONOR DASHBOARD: personal info + donation history with program areas
     [HttpGet("DonorDashboard/{id}")]
     public IActionResult GetDonorDashboard(int id)

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
-import type { Resident } from "../types/Resident";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -11,9 +10,20 @@ function formatDate(dateStr: string): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
+interface ResidentDetail {
+  name: string;
+  dateOfBirth?: string;
+  safehouseCity?: string;
+  sex?: string;
+  religion?: string;
+  caseCategory?: string;
+  dateOfAdmission?: string;
+  currentRiskLevel?: string;
+}
+
 function ResidentDetailPage() {
   const { id } = useParams();
-  const [resident, setResident] = useState<Resident | null>(null);
+  const [resident, setResident] = useState<ResidentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,28 +57,19 @@ function ResidentDetailPage() {
     );
   }
 
-  const fields: [string, string | number | boolean | undefined | null][] = [
-    ["Name", [resident.firstName, resident.lastInitial].filter(Boolean).join(" ") || null],
-    ["Case Control No", resident.caseControlNo],
-    ["Internal Code", resident.internalCode],
-    ["Case Status", resident.caseStatus],
-    ["Sex", resident.sex],
+  const fields: [string, string | undefined | null][] = [
     ["Date of Birth", resident.dateOfBirth ? formatDate(resident.dateOfBirth) : null],
-    ["Present Age", resident.presentAge],
-    ["Date of Admission", resident.dateOfAdmission ? formatDate(resident.dateOfAdmission) : null],
-    ["Age Upon Admission", resident.ageUponAdmission],
-    ["Place of Birth", resident.placeOfBirth],
+    ["Sex", resident.sex],
+    ["Safehouse", resident.safehouseCity],
     ["Religion", resident.religion],
     ["Case Category", resident.caseCategory],
-    ["Risk Level", resident.currentRiskLevel],
-    ["Assigned Social Worker", resident.assignedSocialWorker],
-    ["Reintegration Status", resident.reintegrationStatus],
-    ["Length of Stay", resident.lengthOfStay],
+    ["Date of Admission", resident.dateOfAdmission ? formatDate(resident.dateOfAdmission) : null],
+    ["Current Risk Level", resident.currentRiskLevel],
   ];
 
   return (
     <div className="container py-4">
-      <h1 className="mb-4">Resident Details</h1>
+      <h1 className="mb-4">{resident.name}</h1>
       <div className="card">
         <div className="card-body">
           <table className="table table-sm mb-0">
@@ -76,7 +77,7 @@ function ResidentDetailPage() {
               {fields
                 .filter(([, value]) => value != null && value !== "")
                 .map(([label, value]) => (
-                  <tr key={label}><th>{label}</th><td>{String(value)}</td></tr>
+                  <tr key={label}><th>{label}</th><td>{value}</td></tr>
                 ))}
             </tbody>
           </table>

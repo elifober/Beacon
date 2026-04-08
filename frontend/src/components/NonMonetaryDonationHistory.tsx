@@ -6,7 +6,7 @@ interface NonMonetaryDonationHistoryProps {
 
 function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps) {
   const nonMonetary = history.filter(
-    (item) => item.donationType?.toLowerCase() === "in-kind"
+    (item) => item.donationType?.toLowerCase() !== "monetary"
   );
 
   if (nonMonetary.length === 0) {
@@ -23,8 +23,9 @@ function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps
           <thead>
             <tr>
               <th>Date</th>
+              <th>Type</th>
+              <th>Amount</th>
               <th>Impact Unit</th>
-              <th>Estimated Value</th>
               <th>Program Area</th>
             </tr>
           </thead>
@@ -32,12 +33,13 @@ function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps
             {nonMonetary.map((item, i) => (
               <tr key={i}>
                 <td>{item.donationDate}</td>
-                <td>{item.impactUnit ?? "N/A"}</td>
+                <td>{item.donationType ?? "N/A"}</td>
                 <td>
-                  {item.estimatedValue != null
-                    ? `₱${item.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                  {item.amount != null
+                    ? `₱${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
                     : "N/A"}
                 </td>
+                <td>{item.impactUnit ?? "N/A"}</td>
                 <td>{item.programArea ?? "N/A"}</td>
               </tr>
             ))}

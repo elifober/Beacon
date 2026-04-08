@@ -6,7 +6,7 @@ interface MonetaryDonationHistoryProps {
 
 function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
   const monetary = history.filter(
-    (item) => item.donationType?.toLowerCase() !== "in-kind"
+    (item) => item.donationType?.toLowerCase() === "monetary"
   );
 
   if (monetary.length === 0) {
@@ -23,7 +23,6 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
           <thead>
             <tr>
               <th>Date</th>
-              <th>Type</th>
               <th>Amount</th>
               <th>Program Area</th>
             </tr>
@@ -32,7 +31,6 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
             {monetary.map((item, i) => (
               <tr key={i}>
                 <td>{item.donationDate}</td>
-                <td>{item.donationType ?? "N/A"}</td>
                 <td>
                   {item.amount != null
                     ? `₱${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`

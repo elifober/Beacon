@@ -183,13 +183,21 @@ function RegisterPage() {
             aria-labelledby="registerModalTitle"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
           >
-            {/* Avoid modal-dialog-centered: tall forms clip the footer off-screen on phones. */}
+            {/* Fixed max height + scrollable body so the Create account button is always reachable. */}
             <div
-              className="modal-dialog modal-dialog-scrollable my-4 mx-auto"
-              style={{ maxWidth: 'min(520px, calc(100vw - 1.5rem))' }}
+              className="modal-dialog my-2 mx-auto"
+              style={{
+                maxWidth: 'min(520px, calc(100vw - 1.5rem))',
+                height: 'calc(100vh - 1.5rem)',
+                maxHeight: 'calc(100vh - 1.5rem)',
+                margin: '0.75rem auto',
+              }}
             >
-              <div className="modal-content">
-                <div className="modal-header">
+              <div
+                className="modal-content d-flex flex-column h-100"
+                style={{ maxHeight: '100%', overflow: 'hidden' }}
+              >
+                <div className="modal-header flex-shrink-0">
                   <h2 className="modal-title h5" id="registerModalTitle">
                     Create your account
                   </h2>
@@ -201,8 +209,20 @@ function RegisterPage() {
                     onClick={closeModal}
                   />
                 </div>
-                <form onSubmit={handleModalSubmit}>
-                  <div className="modal-body">
+                <form
+                  className="d-flex flex-column flex-grow-1"
+                  style={{ minHeight: 0, overflow: 'hidden' }}
+                  onSubmit={handleModalSubmit}
+                >
+                  <div
+                    className="modal-body flex-grow-1"
+                    style={{
+                      minHeight: 0,
+                      overflowY: 'scroll',
+                      WebkitOverflowScrolling: 'touch',
+                      scrollbarGutter: 'stable',
+                    }}
+                  >
                     <p className="text-muted small mb-3">
                       Join date is saved automatically when you submit (UTC).
                     </p>
@@ -315,7 +335,7 @@ function RegisterPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="modal-footer">
+                  <div className="modal-footer flex-shrink-0 border-top">
                     <button
                       type="button"
                       className="btn btn-outline-secondary"

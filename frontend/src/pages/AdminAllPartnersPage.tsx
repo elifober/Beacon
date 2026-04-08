@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
+import Pagination from "../components/Pagination";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -26,6 +27,8 @@ function AdminAllPartnersPage() {
   const [partners, setPartners] = useState<AdminPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllPartners`)
@@ -34,6 +37,12 @@ function AdminAllPartnersPage() {
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, []);
+
+  const totalCount = partners.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visiblePartners = partners.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -70,7 +79,7 @@ function AdminAllPartnersPage() {
               </tr>
             </thead>
             <tbody>
-              {partners.map((p, i) => (
+              {visiblePartners.map((p, i) => (
                 <tr key={`${p.partnerId}-${i}`}>
                   <td>{p.partnerId}</td>
                   <td>{p.partnerName}</td>
@@ -86,6 +95,15 @@ function AdminAllPartnersPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="card-footer">
+          <Pagination
+            page={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
         </div>
       </div>
     </div>

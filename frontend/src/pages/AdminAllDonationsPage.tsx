@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
+import Pagination from "../components/Pagination";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -45,6 +46,8 @@ function AdminAllDonationsPage() {
   const [donations, setDonations] = useState<AdminDonation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllDonations`)
@@ -53,6 +56,12 @@ function AdminAllDonationsPage() {
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, []);
+
+  const totalCount = donations.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleDonations = donations.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -87,7 +96,7 @@ function AdminAllDonationsPage() {
               </tr>
             </thead>
             <tbody>
-              {donations.map((d, i) => (
+              {visibleDonations.map((d, i) => (
                 <tr key={`${d.donationId}-${i}`}>
                   <td>{d.donationId}</td>
                   <td>{d.supporterName ?? "—"}</td>
@@ -101,6 +110,15 @@ function AdminAllDonationsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="card-footer">
+          <Pagination
+            page={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
         </div>
       </div>
     </div>

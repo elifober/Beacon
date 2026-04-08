@@ -23,7 +23,6 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<InKindDonationItem> InKindDonationItems { get; set; }
     public DbSet<InterventionPlan> InterventionPlans { get; set; }
     public DbSet<PartnerAssignment> PartnerAssignments { get; set; }
-    public DbSet<PostgresContext> PostgresContexts { get; set; }
     public DbSet<ProcessRecording> ProcessRecordings { get; set; }
     public DbSet<PublicImpactSnapshot> PublicImpactSnapshots { get; set; }
     public DbSet<Resident>  Residents { get; set; }
@@ -36,7 +35,8 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     {
         // THIS MUST BE THE FIRST LINE IN THIS METHOD
         base.OnModelCreating(modelBuilder);
-
+        
+        
         // Supporter (Donor) Foreign Key Mapping
         modelBuilder.Entity<Supporter>()
             .HasOne(s => s.IdentityUser)

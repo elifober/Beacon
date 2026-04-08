@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Beacon.API.Models;
 
 public partial class SafehouseMonthlyMetric
 {
+    [Key]
     public int MetricId { get; set; }
 
     public int SafehouseId { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beacon.API.Data;
 
 namespace Beacon.API.Models;
 

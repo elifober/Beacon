@@ -54,11 +54,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<PostgresContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection")));
+builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection"))
+        .UseSnakeCaseNamingConvention());
 
 builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BeaconConnection")));
 
 builder.Services
     .AddIdentityApiEndpoints<ApplicationUser>()
@@ -86,11 +87,28 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Combine all database setup into this single scope block
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AuthIdentityDbContext>();
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<AuthIdentityDbContext>();
+    
+    // 1. Apply any pending migrations
     await db.Database.MigrateAsync();
-    await AuthIdentityGenerator.GenerateDefaultIdentityAsync(scope.ServiceProvider, app.Configuration);
+    
+    // 2. Run your existing default identity generator
+    await AuthIdentityGenerator.GenerateDefaultIdentityAsync(services, app.Configuration);
+    
+    // 3. Run the new database seeder for your CSV data
+    try
+    {
+        await IdentitySeeder.SeedUsersAndRolesAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the identity database.");
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -120,3 +138,4 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
 app.Run();
+

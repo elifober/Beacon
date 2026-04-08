@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Beacon.API.Models;
 
 public partial class SocialMediaPost
 {
+    [Key]
     public int PostId { get; set; }
 
     public string? Platform { get; set; }

@@ -13,10 +13,14 @@ public class AuthIdentityDbContextFactory : IDesignTimeDbContextFactory<AuthIden
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile("appsettings.Development.json", optional: true)
             .Build();
+        
 
         var optionsBuilder = new DbContextOptionsBuilder<AuthIdentityDbContext>();
-        optionsBuilder.UseSqlite(configuration.GetConnectionString("IdentityConnection"));
+        optionsBuilder.UseNpgsql(configuration.GetConnectionString("BeaconConnection"))
+            .UseSnakeCaseNamingConvention();
 
         return new AuthIdentityDbContext(optionsBuilder.Options);
+        
+        
     }
 }

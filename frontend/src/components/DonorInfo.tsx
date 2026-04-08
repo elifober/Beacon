@@ -4,6 +4,14 @@ interface DonorInfoProps {
   supporter: Supporter;
 }
 
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${mm}-${dd}-${yyyy}`;
+}
+
 function DonorInfo({ supporter }: DonorInfoProps) {
   const name = supporter.displayName
     ?? ([supporter.firstName, supporter.lastName].filter(Boolean).join(" ") || "Unknown");
@@ -17,7 +25,7 @@ function DonorInfo({ supporter }: DonorInfoProps) {
     ["Country", supporter.country],
     ["Status", supporter.status],
     ["Relationship", supporter.relationshipType],
-    ["First Donation", supporter.firstDonationDate],
+    ["First Donation", supporter.firstDonationDate ? formatDate(supporter.firstDonationDate) : null],
     ["Acquisition Channel", supporter.acquisitionChannel],
   ];
 

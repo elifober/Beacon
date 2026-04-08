@@ -1,5 +1,13 @@
 import type { DonorHistoryItem } from "../types/DonorDashboard";
 
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${mm}-${dd}-${yyyy}`;
+}
+
 interface MonetaryDonationHistoryProps {
   history: DonorHistoryItem[];
 }
@@ -30,7 +38,7 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
           <tbody>
             {monetary.map((item, i) => (
               <tr key={i}>
-                <td>{item.donationDate}</td>
+                <td>{formatDate(item.donationDate)}</td>
                 <td>
                   {item.amount != null
                     ? `₱${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`

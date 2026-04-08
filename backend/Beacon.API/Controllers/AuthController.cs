@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Beacon.API.Data;
 
 namespace Beacon.API.Controllers;
@@ -12,6 +13,7 @@ namespace Beacon.API.Controllers;
 public class AuthController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
+    AuthIdentityDbContext db,
     IConfiguration configuration) : ControllerBase
 {
     private const string DefaultFrontendUrl = "http://localhost:2026";
@@ -27,7 +29,8 @@ public class AuthController(
                 isAuthenticated = false,
                 userName = (string?)null,
                 email = (string?)null,
-                roles = Array.Empty<string>()
+                roles = Array.Empty<string>(),
+                supporterId = (int?)null
             });
         }
 
@@ -39,12 +42,23 @@ public class AuthController(
             .OrderBy(role => role)
             .ToArray();
 
+        int? supporterId = null;
+        if (user?.Id is { Length: > 0 })
+        {
+            supporterId = await db.Supporters
+                .AsNoTracking()
+                .Where(s => s.IdentityUserId == user.Id)
+                .Select(s => (int?)s.SupporterId)
+                .FirstOrDefaultAsync();
+        }
+
         return Ok(new
         {
             isAuthenticated = true,
             userName = user?.UserName ?? User.Identity?.Name,
             email = user?.Email,
-            roles
+            roles,
+            supporterId
         });
     }
 

@@ -2,9 +2,11 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   buildExternalLoginUrl,
+  getAuthSession,
   getExternalAuthProviders,
   loginUser,
 } from '../lib/authAPI';
+import { getPostLoginPath } from '../lib/postLoginRedirect';
 import { useAuth } from '../context/AuthContext.tsx';
 
 function LoginPage() {
@@ -63,7 +65,8 @@ function LoginPage() {
     try {
       await loginUser(email, password, rememberMe);
       await refreshAuthSession();
-      navigate('/');
+      const session = await getAuthSession();
+      navigate(getPostLoginPath(session));
 
     } catch (error) {
       setErrorMessage(

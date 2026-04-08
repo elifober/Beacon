@@ -3,4 +3,6 @@ export interface AuthSession {
     userName: string | null,
     email: string | null,
     roles: string[],
+    /** Present when the Identity user is linked to a `Supporter` row (`IdentityUserId`). */
+    supporterId?: number | null,
 }

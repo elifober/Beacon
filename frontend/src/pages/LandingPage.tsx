@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllocations } from "../api/Allocations";
 import type { AllocationRow, ProgramBreakdown } from "../types/ProgramAllocation";
+import { useAuth } from "../context/AuthContext";
+import { getPostLoginPath } from "../lib/postLoginRedirect";
 
 function computePercentages(allocations: AllocationRow[]): ProgramBreakdown[] {
   const totals = new Map<string, number>();
@@ -22,9 +24,21 @@ function computePercentages(allocations: AllocationRow[]): ProgramBreakdown[] {
 }
 
 function LandingPage() {
+  const navigate = useNavigate();
+  const { authSession, isAuthenticated, isLoading: authLoading } = useAuth();
   const [breakdowns, setBreakdowns] = useState<ProgramBreakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !authSession?.isAuthenticated) {
+      return;
+    }
+    const next = getPostLoginPath(authSession);
+    if (next !== "/") {
+      navigate(next, { replace: true });
+    }
+  }, [authLoading, isAuthenticated, authSession, navigate]);
 
   useEffect(() => {
     getAllocations()

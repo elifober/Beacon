@@ -151,3 +151,24 @@ export async function logoutUser(): Promise<void> {
         );
     }
 }
+
+/** Admin-only: grant Partner or Admin to an existing user (for testing or ops). */
+export async function assignRoleAsAdmin(
+    email: string,
+    role: 'Admin' | 'Partner'
+): Promise<void> {
+    const baseUrl = requireApiBaseUrl();
+    const response = await fetch(`${baseUrl}/api/auth/admin/assign-role`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, role }),
+    });
+    if (!response.ok) {
+        throw new Error(
+            await readApiError(response, 'Failed to assign role')
+        );
+    }
+}

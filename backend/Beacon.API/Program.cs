@@ -1,5 +1,6 @@
 using Beacon.API.Data;
 using Beacon.API.Models;
+using Beacon.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Infrastructure;
@@ -83,6 +84,8 @@ builder.Services
     .AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthIdentityDbContext>();
+
+builder.Services.AddScoped<UserManager<ApplicationUser>, BeaconUserManager>();
 
 if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
 {

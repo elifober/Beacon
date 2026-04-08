@@ -42,7 +42,7 @@ public static class IdentitySeeder
             
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, "Supporter");
+                // Supporter role is assigned automatically by BeaconUserManager on CreateAsync.
                 supporter.IdentityUserId = user.Id;
             }
             else

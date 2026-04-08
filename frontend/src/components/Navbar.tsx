@@ -2,7 +2,8 @@ import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, authSession } = useAuth();
+  const isAdmin = (authSession?.roles ?? []).includes('Admin');
 
   return (
     <header>
@@ -18,7 +19,14 @@ function Navbar() {
             <NavLink to="/register">Register</NavLink>
           </>
         ) : null}
-        {!isLoading && isAuthenticated ? <NavLink to="/logout">Logout</NavLink> : null}
+        {!isLoading && isAuthenticated ? (
+          <>
+            {isAdmin ? (
+              <NavLink to="/admin">Admin</NavLink>
+            ) : null}
+            <NavLink to="/logout">Logout</NavLink>
+          </>
+        ) : null}
       </div>
     </header>
   );

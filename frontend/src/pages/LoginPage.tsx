@@ -7,6 +7,7 @@ import {
   loginUser,
 } from '../lib/authAPI';
 import { getPostLoginPath } from '../lib/postLoginRedirect';
+import { getSafeNextFromSearch } from '../lib/safeInternalPath';
 import { useAuth } from '../context/AuthContext.tsx';
 
 function LoginPage() {
@@ -66,7 +67,12 @@ function LoginPage() {
       await loginUser(email, password, rememberMe);
       await refreshAuthSession();
       const session = await getAuthSession();
-      navigate(getPostLoginPath(session));
+      const intended = getSafeNextFromSearch(location.search);
+      if (intended) {
+        navigate(intended, { replace: true });
+      } else {
+        navigate(getPostLoginPath(session), { replace: true });
+      }
 
     } catch (error) {
       setErrorMessage(
@@ -155,7 +161,11 @@ function LoginPage() {
                     disabled={isSubmitting}
                     onClick={() => {
                       try {
-                        window.location.assign(buildExternalLoginUrl('Google', '/'));
+                        const next =
+                          getSafeNextFromSearch(location.search) ?? '/';
+                        window.location.assign(
+                          buildExternalLoginUrl('Google', next)
+                        );
                       } catch (e) {
                         setErrorMessage(
                           e instanceof Error ? e.message : 'Unable to start Google sign-in.'

@@ -19,6 +19,8 @@ import AdminAllSafehousesPage from './pages/AdminAllSafehousesPage.tsx'
 import Navbar from './components/Navbar.tsx'
 import RequireRole from './components/RequireRole'
 import RequireAuth from './components/RequireAuth'
+import PostPlanner from './pages/marketing/PostPlanner.tsx'
+
 
 function App() {
 
@@ -61,6 +63,19 @@ function App() {
         <Route path="/admin/all-donors" element={<RequireRole anyOf={['Admin']}><AdminAllDonorsPage /></RequireRole>} />
         <Route path="/admin/all-donations" element={<RequireRole anyOf={['Admin']}><AdminAllDonationsPage /></RequireRole>} />
         <Route path="/admin/all-safehouses" element={<RequireRole anyOf={['Admin']}><AdminAllSafehousesPage /></RequireRole>} />
+        <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/donor-dashboard/:id" element={<DonorDashboardPage />} />
+        <Route path="/donor/:id" element={<DonorPage />} />
+        <Route path="/partner/:id" element={<PartnerPage />} />
+        <Route path="/safehouse/:id" element={<SafehousePage />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/all-residents" element={<AdminAllResidentsPage />} />
+        <Route path="/admin/all-partners" element={<AdminAllPartnersPage />} />
+        <Route path="/admin/all-donors" element={<AdminAllDonorsPage />} />
+        <Route path="/admin/all-donations" element={<AdminAllDonationsPage />} />
+        <Route path="/admin/all-safehouses" element={<AdminAllSafehousesPage />} />
+        <Route path="/admin/post-planner" element={<PostPlanner />} />
+        <Route path="/resident/:id" element={<ResidentPage />} />
       </Routes>
     </Router>
 

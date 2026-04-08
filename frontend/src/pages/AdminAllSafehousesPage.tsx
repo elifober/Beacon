@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../config/api";
 import type { Safehouse } from "../types/Safehouse";
+import Pagination from "../components/Pagination";
 
 function AdminAllSafehousesPage() {
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
 
   useEffect(() => {
     fetch(`${BASE_URL}/Safehouses`)
@@ -14,6 +17,12 @@ function AdminAllSafehousesPage() {
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, []);
+
+  const totalCount = safehouses.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleSafehouses = safehouses.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -33,7 +42,7 @@ function AdminAllSafehousesPage() {
     <div className="container py-4">
       <h1 className="mb-4">All Safehouses</h1>
       <div className="row g-4">
-        {safehouses.map((s) => (
+        {visibleSafehouses.map((s) => (
           <div key={s.safehouseId} className="col-sm-6 col-lg-4">
             <div className="card h-100">
               <div className="card-body">
@@ -49,6 +58,15 @@ function AdminAllSafehousesPage() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="mt-4">
+        <Pagination
+          page={currentPage}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </div>
   );

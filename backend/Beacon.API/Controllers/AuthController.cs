@@ -287,6 +287,7 @@ public class AuthController(
         {
             db.Supporters.Add(new Supporter
             {
+                SupporterId = await db.AllocateNextSupporterIdAsync(),
                 Email = email,
                 IdentityUserId = user.Id,
                 DisplayName = displayName,
@@ -352,6 +353,7 @@ public class AuthController(
         {
             db.Supporters.Add(new Supporter
             {
+                SupporterId = await db.AllocateNextSupporterIdAsync(),
                 Email = email,
                 IdentityUserId = user.Id,
                 DisplayName = displayName,

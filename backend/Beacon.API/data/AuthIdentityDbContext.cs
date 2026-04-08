@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Beacon.API.Models; 
+using Beacon.API.Models;
 
 namespace Beacon.API.Data;
 
 public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
 {
-
     public AuthIdentityDbContext(DbContextOptions<AuthIdentityDbContext> options)
         : base(options)
     {
@@ -29,19 +28,32 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Safehouse> Safehouses { get; set; }
     public DbSet<SafehouseMonthlyMetric> SafehouseMonthlyMetrics { get; set; }
     public DbSet<SocialMediaPost> SocialMediaPosts { get; set; }
-    
-
+      /// <summary>
+    /// Next <c>supporter_id</c> for inserts. Production DBs imported without PG IDENTITY leave the column NOT NULL
+    /// with no default; EF must supply the key explicitly.
+    /// </summary>
+    public async Task<int> AllocateNextSupporterIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await Supporters
+            .AsNoTracking()
+            .OrderByDescending(s => s.SupporterId)
+            .Select(s => s.SupporterId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // THIS MUST BE THE FIRST LINE IN THIS METHOD
         base.OnModelCreating(modelBuilder);
         
         
-        // Supporter (Donor) Foreign Key Mapping
-        modelBuilder.Entity<Supporter>()
-            .HasOne(s => s.IdentityUser)
-            .WithMany()
-            .HasForeignKey(s => s.IdentityUserId);
+        modelBuilder.Entity<Supporter>(entity =>
+        {
+            entity.HasOne(s => s.IdentityUser)
+                .WithMany()
+                .HasForeignKey(s => s.IdentityUserId);
+            entity.Property(s => s.SupporterId).ValueGeneratedNever();
+        });
 
         // Partner (Admin/Staff) Foreign Key Mapping
         modelBuilder.Entity<Partner>()

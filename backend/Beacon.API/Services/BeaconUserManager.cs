@@ -121,6 +121,7 @@ public class BeaconUserManager : UserManager<ApplicationUser>
 
         _db.Supporters.Add(new Supporter
         {
+            SupporterId = await _db.AllocateNextSupporterIdAsync(),
             Email = email,
             IdentityUserId = user.Id,
             DisplayName = user.UserName ?? email,

@@ -16,6 +16,7 @@ import AdminAllPartnersPage from './pages/AdminAllPartnersPage.tsx'
 import AdminAllDonorsPage from './pages/AdminAllDonorsPage.tsx'
 import AdminAllDonationsPage from './pages/AdminAllDonationsPage.tsx'
 import AdminAllSafehousesPage from './pages/AdminAllSafehousesPage.tsx'
+import Navbar from './components/Navbar.tsx'
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
     <>
     <AuthProvider>
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />

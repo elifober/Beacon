@@ -1,6 +1,5 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 import {
   loginUser,
 } from '../lib/authAPI';
@@ -37,7 +36,6 @@ function LoginPage() {
 
   return (
     <div className="container mt-4">
-      <Header />
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">

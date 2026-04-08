@@ -125,6 +125,8 @@ public class BeaconUserManager : UserManager<ApplicationUser>
             email,
             user.Id,
             user.UserName ?? email,
+            firstName: null,
+            lastName: null,
             organizationName: null,
             phone: null,
             DateTime.UtcNow,

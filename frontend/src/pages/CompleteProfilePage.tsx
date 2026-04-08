@@ -8,7 +8,8 @@ function CompleteProfilePage() {
   const { authSession, isLoading, refreshAuthSession } = useAuth();
   const didSuggestName = useRef(false);
 
-  const [displayName, setDisplayName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [organizationName, setOrganizationName] = useState('');
   const [phone, setPhone] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,8 +33,15 @@ function CompleteProfilePage() {
     const email = authSession.email ?? '';
     if (email) {
       didSuggestName.current = true;
-      const local = email.split('@')[0] ?? '';
-      setDisplayName(local.replace(/[._]/g, ' ').trim() || email);
+      const local = (email.split('@')[0] ?? '').replace(/[._]/g, ' ').trim();
+      const parts = local.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        setFirstName(parts[0] ?? '');
+        setLastName(parts.slice(1).join(' '));
+      } else if (parts.length === 1) {
+        setFirstName(parts[0] ?? '');
+        setLastName('');
+      }
     }
   }, [
     authSession?.isAuthenticated,
@@ -50,7 +58,8 @@ function CompleteProfilePage() {
 
     try {
       await completeDonorProfile({
-        displayName: displayName.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         organizationName: organizationName.trim() || null,
         phone: phone.trim() || null,
       });
@@ -87,19 +96,35 @@ function CompleteProfilePage() {
                 recognize you. Your join date is saved when you submit (UTC).
               </p>
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="cp-displayName">
-                    Full name
-                  </label>
-                  <input
-                    id="cp-displayName"
-                    type="text"
-                    className="form-control"
-                    autoComplete="name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                  />
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label" htmlFor="cp-firstName">
+                      First name
+                    </label>
+                    <input
+                      id="cp-firstName"
+                      type="text"
+                      className="form-control"
+                      autoComplete="given-name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label" htmlFor="cp-lastName">
+                      Last name
+                    </label>
+                    <input
+                      id="cp-lastName"
+                      type="text"
+                      className="form-control"
+                      autoComplete="family-name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="mb-3">
                   <label className="form-label" htmlFor="cp-email">

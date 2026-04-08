@@ -73,7 +73,8 @@ export async function getAuthSession(): Promise<AuthSession> {
 }
 
 export type CompleteProfilePayload = {
-    displayName: string;
+    firstName: string;
+    lastName: string;
     organizationName: string | null;
     phone: string | null;
 };
@@ -89,7 +90,8 @@ export async function completeDonorProfile(
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            displayName: payload.displayName,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
             organizationName: payload.organizationName?.trim() || null,
             phone: payload.phone?.trim() || null,
         }),
@@ -148,7 +150,8 @@ export async function registerUser(
 export type RegisterWithProfilePayload = {
     email: string;
     password: string;
-    displayName: string;
+    firstName: string;
+    lastName: string;
     organizationName: string | null;
     phone: string | null;
 };
@@ -167,7 +170,8 @@ export async function registerUserWithProfile(
         body: JSON.stringify({
             email: payload.email,
             password: payload.password,
-            displayName: payload.displayName,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
             organizationName: payload.organizationName?.trim() || null,
             phone: payload.phone?.trim() || null,
         }),
@@ -193,6 +197,7 @@ export async function loginUser(email: string, password: string, rememberMe: boo
 
     const response = await fetch(`${baseUrl}/api/auth/login?${searchParams.toString()}`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },

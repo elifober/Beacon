@@ -12,7 +12,8 @@ function RegisterPage() {
   const { refreshAuthSession } = useAuth();
 
   const [showModal, setShowModal] = useState(false);
-  const [displayName, setDisplayName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [organizationName, setOrganizationName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -52,7 +53,8 @@ function RegisterPage() {
   }, []);
 
   function resetModalFields() {
-    setDisplayName('');
+    setFirstName('');
+    setLastName('');
     setOrganizationName('');
     setEmail('');
     setPhone('');
@@ -88,7 +90,8 @@ function RegisterPage() {
       await registerUserWithProfile({
         email,
         password,
-        displayName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         organizationName: organizationName.trim() || null,
         phone: phone.trim() || null,
       });
@@ -226,19 +229,35 @@ function RegisterPage() {
                     <p className="text-muted small mb-3">
                       Join date is saved automatically when you submit (UTC).
                     </p>
-                    <div className="mb-3">
-                      <label className="form-label" htmlFor="reg-displayName">
-                        Full name
-                      </label>
-                      <input
-                        id="reg-displayName"
-                        type="text"
-                        className="form-control"
-                        autoComplete="name"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        required
-                      />
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label" htmlFor="reg-firstName">
+                          First name
+                        </label>
+                        <input
+                          id="reg-firstName"
+                          type="text"
+                          className="form-control"
+                          autoComplete="given-name"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label" htmlFor="reg-lastName">
+                          Last name
+                        </label>
+                        <input
+                          id="reg-lastName"
+                          type="text"
+                          className="form-control"
+                          autoComplete="family-name"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
                     <div className="mb-3">
                       <label

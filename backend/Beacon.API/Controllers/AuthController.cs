@@ -14,14 +14,16 @@ public sealed class RegisterWithProfileRequest
 {
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public string? OrganizationName { get; set; }
     public string? Phone { get; set; }
 }
 
 public sealed class CompleteProfileRequest
 {
-    public string DisplayName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public string? OrganizationName { get; set; }
     public string? Phone { get; set; }
 }
@@ -37,6 +39,28 @@ public class AuthController(
     private const string DefaultFrontendUrl = "http://localhost:2026";
     private const string DefaultExternalReturnPath = "/login";
     private const string ProfileCompleteClaimType = "profile_complete";
+
+    private static string CombineSupporterDisplayName(string firstName, string lastName)
+    {
+        var f = firstName.Trim();
+        var l = lastName.Trim();
+        if (f.Length == 0 && l.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (l.Length == 0)
+        {
+            return f;
+        }
+
+        if (f.Length == 0)
+        {
+            return l;
+        }
+
+        return $"{f} {l}";
+    }
 
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentSession()
@@ -242,11 +266,14 @@ public class AuthController(
     public async Task<IActionResult> RegisterWithProfile([FromBody] RegisterWithProfileRequest request)
     {
         var email = request.Email?.Trim() ?? string.Empty;
-        var displayName = request.DisplayName?.Trim() ?? string.Empty;
+        var firstName = request.FirstName?.Trim() ?? string.Empty;
+        var lastName = request.LastName?.Trim() ?? string.Empty;
+        var displayName = CombineSupporterDisplayName(firstName, lastName);
 
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(displayName))
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(request.Password) ||
+            string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
         {
-            return BadRequest(new { message = "Email, password, and name are required." });
+            return BadRequest(new { message = "Email, password, first name, and last name are required." });
         }
 
         var reservedForPartner = await db.Partners
@@ -291,6 +318,8 @@ public class AuthController(
                 email,
                 user.Id,
                 displayName,
+                firstName,
+                lastName,
                 org,
                 phone,
                 createdAt,
@@ -299,6 +328,8 @@ public class AuthController(
         else
         {
             supporter.DisplayName = displayName;
+            supporter.FirstName = firstName;
+            supporter.LastName = lastName;
             supporter.OrganizationName = org;
             supporter.Phone = phone;
             supporter.Email = email;
@@ -332,10 +363,12 @@ public class AuthController(
             return BadRequest(new { message = "Profile completion is not required for this account." });
         }
 
-        var displayName = request.DisplayName?.Trim() ?? string.Empty;
-        if (string.IsNullOrEmpty(displayName))
+        var firstName = request.FirstName?.Trim() ?? string.Empty;
+        var lastName = request.LastName?.Trim() ?? string.Empty;
+        var displayName = CombineSupporterDisplayName(firstName, lastName);
+        if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
         {
-            return BadRequest(new { message = "Name is required." });
+            return BadRequest(new { message = "First name and last name are required." });
         }
 
         var org = string.IsNullOrWhiteSpace(request.OrganizationName)
@@ -356,6 +389,8 @@ public class AuthController(
                 email,
                 user.Id,
                 displayName,
+                firstName,
+                lastName,
                 org,
                 phone,
                 DateTime.UtcNow,
@@ -364,6 +399,8 @@ public class AuthController(
         else
         {
             supporter.DisplayName = displayName;
+            supporter.FirstName = firstName;
+            supporter.LastName = lastName;
             supporter.OrganizationName = org;
             supporter.Phone = phone;
             if (!string.IsNullOrEmpty(email))

@@ -1,7 +1,7 @@
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { registerUser } from '../lib/authAPI';
+import { buildExternalLoginUrl, getExternalAuthProviders, registerUser } from '../lib/authAPI';
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -11,6 +11,26 @@ function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const providers = await getExternalAuthProviders();
+        const hasGoogle = providers.some(
+          (p) => p?.name?.toLowerCase() === 'google'
+        );
+        if (!cancelled) setIsGoogleAvailable(hasGoogle);
+      } catch {
+        if (!cancelled) setIsGoogleAvailable(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -107,6 +127,22 @@ function RegisterPage() {
                   {isSubmitting ? 'Creating account...' : 'Create account'}
                 </button>
               </form>
+
+              {isGoogleAvailable ? (
+                <>
+                  <div className="text-center my-3 text-muted">or</div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark w-100"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      window.location.assign(buildExternalLoginUrl('Google', '/'));
+                    }}
+                  >
+                    Continue with Google
+                  </button>
+                </>
+              ) : null}
               <p className="mt-3 mb-0">
                 Already registered? <Link to="/login">Go to login</Link>.
               </p>

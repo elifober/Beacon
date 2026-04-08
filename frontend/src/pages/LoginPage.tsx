@@ -1,19 +1,50 @@
-import { type FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { type FormEvent, useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import {
+  buildExternalLoginUrl,
+  getExternalAuthProviders,
   loginUser,
 } from '../lib/authAPI';
 import { useAuth } from '../context/AuthContext.tsx';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { refreshAuthSession } = useAuth();
+  const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const externalError = searchParams.get('externalError');
+    if (externalError) {
+      setErrorMessage(externalError);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const providers = await getExternalAuthProviders();
+        const hasGoogle = providers.some(
+          (p) => p?.name?.toLowerCase() === 'google'
+        );
+        if (!cancelled) setIsGoogleAvailable(hasGoogle);
+      } catch {
+        if (!cancelled) setIsGoogleAvailable(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -99,6 +130,22 @@ function LoginPage() {
                   {isSubmitting ? 'Signing in...' : 'Sign in'}
                 </button>
               </form>
+
+              {isGoogleAvailable ? (
+                <>
+                  <div className="text-center my-3 text-muted">or</div>
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark w-100"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      window.location.assign(buildExternalLoginUrl('Google', '/'));
+                    }}
+                  >
+                    Continue with Google
+                  </button>
+                </>
+              ) : null}
 
               <p className="mt-3 mb-0">
                 Need an account? <Link to="/register">Register here</Link>.

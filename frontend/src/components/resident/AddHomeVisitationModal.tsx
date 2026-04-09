@@ -8,7 +8,7 @@ import {
   messageFromJsonPayload,
   parseServerErrors,
   picklistStrings,
-  putBeaconJson,
+  postBeaconJson,
   readResponseJson,
   requiredFieldMsg,
   validateResidentIdInput,
@@ -162,7 +162,7 @@ export function AddHomeVisitationModal({
         visit_outcome: visitOutcome.trim() || null,
       };
       const res = isEdit
-        ? await putBeaconJson(`/HomeVisitation/${existingRecord!.visitationId}`, body)
+        ? await postBeaconJson(`/HomeVisitation/${existingRecord!.visitationId}/Update`, body)
         : await fetch(`${BASE_URL}/HomeVisitation`, {
             method: "POST",
             credentials: "include",

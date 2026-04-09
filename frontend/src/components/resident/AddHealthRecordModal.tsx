@@ -8,7 +8,7 @@ import {
   messageFromJsonPayload,
   optionalDecimal,
   parseServerErrors,
-  putBeaconJson,
+  postBeaconJson,
   readResponseJson,
   requiredFieldMsg,
   validateResidentIdInput,
@@ -176,7 +176,7 @@ export function AddHealthRecordModal({
         notes: notes.trim() || null,
       };
       const res = isEdit
-        ? await putBeaconJson(`/HealthWellbeingRecord/${existingRecord!.healthRecordId}`, body)
+        ? await postBeaconJson(`/HealthWellbeingRecord/${existingRecord!.healthRecordId}/Update`, body)
         : await fetch(`${BASE_URL}/HealthWellbeingRecord`, {
             method: "POST",
             credentials: "include",

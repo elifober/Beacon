@@ -8,7 +8,7 @@ import {
   messageFromJsonPayload,
   parseServerErrors,
   picklistStrings,
-  putBeaconJson,
+  postBeaconJson,
   readResponseJson,
   requiredFieldMsg,
   validateResidentIdInput,
@@ -198,7 +198,7 @@ export function AddIncidentReportModal({
         follow_up_required: followUpRequired,
       };
       const res = isEdit
-        ? await putBeaconJson(`/IncidentReport/${existingRecord!.incidentId}`, body)
+        ? await postBeaconJson(`/IncidentReport/${existingRecord!.incidentId}/Update`, body)
         : await fetch(`${BASE_URL}/IncidentReport`, {
             method: "POST",
             credentials: "include",

@@ -1051,6 +1051,32 @@ public class BeaconController : ControllerBase
         return Ok(new CreateIncidentReportResult { IncidentId = entity.IncidentId });
     }
 
+    /// <summary>POST aliases for SPA updates: some edge/proxy setups return 404 for PUT; POST is universally routed.</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("EducationRecord/{educationRecordId:int}/Update")]
+    public Task<IActionResult> PostUpdateEducationRecord(int educationRecordId, [FromBody] CreateEducationRecordRequest? body)
+        => UpdateEducationRecord(educationRecordId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HealthWellbeingRecord/{healthRecordId:int}/Update")]
+    public Task<IActionResult> PostUpdateHealthWellbeingRecord(int healthRecordId, [FromBody] CreateHealthWellbeingRecordRequest? body)
+        => UpdateHealthWellbeingRecord(healthRecordId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("ProcessRecording/{recordingId:int}/Update")]
+    public Task<IActionResult> PostUpdateProcessRecording(int recordingId, [FromBody] CreateProcessRecordingRequest? body)
+        => UpdateProcessRecording(recordingId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HomeVisitation/{visitationId:int}/Update")]
+    public Task<IActionResult> PostUpdateHomeVisitation(int visitationId, [FromBody] CreateHomeVisitationRequest? body)
+        => UpdateHomeVisitation(visitationId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("IncidentReport/{incidentId:int}/Update")]
+    public Task<IActionResult> PostUpdateIncidentReport(int incidentId, [FromBody] CreateIncidentReportRequest? body)
+        => UpdateIncidentReport(incidentId, body);
+
     private async Task<IActionResult?> TrySaveResidentRecordUpdateAsync(string operationLabel)
     {
         try

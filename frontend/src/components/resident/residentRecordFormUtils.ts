@@ -68,10 +68,11 @@ export async function readResponseJson(res: Response): Promise<{ payload: unknow
   return { payload, raw };
 }
 
-export function putBeaconJson(pathUnderBeacon: string, body: unknown): Promise<Response> {
+/** POST JSON (e.g. resident record updates use POST …/Update so hosts that mishandle PUT still work). */
+export function postBeaconJson(pathUnderBeacon: string, body: unknown): Promise<Response> {
   const path = pathUnderBeacon.startsWith("/") ? pathUnderBeacon : `/${pathUnderBeacon}`;
   return fetch(`${BASE_URL}${path}`, {
-    method: "PUT",
+    method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",

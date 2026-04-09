@@ -9,7 +9,7 @@ import {
   messageFromJsonPayload,
   normalizeCompletionForForm,
   normalizeEnrollmentForForm,
-  putBeaconJson,
+  postBeaconJson,
   readResponseJson,
 } from "./residentRecordFormUtils";
 
@@ -204,7 +204,7 @@ export function AddEducationRecordModal({
         notes: notes.trim() || null,
       };
       const res = isEdit
-        ? await putBeaconJson(`/EducationRecord/${existingRecord!.educationRecordId}`, body)
+        ? await postBeaconJson(`/EducationRecord/${existingRecord!.educationRecordId}/Update`, body)
         : await fetch(`${BASE_URL}/EducationRecord`, {
             method: "POST",
             credentials: "include",

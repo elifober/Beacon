@@ -16,6 +16,31 @@ function calculateAge(dateStr: string): number {
   return age;
 }
 
+function daysSinceAdmission(dateStr?: string): number | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function tenureBucket(dateOfAdmission?: string): string {
+  const days = daysSinceAdmission(dateOfAdmission);
+  if (days === null) return "unknown";
+  if (days < 90) return "<90";
+  if (days < 365) return "90-365";
+  if (days < 730) return "365-730";
+  return "730+";
+}
+
+function ageBucket(dateOfBirth?: string): string {
+  if (!dateOfBirth) return "unknown";
+  const age = calculateAge(dateOfBirth);
+  if (age < 18) return "<18";
+  if (age < 25) return "18-25";
+  if (age < 35) return "25-35";
+  return "35+";
+}
+
 interface AdminResident {
   residentId: number;
   name: string;
@@ -39,6 +64,13 @@ function AdminAllResidentsPage() {
   const pageSize = 15;
   const [view, setView] = useState<"table" | "card">("card");
   const { query } = useAdminSearch();
+  const [openFilterMenu, setOpenFilterMenu] = useState<
+    "risk" | "safehouse" | "time-housed" | "age" | null
+  >(null);
+  const [riskFilter, setRiskFilter] = useState<string>("");
+  const [safehouseFilter, setSafehouseFilter] = useState<string>("");
+  const [timeHousedFilter, setTimeHousedFilter] = useState<string>("");
+  const [ageFilter, setAgeFilter] = useState<string>("");
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllResidents`, { credentials: "include" })
@@ -49,29 +81,74 @@ function AdminAllResidentsPage() {
   }, []);
 
   const normalizedQuery = query.trim().toLowerCase();
+
+  const riskOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of residents) {
+      if (r.currentRiskLevel?.trim()) set.add(r.currentRiskLevel.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [residents]);
+
+  const safehouseOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of residents) {
+      if (r.safehouseCity?.trim()) set.add(r.safehouseCity.trim());
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [residents]);
+
   const filteredResidents = useMemo(
     () =>
       residents.filter((resident) => {
-        if (!normalizedQuery) return true;
-        return [
-          resident.name,
-          String(resident.residentId),
-          resident.safehouseCity,
-          resident.sex,
-          resident.caseCategory,
-          resident.caseStatus,
-          resident.reintegrationStatus,
-          resident.currentRiskLevel,
-        ]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+        if (!normalizedQuery) {
+          /* continue */
+        } else {
+          const matchesSearch = [
+            resident.name,
+            String(resident.residentId),
+            resident.safehouseCity,
+            resident.sex,
+            resident.caseCategory,
+            resident.caseStatus,
+            resident.reintegrationStatus,
+            resident.currentRiskLevel,
+          ]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+          if (!matchesSearch) return false;
+        }
+
+        if (riskFilter && (resident.currentRiskLevel?.trim() ?? "") !== riskFilter) {
+          return false;
+        }
+        if (safehouseFilter && (resident.safehouseCity?.trim() ?? "") !== safehouseFilter) {
+          return false;
+        }
+        if (timeHousedFilter) {
+          const b = tenureBucket(resident.dateOfAdmission);
+          if (b !== timeHousedFilter) return false;
+        }
+        if (ageFilter) {
+          const b = ageBucket(resident.dateOfBirth);
+          if (b !== ageFilter) return false;
+        }
+
+        return true;
       }),
-    [residents, normalizedQuery],
+    [
+      residents,
+      normalizedQuery,
+      riskFilter,
+      safehouseFilter,
+      timeHousedFilter,
+      ageFilter,
+    ],
   );
 
   useEffect(() => {
     setPage(1);
-  }, [normalizedQuery, view]);
+  }, [normalizedQuery, view, riskFilter, safehouseFilter, timeHousedFilter, ageFilter]);
 
   const totalCount = filteredResidents.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -97,9 +174,215 @@ function AdminAllResidentsPage() {
     );
   }
 
+  const TIME_HOUSED_OPTIONS: { value: string; label: string }[] = [
+    { value: "", label: "All lengths" },
+    { value: "<90", label: "Under 90 days" },
+    { value: "90-365", label: "90 days – 1 year" },
+    { value: "365-730", label: "1 – 2 years" },
+    { value: "730+", label: "Over 2 years" },
+    { value: "unknown", label: "Unknown" },
+  ];
+
+  const AGE_OPTIONS: { value: string; label: string }[] = [
+    { value: "", label: "All ages" },
+    { value: "<18", label: "Under 18" },
+    { value: "18-25", label: "18 – 24" },
+    { value: "25-35", label: "25 – 34" },
+    { value: "35+", label: "35+" },
+    { value: "unknown", label: "Unknown" },
+  ];
+
   return (
     <div className="beacon-page container py-4">
       <AdminSearchInput placeholder="Search residents by name, ID, safehouse, status, or risk..." />
+
+      <section className="admin-residents-filter mb-3" aria-label="Filter residents">
+        <div className="admin-residents-filter__track">
+          <div
+            className="admin-residents-filter__pill"
+            role="toolbar"
+            aria-label="Resident filters"
+          >
+            <button
+              type="button"
+              className={`admin-residents-filter__tab ${openFilterMenu === "risk" ? "is-open" : ""}`}
+              aria-expanded={openFilterMenu === "risk"}
+              onClick={() =>
+                setOpenFilterMenu((prev) => (prev === "risk" ? null : "risk"))
+              }
+            >
+              Risk
+              <i
+                className={`admin-residents-filter__chev bi ${openFilterMenu === "risk" ? "bi-chevron-up" : "bi-chevron-down"}`}
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              className={`admin-residents-filter__tab ${openFilterMenu === "safehouse" ? "is-open" : ""}`}
+              aria-expanded={openFilterMenu === "safehouse"}
+              onClick={() =>
+                setOpenFilterMenu((prev) =>
+                  prev === "safehouse" ? null : "safehouse",
+                )
+              }
+            >
+              Safehouse
+              <i
+                className={`admin-residents-filter__chev bi ${openFilterMenu === "safehouse" ? "bi-chevron-up" : "bi-chevron-down"}`}
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              className={`admin-residents-filter__tab ${openFilterMenu === "time-housed" ? "is-open" : ""}`}
+              aria-expanded={openFilterMenu === "time-housed"}
+              onClick={() =>
+                setOpenFilterMenu((prev) =>
+                  prev === "time-housed" ? null : "time-housed",
+                )
+              }
+            >
+              Time housed
+              <i
+                className={`admin-residents-filter__chev bi ${openFilterMenu === "time-housed" ? "bi-chevron-up" : "bi-chevron-down"}`}
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              className={`admin-residents-filter__tab ${openFilterMenu === "age" ? "is-open" : ""}`}
+              aria-expanded={openFilterMenu === "age"}
+              onClick={() =>
+                setOpenFilterMenu((prev) => (prev === "age" ? null : "age"))
+              }
+            >
+              Age
+              <i
+                className={`admin-residents-filter__chev bi ${openFilterMenu === "age" ? "bi-chevron-up" : "bi-chevron-down"}`}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+
+        {openFilterMenu ? (
+          <div className="admin-residents-filter__dropdown-wrap">
+            <div className="admin-residents-filter__dropdown" role="region">
+              {openFilterMenu === "risk" ? (
+                <div className="admin-residents-filter__grid">
+                  <button
+                    type="button"
+                    className={`admin-residents-filter__option ${riskFilter === "" ? "is-selected" : ""}`}
+                    onClick={() => {
+                      setRiskFilter("");
+                      setOpenFilterMenu(null);
+                    }}
+                  >
+                    <p className="admin-residents-filter__option-title mb-0">All risk levels</p>
+                    <p className="admin-residents-filter__option-meta mb-0">
+                      Show everyone
+                    </p>
+                  </button>
+                  {riskOptions.map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      className={`admin-residents-filter__option ${riskFilter === level ? "is-selected" : ""}`}
+                      onClick={() => {
+                        setRiskFilter(level);
+                        setOpenFilterMenu(null);
+                      }}
+                    >
+                      <p className="admin-residents-filter__option-title mb-0">{level}</p>
+                      <p className="admin-residents-filter__option-meta mb-0">
+                        Filter by this risk level
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {openFilterMenu === "safehouse" ? (
+                <div className="admin-residents-filter__grid">
+                  <button
+                    type="button"
+                    className={`admin-residents-filter__option ${safehouseFilter === "" ? "is-selected" : ""}`}
+                    onClick={() => {
+                      setSafehouseFilter("");
+                      setOpenFilterMenu(null);
+                    }}
+                  >
+                    <p className="admin-residents-filter__option-title mb-0">All safehouses</p>
+                    <p className="admin-residents-filter__option-meta mb-0">
+                      Any city
+                    </p>
+                  </button>
+                  {safehouseOptions.map((city) => (
+                    <button
+                      key={city}
+                      type="button"
+                      className={`admin-residents-filter__option ${safehouseFilter === city ? "is-selected" : ""}`}
+                      onClick={() => {
+                        setSafehouseFilter(city);
+                        setOpenFilterMenu(null);
+                      }}
+                    >
+                      <p className="admin-residents-filter__option-title mb-0">{city}</p>
+                      <p className="admin-residents-filter__option-meta mb-0">
+                        Safehouse city
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {openFilterMenu === "time-housed" ? (
+                <div className="admin-residents-filter__grid">
+                  {TIME_HOUSED_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value || "all"}
+                      type="button"
+                      className={`admin-residents-filter__option ${timeHousedFilter === value ? "is-selected" : ""}`}
+                      onClick={() => {
+                        setTimeHousedFilter(value);
+                        setOpenFilterMenu(null);
+                      }}
+                    >
+                      <p className="admin-residents-filter__option-title mb-0">{label}</p>
+                      <p className="admin-residents-filter__option-meta mb-0">
+                        Based on admission date
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {openFilterMenu === "age" ? (
+                <div className="admin-residents-filter__grid">
+                  {AGE_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value || "all"}
+                      type="button"
+                      className={`admin-residents-filter__option ${ageFilter === value ? "is-selected" : ""}`}
+                      onClick={() => {
+                        setAgeFilter(value);
+                        setOpenFilterMenu(null);
+                      }}
+                    >
+                      <p className="admin-residents-filter__option-title mb-0">{label}</p>
+                      <p className="admin-residents-filter__option-meta mb-0">
+                        From date of birth
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </section>
+
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
           <p className="landing-section__eyebrow mb-1">Admin</p>

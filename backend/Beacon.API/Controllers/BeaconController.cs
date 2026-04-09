@@ -552,7 +552,8 @@ public class BeaconController : ControllerBase
         };
 
         _beaconContext.Set<EducationRecord>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        var eduSave = await TrySaveNewResidentRecordAsync(nameof(CreateEducationRecord));
+        if (eduSave != null) return eduSave;
 
         return StatusCode(StatusCodes.Status201Created,
             new CreateEducationRecordResult { EducationRecordId = entity.EducationRecordId });
@@ -601,7 +602,8 @@ public class BeaconController : ControllerBase
             Notes = NullIfWhiteSpace(body.Notes),
         };
         _beaconContext.Set<HealthWellbeingRecord>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        var healthSave = await TrySaveNewResidentRecordAsync(nameof(CreateHealthWellbeingRecord));
+        if (healthSave != null) return healthSave;
         return StatusCode(StatusCodes.Status201Created,
             new CreateHealthWellbeingRecordResult { HealthRecordId = entity.HealthRecordId });
     }
@@ -648,7 +650,8 @@ public class BeaconController : ControllerBase
             NotesRestricted = NullIfWhiteSpace(body.NotesRestricted),
         };
         _beaconContext.Set<ProcessRecording>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        var procSave = await TrySaveNewResidentRecordAsync(nameof(CreateProcessRecording));
+        if (procSave != null) return procSave;
         return StatusCode(StatusCodes.Status201Created,
             new CreateProcessRecordingResult { RecordingId = entity.RecordingId });
     }
@@ -691,7 +694,8 @@ public class BeaconController : ControllerBase
             VisitOutcome = NullIfWhiteSpace(body.VisitOutcome),
         };
         _beaconContext.Set<HomeVisitation>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        var homeSave = await TrySaveNewResidentRecordAsync(nameof(CreateHomeVisitation));
+        if (homeSave != null) return homeSave;
         return StatusCode(StatusCodes.Status201Created,
             new CreateHomeVisitationResult { VisitationId = entity.VisitationId });
     }
@@ -737,9 +741,28 @@ public class BeaconController : ControllerBase
             FollowUpRequired = body.FollowUpRequired,
         };
         _beaconContext.Set<IncidentReport>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        var incidentSave = await TrySaveNewResidentRecordAsync(nameof(CreateIncidentReport));
+        if (incidentSave != null) return incidentSave;
         return StatusCode(StatusCodes.Status201Created,
             new CreateIncidentReportResult { IncidentId = entity.IncidentId });
+    }
+
+    private async Task<IActionResult?> TrySaveNewResidentRecordAsync(string operationLabel)
+    {
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "{Operation}: database save failed", operationLabel);
+            return Problem(
+                title: "Could not save the record",
+                detail: "The database rejected this insert. Run EF migrations against production if tables are missing or out of date.",
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
+        return null;
     }
 
     private static string? NullIfWhiteSpace(string? s) =>

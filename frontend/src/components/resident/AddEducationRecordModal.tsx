@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../config/api";
 import { ResidentRecordModal } from "./ResidentRecordModal";
+import { messageFromJsonPayload, postBeaconJson, readBeaconResponseBody } from "./residentRecordFormUtils";
 
 type FieldKey =
   | "resident_id"
@@ -150,8 +151,13 @@ export function AddEducationRecordModal({
     return e;
   }
 
-  async function handleSubmit(ev: React.FormEvent) {
+  function onFormSubmit(ev: React.FormEvent) {
     ev.preventDefault();
+    ev.stopPropagation();
+    void submitRecord();
+  }
+
+  async function submitRecord() {
     setFormError(null);
     const local = validate();
     setFieldErrors(local);
@@ -166,33 +172,23 @@ export function AddEducationRecordModal({
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${BASE_URL}/EducationRecord`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          resident_id: residentId,
-          record_date: recordDate,
-          school_name: schoolName.trim(),
-          enrollment_status: enrollmentStatus,
-          attendance_rate: att,
-          progress_percent: prog,
-          completion_status: completionStatus,
-          notes: notes.trim() || null,
-        }),
+      const res = await postBeaconJson("/EducationRecord", {
+        resident_id: residentId,
+        record_date: recordDate,
+        school_name: schoolName.trim(),
+        enrollment_status: enrollmentStatus,
+        attendance_rate: att,
+        progress_percent: prog,
+        completion_status: completionStatus,
+        notes: notes.trim() || null,
       });
+
+      const { payload, raw } = await readBeaconResponseBody(res);
 
       if (res.status === 201) {
         onCreated();
         onClose();
         return;
-      }
-
-      let payload: unknown;
-      try {
-        payload = await res.json();
-      } catch {
-        payload = null;
       }
 
       if (res.status === 400 && payload) {
@@ -206,7 +202,13 @@ export function AddEducationRecordModal({
         return;
       }
 
-      setFormError(res.status === 401 ? "You must be signed in." : "Could not save.");
+      setFormError(
+        res.status === 401
+          ? "You must be signed in."
+          : res.status === 403
+            ? "You do not have permission to add records."
+            : messageFromJsonPayload(payload, raw.trim() ? raw.slice(0, 400) : "Could not save."),
+      );
     } catch {
       setFormError("Network error. Try again.");
     } finally {
@@ -221,7 +223,7 @@ export function AddEducationRecordModal({
       onClose={onClose}
       narrow
     >
-      <form className="p-4" onSubmit={handleSubmit} noValidate>
+      <form className="p-4" onSubmit={onFormSubmit} noValidate>
         {formError ? (
           <div className="alert alert-warning small" role="alert">
             {formError}
@@ -427,7 +429,12 @@ export function AddEducationRecordModal({
           >
             Cancel
           </button>
-          <button type="submit" className="btn btn-sm btn-primary" disabled={submitting}>
+          <button
+            type="button"
+            className="btn btn-sm btn-primary"
+            disabled={submitting}
+            onClick={() => void submitRecord()}
+          >
             {submitting ? "Saving…" : "Save Record"}
           </button>
         </div>

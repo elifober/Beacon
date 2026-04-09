@@ -68,14 +68,14 @@ export default function PostPlanner() {
     return () => { cancelled = true; };
   }, [debouncedReq]);
 
-  const update = <K extends keyof PostPredictionRequest>(
+  const update = <K extends keyof PostPredictionRequest,>(
     key: K,
-    value: PostPredictionRequest[K]
+    value: PostPredictionRequest[K],
   ) => setReq((r) => ({ ...r, [key]: value }));
 
   const tone = result ? riskTone(result.riskBand) : null;
 
-      return (
+  return (
     <div className="beacon-page container py-4">
       <AdminDashboardBackLink />
       {/* Centered header */}
@@ -169,8 +169,6 @@ export default function PostPlanner() {
       </div>
     </div>
   );
-
-
 }
 
 function Select({ label, value, options, onChange }: {

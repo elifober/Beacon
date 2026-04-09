@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Safehouse } from "../types/Safehouse";
 import Pagination from "../components/Pagination";
@@ -67,22 +68,31 @@ function AdminAllSafehousesPage() {
       <p className="landing-section__eyebrow mb-1">Admin</p>
       <h1 className="mb-4">All Safehouses</h1>
       <div className="row g-4">
-        {visibleSafehouses.map((s) => (
-          <div key={s.safehouseId} className="col-sm-6 col-lg-4">
-            <div className="card h-100">
-              <div className="card-body">
-                <h5 className="card-title mb-3">{s.city ?? "Unknown City"}</h5>
-                <table className="table table-sm mb-0">
-                  <tbody>
-                    {s.province && <tr><th>Province</th><td>{s.province}</td></tr>}
-                    {s.country && <tr><th>Country</th><td>{s.country}</td></tr>}
-                    {s.status && <tr><th>Status</th><td>{s.status}</td></tr>}
-                  </tbody>
-                </table>
-              </div>
+        {visibleSafehouses.map((s) => {
+          const title = s.city ?? s.name ?? "Unknown safehouse";
+          return (
+            <div key={s.safehouseId} className="col-sm-6 col-lg-4">
+              <Link
+                to={`/safehouse/${s.safehouseId}`}
+                className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
+                aria-label={`Open safehouse details for ${title}`}
+              >
+                <div className="admin-all-residents-card card h-100 shadow-sm">
+                  <div className="card-body">
+                    <h5 className="card-title mb-3">{title}</h5>
+                    <table className="table table-sm mb-0">
+                      <tbody>
+                        {s.province && <tr><th>Province</th><td>{s.province}</td></tr>}
+                        {s.country && <tr><th>Country</th><td>{s.country}</td></tr>}
+                        {s.status && <tr><th>Status</th><td>{s.status}</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Link>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="mt-4">
         <Pagination

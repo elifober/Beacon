@@ -41,7 +41,7 @@ function RegisterPage() {
         if (!cancelled) {
           setIsGoogleAvailable(true);
           setExternalAuthLoadError(
-            'Google sign-in is enabled, but the app could not verify provider availability. Confirm VITE_API_BASE_URL is set in Vercel and redeploy.'
+            'Google sign-in may be available, but the app could not verify provider availability right now.'
           );
         }
       }

@@ -12,6 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/Beacon': {
+        target: 'https://localhost:2026',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   }
 

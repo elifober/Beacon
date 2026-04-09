@@ -113,6 +113,38 @@ function DonorDashboardPage() {
     "--donor-allocation-gradient": `conic-gradient(${gradientStops})`,
   } as CSSProperties;
 
+  const monthlyTrend = Array.from({ length: 6 }, (_, index) => {
+    const now = new Date();
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+    const monthKey = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}`;
+
+    const value = data.donationHistory.reduce((sum, item) => {
+      if (!item.donationDate) return sum;
+      const donationDate = new Date(item.donationDate);
+      if (Number.isNaN(donationDate.getTime())) return sum;
+      const donationKey = `${donationDate.getFullYear()}-${String(donationDate.getMonth() + 1).padStart(2, "0")}`;
+      if (donationKey !== monthKey) return sum;
+      return sum + (item.amount ?? 0) + (item.estimatedValue ?? 0);
+    }, 0);
+
+    return {
+      key: monthKey,
+      label: monthDate.toLocaleDateString(undefined, { month: "short" }),
+      value,
+    };
+  });
+
+  const monthlyTrendMax = Math.max(...monthlyTrend.map((item) => item.value), 1);
+  const trendPoints = monthlyTrend
+    .map((item, index) => {
+      const x = monthlyTrend.length > 1 ? (index / (monthlyTrend.length - 1)) * 100 : 50;
+      const y = 100 - (item.value / monthlyTrendMax) * 100;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  const latestTrend = monthlyTrend[monthlyTrend.length - 1];
+
   const upcomingEvents = [
     {
       title: "Community Build Day",
@@ -269,6 +301,24 @@ function DonorDashboardPage() {
             <div className="col-xl-7">
               <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
                 <h2 className="landing-section__heading h4 mb-3">Donation activity</h2>
+                <div className="donor-trend mb-3" role="img" aria-label="Donation trend over the last six months">
+                  <svg className="donor-trend__svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline
+                      className="donor-trend__line"
+                      points={trendPoints}
+                    />
+                  </svg>
+                  <div className="donor-trend__labels">
+                    {monthlyTrend.map((item) => (
+                      <span key={item.key}>{item.label}</span>
+                    ))}
+                  </div>
+                </div>
+                <p className="donor-trend__meta mb-3">
+                  {latestTrend.value > 0
+                    ? `Latest month (${latestTrend.label}): ${formatCurrency(latestTrend.value)} in contributions`
+                    : `No recorded contributions for ${latestTrend.label} yet`}
+                </p>
                 <div className="donor-mini-grid donor-mini-grid--clean">
                   <div className="donor-mini-grid__item">
                     <p className="donor-mini-grid__label mb-1">Total donations</p>

@@ -135,6 +135,33 @@ const waysToHelp = [
   },
 ];
 
+const upcomingEvents = [
+  {
+    dayName: "Sat",
+    day: "18",
+    monthYear: "Jul 2026",
+    title: "Beacon Hope Run",
+    dates: "July 18, 2026",
+    price: "Fundraiser Event",
+  },
+  {
+    dayName: "Thu",
+    day: "06",
+    monthYear: "Aug 2026",
+    title: "Community Awareness Night",
+    dates: "August 6, 2026",
+    price: "Free Registration",
+  },
+  {
+    dayName: "Tue",
+    day: "22",
+    monthYear: "Sep 2026",
+    title: "Partner & Volunteer Orientation",
+    dates: "September 22, 2026",
+    price: "On-site + Online",
+  },
+] as const;
+
 /** Hero donate card preset amounts (PHP), Radiating Hope–style grid */
 const HERO_DONATE_PRESETS = [500, 250, 150, 50, 25, 10] as const;
 
@@ -302,7 +329,9 @@ function LandingPage() {
       {/* 1 ─── ANNOUNCEMENT BAR ─── */}
       <div className="announcement-bar">
         <div className="announcement-bar__inner">
-          <span className="announcement-bar__badge">DONATE</span>
+          <Link to="/donate" className="announcement-bar__badge">
+            DONATE
+          </Link>
           <span className="announcement-bar__text">
             100% of every gift goes directly to safe homes and healing for survivors of trafficking.
           </span>
@@ -563,6 +592,38 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* 10b ─── UPCOMING EVENTS ─── */}
+      <section className="landing-events" aria-labelledby="landing-events-heading">
+        <div className="container">
+          <div className="landing-events__head">
+            <h2 id="landing-events-heading" className="landing-events__title">
+              Upcoming events
+            </h2>
+            <span className="landing-events__tag">Beacon Community Events</span>
+          </div>
+
+          <div className="landing-events__list" role="list">
+            {upcomingEvents.map((event) => (
+              <article className="landing-events__item" key={event.title} role="listitem">
+                <div className="landing-events__date-box" aria-label={`${event.dayName} ${event.day} ${event.monthYear}`}>
+                  <span className="landing-events__day-name">{event.dayName}</span>
+                  <span className="landing-events__day">{event.day}</span>
+                  <span className="landing-events__month">{event.monthYear}</span>
+                </div>
+                <div className="landing-events__details">
+                  <h3 className="landing-events__event-title">{event.title}</h3>
+                  <p className="landing-events__event-dates">{event.dates}</p>
+                  <p className="landing-events__event-price">{event.price}</p>
+                </div>
+                <button type="button" className="landing-events__cta">
+                  Save my spot
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 11 ─── LATEST STORIES ─── */}
       <section className="landing-section landing-section--light landing-section--neutral-alt">
         <div className="container">
@@ -597,7 +658,9 @@ function LandingPage() {
                     <span className="story-card__date">{s.date}</span>
                     <h5 className="story-card__title">{s.title}</h5>
                     <p className="story-card__excerpt">{s.excerpt}</p>
-                    <span className="story-card__read">Read More &rarr;</span>
+                    <Link to="/impact" className="story-card__read">
+                      Read More &rarr;
+                    </Link>
                   </div>
                 </div>
               </div>

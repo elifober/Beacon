@@ -68,9 +68,7 @@ function App() {
             <Route
               path="/logout"
               element={
-                <RequireAuth>
                   <LogoutPage />
-                </RequireAuth>
               }
             />
 

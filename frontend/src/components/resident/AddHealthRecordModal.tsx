@@ -5,7 +5,6 @@ import {
   optionalDecimal,
   parseServerErrors,
   requiredFieldMsg,
-  triStateToBool,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
 
@@ -39,31 +38,6 @@ function labelSuffix(fieldErrors: Partial<Record<FieldKey, string>>, key: FieldK
   ) : null;
 }
 
-function triSelect(
-  id: string,
-  label: string,
-  value: string,
-  onChange: (v: string) => void,
-) {
-  return (
-    <div className="mb-3">
-      <label className="form-label small fw-semibold" htmlFor={id}>
-        {label}
-      </label>
-      <select
-        id={id}
-        className="form-select form-select-sm"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">Not Set</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-    </div>
-  );
-}
-
 export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreated }: Props) {
   const [residentIdInput, setResidentIdInput] = useState("");
   const [recordDate, setRecordDate] = useState("");
@@ -74,9 +48,9 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
   const [heightCm, setHeightCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [bmi, setBmi] = useState("");
-  const [medical, setMedical] = useState("");
-  const [dental, setDental] = useState("");
-  const [psych, setPsych] = useState("");
+  const [medicalDone, setMedicalDone] = useState(false);
+  const [dentalDone, setDentalDone] = useState(false);
+  const [psychDone, setPsychDone] = useState(false);
   const [notes, setNotes] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -101,17 +75,28 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
     setHeightCm("");
     setWeightKg("");
     setBmi("");
-    setMedical("");
-    setDental("");
-    setPsych("");
+    setMedicalDone(false);
+    setDentalDone(false);
+    setPsychDone(false);
     setNotes("");
   }, [open, initialResidentId]);
 
-  function validateOptionalDecimal(
+  function validateOptionalScore0To5(
     raw: string,
     key: FieldKey,
     e: Partial<Record<FieldKey, string>>,
   ) {
+    const t = raw.trim();
+    if (!t) return;
+    const n = optionalDecimal(raw);
+    if (n === null) {
+      e[key] = "Enter a valid number.";
+      return;
+    }
+    if (n < 0 || n > 5) e[key] = "Must be between 0 and 5.";
+  }
+
+  function validateOptionalDecimal(raw: string, key: FieldKey, e: Partial<Record<FieldKey, string>>) {
     const t = raw.trim();
     if (!t) return;
     const n = optionalDecimal(raw);
@@ -123,10 +108,10 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
     const ridErr = validateResidentIdInput(residentIdInput);
     if (ridErr) e.resident_id = ridErr;
     if (!recordDate.trim()) e.record_date = requiredFieldMsg;
-    validateOptionalDecimal(generalHealthScore, "general_health_score", e);
-    validateOptionalDecimal(nutritionScore, "nutrition_score", e);
-    validateOptionalDecimal(sleepQualityScore, "sleep_quality_score", e);
-    validateOptionalDecimal(energyLevelScore, "energy_level_score", e);
+    validateOptionalScore0To5(generalHealthScore, "general_health_score", e);
+    validateOptionalScore0To5(nutritionScore, "nutrition_score", e);
+    validateOptionalScore0To5(sleepQualityScore, "sleep_quality_score", e);
+    validateOptionalScore0To5(energyLevelScore, "energy_level_score", e);
     validateOptionalDecimal(heightCm, "height_cm", e);
     validateOptionalDecimal(weightKg, "weight_kg", e);
     validateOptionalDecimal(bmi, "bmi", e);
@@ -160,9 +145,9 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
           height_cm: optionalDecimal(heightCm),
           weight_kg: optionalDecimal(weightKg),
           bmi: optionalDecimal(bmi),
-          medical_checkup_done: triStateToBool(medical),
-          dental_checkup_done: triStateToBool(dental),
-          psychological_checkup_done: triStateToBool(psych),
+          medical_checkup_done: medicalDone,
+          dental_checkup_done: dentalDone,
+          psychological_checkup_done: psychDone,
           notes: notes.trim() || null,
         }),
       });
@@ -197,6 +182,35 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
       setSubmitting(false);
     }
   }
+
+  const scoreInput = (
+    id: string,
+    label: string,
+    value: string,
+    set: (v: string) => void,
+    key: FieldKey,
+  ) => (
+    <div className="mb-3">
+      <label className="form-label small fw-semibold" htmlFor={id}>
+        {label}
+        {labelSuffix(fieldErrors, key)}
+      </label>
+      <input
+        id={id}
+        type="text"
+        inputMode="decimal"
+        className={`form-control form-control-sm${fieldErrors[key] ? " is-invalid" : ""}`}
+        value={value}
+        onChange={(e) => set(e.target.value)}
+      />
+      <p className="form-text small mb-0">
+        Optional. Number From 0 Through 5 (Decimals Allowed If Needed).
+      </p>
+      {fieldErrors[key] ? (
+        <div className="invalid-feedback d-block">{fieldErrors[key]}</div>
+      ) : null}
+    </div>
+  );
 
   const decInput = (
     id: string,
@@ -267,17 +281,68 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
           ) : null}
         </div>
 
-        {decInput("h-gen", "General Health Score", generalHealthScore, setGeneralHealthScore, "general_health_score")}
-        {decInput("h-nut", "Nutrition Score", nutritionScore, setNutritionScore, "nutrition_score")}
-        {decInput("h-sleep", "Sleep Quality Score", sleepQualityScore, setSleepQualityScore, "sleep_quality_score")}
-        {decInput("h-energy", "Energy Level Score", energyLevelScore, setEnergyLevelScore, "energy_level_score")}
+        {scoreInput(
+          "h-gen",
+          "General Health Score",
+          generalHealthScore,
+          setGeneralHealthScore,
+          "general_health_score",
+        )}
+        {scoreInput("h-nut", "Nutrition Score", nutritionScore, setNutritionScore, "nutrition_score")}
+        {scoreInput(
+          "h-sleep",
+          "Sleep Quality Score",
+          sleepQualityScore,
+          setSleepQualityScore,
+          "sleep_quality_score",
+        )}
+        {scoreInput(
+          "h-energy",
+          "Energy Level Score",
+          energyLevelScore,
+          setEnergyLevelScore,
+          "energy_level_score",
+        )}
         {decInput("h-ht", "Height (cm)", heightCm, setHeightCm, "height_cm")}
         {decInput("h-wt", "Weight (kg)", weightKg, setWeightKg, "weight_kg")}
         {decInput("h-bmi", "BMI", bmi, setBmi, "bmi")}
 
-        {triSelect("h-med", "Medical Checkup Done", medical, setMedical)}
-        {triSelect("h-den", "Dental Checkup Done", dental, setDental)}
-        {triSelect("h-psy", "Psychological Checkup Done", psych, setPsych)}
+        <div className="form-check mb-2">
+          <input
+            id="h-med"
+            type="checkbox"
+            className="form-check-input"
+            checked={medicalDone}
+            onChange={(e) => setMedicalDone(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="h-med">
+            Medical Checkup Done
+          </label>
+        </div>
+        <div className="form-check mb-2">
+          <input
+            id="h-den"
+            type="checkbox"
+            className="form-check-input"
+            checked={dentalDone}
+            onChange={(e) => setDentalDone(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="h-den">
+            Dental Checkup Done
+          </label>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            id="h-psy"
+            type="checkbox"
+            className="form-check-input"
+            checked={psychDone}
+            onChange={(e) => setPsychDone(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="h-psy">
+            Psychological Checkup Done
+          </label>
+        </div>
 
         <div className="mb-4">
           <label className="form-label small fw-semibold" htmlFor="h-notes">

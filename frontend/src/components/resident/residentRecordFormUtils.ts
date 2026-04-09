@@ -56,3 +56,15 @@ export function triStateToBool(
   if (v === "false") return false;
   return null;
 }
+
+function snakeToCamelKey(key: string): string {
+  return key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+}
+
+/** Read a string array from picklist API JSON (snake_case or camelCase). */
+export function picklistStrings(payload: unknown, key: string): string[] {
+  if (!payload || typeof payload !== "object") return [];
+  const o = payload as Record<string, unknown>;
+  const v = o[key] ?? o[snakeToCamelKey(key)];
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+}

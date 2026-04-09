@@ -381,6 +381,102 @@ public class BeaconController : ControllerBase
     }
 
     [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("ProcessRecordingPicklists")]
+    public IActionResult GetProcessRecordingPicklists()
+    {
+        try
+        {
+            var sessionTypes = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.SessionType != null && p.SessionType != "")
+                .Select(p => p.SessionType!).Distinct().ToList();
+            var emotionalObs = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.EmotionalStateObserved != null && p.EmotionalStateObserved != "")
+                .Select(p => p.EmotionalStateObserved!).Distinct().ToList();
+            var emotionalEnd = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.EmotionalStateEnd != null && p.EmotionalStateEnd != "")
+                .Select(p => p.EmotionalStateEnd!).Distinct().ToList();
+
+            string[] defSession = ["Initial Assessment", "Follow-up Session", "Check-in", "Crisis Support"];
+            string[] defEmotional = ["Calm", "Stable", "Anxious", "Low", "Distressed", "Hopeful"];
+
+            return Ok(new ProcessRecordingPicklistsResponse
+            {
+                SessionTypes = MergeDistinctStrings(sessionTypes, defSession),
+                EmotionalStatesObserved = MergeDistinctStrings(emotionalObs, defEmotional),
+                EmotionalStatesEnd = MergeDistinctStrings(emotionalEnd, defEmotional),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetProcessRecordingPicklists failed.");
+            return Ok(new ProcessRecordingPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("HomeVisitationPicklists")]
+    public IActionResult GetHomeVisitationPicklists()
+    {
+        try
+        {
+            var visitTypes = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.VisitType != null && v.VisitType != "")
+                .Select(v => v.VisitType!).Distinct().ToList();
+            var coop = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.FamilyCooperationLevel != null && v.FamilyCooperationLevel != "")
+                .Select(v => v.FamilyCooperationLevel!).Distinct().ToList();
+            var outcomes = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.VisitOutcome != null && v.VisitOutcome != "")
+                .Select(v => v.VisitOutcome!).Distinct().ToList();
+
+            string[] defVisit = ["Scheduled", "Unscheduled", "Follow-up"];
+            string[] defCoop = ["High", "Medium", "Low", "Mixed"];
+            string[] defOut = ["Successful", "Partial", "Deferred", "No change"];
+
+            return Ok(new HomeVisitationPicklistsResponse
+            {
+                VisitTypes = MergeDistinctStrings(visitTypes, defVisit),
+                FamilyCooperationLevels = MergeDistinctStrings(coop, defCoop),
+                VisitOutcomes = MergeDistinctStrings(outcomes, defOut),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetHomeVisitationPicklists failed.");
+            return Ok(new HomeVisitationPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("IncidentReportPicklists")]
+    public IActionResult GetIncidentReportPicklists()
+    {
+        try
+        {
+            var types = _beaconContext.Set<IncidentReport>().AsNoTracking()
+                .Where(i => i.IncidentType != null && i.IncidentType != "")
+                .Select(i => i.IncidentType!).Distinct().ToList();
+            var sev = _beaconContext.Set<IncidentReport>().AsNoTracking()
+                .Where(i => i.Severity != null && i.Severity != "")
+                .Select(i => i.Severity!).Distinct().ToList();
+
+            string[] defTypes = ["Medical", "Behavioral", "Safety", "Property", "Other"];
+            string[] defSev = ["Low", "Medium", "High", "Critical"];
+
+            return Ok(new IncidentReportPicklistsResponse
+            {
+                IncidentTypes = MergeDistinctStrings(types, defTypes),
+                Severities = MergeDistinctStrings(sev, defSev),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetIncidentReportPicklists failed.");
+            return Ok(new IncidentReportPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
     [HttpPost("EducationRecord")]
     public async Task<IActionResult> CreateEducationRecord([FromBody] CreateEducationRecordRequest? body)
     {
@@ -475,6 +571,11 @@ public class BeaconController : ControllerBase
 
         if (body.RecordDate == default)
             errors["record_date"] = "Required";
+
+        AddHealthScore0To5(errors, body.GeneralHealthScore, "general_health_score");
+        AddHealthScore0To5(errors, body.NutritionScore, "nutrition_score");
+        AddHealthScore0To5(errors, body.SleepQualityScore, "sleep_quality_score");
+        AddHealthScore0To5(errors, body.EnergyLevelScore, "energy_level_score");
 
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
@@ -633,6 +734,17 @@ public class BeaconController : ControllerBase
 
     private static string? NullIfWhiteSpace(string? s) =>
         string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>
+        fromDb.Concat(defaults).Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
+
+    private static void AddHealthScore0To5(Dictionary<string, string> errors, decimal? val, string key)
+    {
+        if (val is null) return;
+        if (val < 0m || val > 5m)
+            errors[key] = "Must be a number between 0 and 5.";
+    }
 
     //GET SINGLE DONOR WITH FULL DONATION HISTORY
     [Authorize(Policy = AuthPolicies.DonorOnly)]

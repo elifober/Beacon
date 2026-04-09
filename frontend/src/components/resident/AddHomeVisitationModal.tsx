@@ -3,8 +3,8 @@ import { BASE_URL } from "../../config/api";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   parseServerErrors,
+  picklistStrings,
   requiredFieldMsg,
-  triStateToBool,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
 
@@ -37,13 +37,16 @@ export function AddHomeVisitationModal({
   const [visitDate, setVisitDate] = useState("");
   const [socialWorker, setSocialWorker] = useState("");
   const [visitType, setVisitType] = useState("");
+  const [visitTypes, setVisitTypes] = useState<string[]>([]);
+  const [cooperationOptions, setCooperationOptions] = useState<string[]>([]);
+  const [outcomeOptions, setOutcomeOptions] = useState<string[]>([]);
   const [locationVisited, setLocationVisited] = useState("");
   const [familyMembersPresent, setFamilyMembersPresent] = useState("");
   const [purpose, setPurpose] = useState("");
   const [observations, setObservations] = useState("");
   const [familyCooperationLevel, setFamilyCooperationLevel] = useState("");
-  const [safetyConcernsNoted, setSafetyConcernsNoted] = useState("");
-  const [followUpNeeded, setFollowUpNeeded] = useState("");
+  const [safetyConcernsNoted, setSafetyConcernsNoted] = useState(false);
+  const [followUpNeeded, setFollowUpNeeded] = useState(false);
   const [followUpNotes, setFollowUpNotes] = useState("");
   const [visitOutcome, setVisitOutcome] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
@@ -69,10 +72,23 @@ export function AddHomeVisitationModal({
     setPurpose("");
     setObservations("");
     setFamilyCooperationLevel("");
-    setSafetyConcernsNoted("");
-    setFollowUpNeeded("");
+    setSafetyConcernsNoted(false);
+    setFollowUpNeeded(false);
     setFollowUpNotes("");
     setVisitOutcome("");
+
+    fetch(`${BASE_URL}/HomeVisitationPicklists`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: unknown) => {
+        setVisitTypes(picklistStrings(data, "visit_types"));
+        setCooperationOptions(picklistStrings(data, "family_cooperation_levels"));
+        setOutcomeOptions(picklistStrings(data, "visit_outcomes"));
+      })
+      .catch(() => {
+        setVisitTypes([]);
+        setCooperationOptions([]);
+        setOutcomeOptions([]);
+      });
   }, [open, initialResidentId]);
 
   function validate(): Partial<Record<FieldKey, string>> {
@@ -110,8 +126,8 @@ export function AddHomeVisitationModal({
           purpose: purpose.trim() || null,
           observations: observations.trim() || null,
           family_cooperation_level: familyCooperationLevel.trim() || null,
-          safety_concerns_noted: triStateToBool(safetyConcernsNoted),
-          follow_up_needed: triStateToBool(followUpNeeded),
+          safety_concerns_noted: safetyConcernsNoted,
+          follow_up_needed: followUpNeeded,
           follow_up_notes: followUpNotes.trim() || null,
           visit_outcome: visitOutcome.trim() || null,
         }),
@@ -146,26 +162,6 @@ export function AddHomeVisitationModal({
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function triSelect(id: string, label: string, value: string, onChange: (v: string) => void) {
-    return (
-      <div className="mb-3">
-        <label className="form-label small fw-semibold" htmlFor={id}>
-          {label}
-        </label>
-        <select
-          id={id}
-          className="form-select form-select-sm"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          <option value="">Not Set</option>
-          <option value="true">Yes</option>
-          <option value="false">No</option>
-        </select>
-      </div>
-    );
   }
 
   return (
@@ -229,13 +225,19 @@ export function AddHomeVisitationModal({
           <label className="form-label small fw-semibold" htmlFor="v-type">
             Visit Type
           </label>
-          <input
+          <select
             id="v-type"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={visitType}
             onChange={(e) => setVisitType(e.target.value)}
-          />
+          >
+            <option value="">Select Visit Type…</option>
+            {visitTypes.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
@@ -294,17 +296,45 @@ export function AddHomeVisitationModal({
           <label className="form-label small fw-semibold" htmlFor="v-coop">
             Family Cooperation Level
           </label>
-          <input
+          <select
             id="v-coop"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={familyCooperationLevel}
             onChange={(e) => setFamilyCooperationLevel(e.target.value)}
-          />
+          >
+            <option value="">Select Cooperation Level…</option>
+            {cooperationOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {triSelect("v-safe", "Safety Concerns Noted", safetyConcernsNoted, setSafetyConcernsNoted)}
-        {triSelect("v-fun", "Follow Up Needed", followUpNeeded, setFollowUpNeeded)}
+        <div className="form-check mb-2">
+          <input
+            id="v-safe"
+            type="checkbox"
+            className="form-check-input"
+            checked={safetyConcernsNoted}
+            onChange={(e) => setSafetyConcernsNoted(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="v-safe">
+            Safety Concerns Noted
+          </label>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            id="v-fun"
+            type="checkbox"
+            className="form-check-input"
+            checked={followUpNeeded}
+            onChange={(e) => setFollowUpNeeded(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="v-fun">
+            Follow Up Needed
+          </label>
+        </div>
 
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="v-funotes">
@@ -323,13 +353,19 @@ export function AddHomeVisitationModal({
           <label className="form-label small fw-semibold" htmlFor="v-out">
             Visit Outcome
           </label>
-          <textarea
+          <select
             id="v-out"
-            className="form-control form-control-sm"
-            rows={2}
+            className="form-select form-select-sm"
             value={visitOutcome}
             onChange={(e) => setVisitOutcome(e.target.value)}
-          />
+          >
+            <option value="">Select Visit Outcome…</option>
+            {outcomeOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="d-flex gap-2 justify-content-end">

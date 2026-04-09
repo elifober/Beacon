@@ -4,8 +4,8 @@ import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   optionalInt,
   parseServerErrors,
+  picklistStrings,
   requiredFieldMsg,
-  triStateToBool,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
 
@@ -43,14 +43,17 @@ export function AddProcessRecordingModal({
   const [sessionDate, setSessionDate] = useState("");
   const [socialWorker, setSocialWorker] = useState("");
   const [sessionType, setSessionType] = useState("");
+  const [sessionTypes, setSessionTypes] = useState<string[]>([]);
+  const [emotionalObservedOptions, setEmotionalObservedOptions] = useState<string[]>([]);
+  const [emotionalEndOptions, setEmotionalEndOptions] = useState<string[]>([]);
   const [sessionDurationMinutes, setSessionDurationMinutes] = useState("");
   const [emotionalStateObserved, setEmotionalStateObserved] = useState("");
   const [emotionalStateEnd, setEmotionalStateEnd] = useState("");
   const [interventionsApplied, setInterventionsApplied] = useState("");
   const [followUpActions, setFollowUpActions] = useState("");
-  const [progressNoted, setProgressNoted] = useState("");
-  const [concernsFlagged, setConcernsFlagged] = useState("");
-  const [referralMade, setReferralMade] = useState("");
+  const [progressNoted, setProgressNoted] = useState(false);
+  const [concernsFlagged, setConcernsFlagged] = useState(false);
+  const [referralMade, setReferralMade] = useState(false);
   const [sessionNarrative, setSessionNarrative] = useState("");
   const [notesRestricted, setNotesRestricted] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
@@ -76,11 +79,24 @@ export function AddProcessRecordingModal({
     setEmotionalStateEnd("");
     setInterventionsApplied("");
     setFollowUpActions("");
-    setProgressNoted("");
-    setConcernsFlagged("");
-    setReferralMade("");
+    setProgressNoted(false);
+    setConcernsFlagged(false);
+    setReferralMade(false);
     setSessionNarrative("");
     setNotesRestricted("");
+
+    fetch(`${BASE_URL}/ProcessRecordingPicklists`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: unknown) => {
+        setSessionTypes(picklistStrings(data, "session_types"));
+        setEmotionalObservedOptions(picklistStrings(data, "emotional_states_observed"));
+        setEmotionalEndOptions(picklistStrings(data, "emotional_states_end"));
+      })
+      .catch(() => {
+        setSessionTypes([]);
+        setEmotionalObservedOptions([]);
+        setEmotionalEndOptions([]);
+      });
   }, [open, initialResidentId]);
 
   function validate(): Partial<Record<FieldKey, string>> {
@@ -126,9 +142,9 @@ export function AddProcessRecordingModal({
           emotional_state_end: emotionalStateEnd.trim() || null,
           interventions_applied: interventionsApplied.trim() || null,
           follow_up_actions: followUpActions.trim() || null,
-          progress_noted: triStateToBool(progressNoted),
-          concerns_flagged: triStateToBool(concernsFlagged),
-          referral_made: triStateToBool(referralMade),
+          progress_noted: progressNoted,
+          concerns_flagged: concernsFlagged,
+          referral_made: referralMade,
           session_narrative: sessionNarrative.trim() || null,
           notes_restricted: notesRestricted.trim() || null,
         }),
@@ -163,26 +179,6 @@ export function AddProcessRecordingModal({
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function triSelect(id: string, label: string, value: string, onChange: (v: string) => void) {
-    return (
-      <div className="mb-3">
-        <label className="form-label small fw-semibold" htmlFor={id}>
-          {label}
-        </label>
-        <select
-          id={id}
-          className="form-select form-select-sm"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          <option value="">Not Set</option>
-          <option value="true">Yes</option>
-          <option value="false">No</option>
-        </select>
-      </div>
-    );
   }
 
   return (
@@ -246,13 +242,19 @@ export function AddProcessRecordingModal({
           <label className="form-label small fw-semibold" htmlFor="p-type">
             Session Type
           </label>
-          <input
+          <select
             id="p-type"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={sessionType}
             onChange={(e) => setSessionType(e.target.value)}
-          />
+          >
+            <option value="">Select Session Type…</option>
+            {sessionTypes.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
@@ -277,26 +279,38 @@ export function AddProcessRecordingModal({
           <label className="form-label small fw-semibold" htmlFor="p-emo1">
             Emotional State Observed
           </label>
-          <input
+          <select
             id="p-emo1"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={emotionalStateObserved}
             onChange={(e) => setEmotionalStateObserved(e.target.value)}
-          />
+          >
+            <option value="">Select Emotional State…</option>
+            {emotionalObservedOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="p-emo2">
             Emotional State End
           </label>
-          <input
+          <select
             id="p-emo2"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={emotionalStateEnd}
             onChange={(e) => setEmotionalStateEnd(e.target.value)}
-          />
+          >
+            <option value="">Select Emotional State…</option>
+            {emotionalEndOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
@@ -325,9 +339,42 @@ export function AddProcessRecordingModal({
           />
         </div>
 
-        {triSelect("p-prog", "Progress Noted", progressNoted, setProgressNoted)}
-        {triSelect("p-conc", "Concerns Flagged", concernsFlagged, setConcernsFlagged)}
-        {triSelect("p-ref", "Referral Made", referralMade, setReferralMade)}
+        <div className="form-check mb-2">
+          <input
+            id="p-prog"
+            type="checkbox"
+            className="form-check-input"
+            checked={progressNoted}
+            onChange={(e) => setProgressNoted(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="p-prog">
+            Progress Noted
+          </label>
+        </div>
+        <div className="form-check mb-2">
+          <input
+            id="p-conc"
+            type="checkbox"
+            className="form-check-input"
+            checked={concernsFlagged}
+            onChange={(e) => setConcernsFlagged(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="p-conc">
+            Concerns Flagged
+          </label>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            id="p-ref"
+            type="checkbox"
+            className="form-check-input"
+            checked={referralMade}
+            onChange={(e) => setReferralMade(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="p-ref">
+            Referral Made
+          </label>
+        </div>
 
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="p-nar">
@@ -344,7 +391,7 @@ export function AddProcessRecordingModal({
 
         <div className="mb-4">
           <label className="form-label small fw-semibold" htmlFor="p-notes">
-            Notes Restricted
+            Private Notes
           </label>
           <textarea
             id="p-notes"

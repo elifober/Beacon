@@ -3,8 +3,8 @@ import { BASE_URL } from "../../config/api";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   parseServerErrors,
+  picklistStrings,
   requiredFieldMsg,
-  triStateToBool,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
 
@@ -50,13 +50,15 @@ export function AddIncidentReportModal({
   const [safehouses, setSafehouses] = useState<SafehouseOption[]>([]);
   const [incidentDate, setIncidentDate] = useState("");
   const [incidentType, setIncidentType] = useState("");
+  const [incidentTypes, setIncidentTypes] = useState<string[]>([]);
   const [severity, setSeverity] = useState("");
+  const [severities, setSeverities] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [responseTaken, setResponseTaken] = useState("");
-  const [resolved, setResolved] = useState("");
+  const [resolved, setResolved] = useState(false);
   const [resolutionDate, setResolutionDate] = useState("");
   const [reportedBy, setReportedBy] = useState("");
-  const [followUpRequired, setFollowUpRequired] = useState("");
+  const [followUpRequired, setFollowUpRequired] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -84,10 +86,21 @@ export function AddIncidentReportModal({
     setSeverity("");
     setDescription("");
     setResponseTaken("");
-    setResolved("");
+    setResolved(false);
     setResolutionDate("");
     setReportedBy("");
-    setFollowUpRequired("");
+    setFollowUpRequired(false);
+
+    fetch(`${BASE_URL}/IncidentReportPicklists`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: unknown) => {
+        setIncidentTypes(picklistStrings(data, "incident_types"));
+        setSeverities(picklistStrings(data, "severities"));
+      })
+      .catch(() => {
+        setIncidentTypes([]);
+        setSeverities([]);
+      });
 
     fetch(`${BASE_URL}/Safehouses`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
@@ -148,10 +161,10 @@ export function AddIncidentReportModal({
           severity: severity.trim() || null,
           description: description.trim() || null,
           response_taken: responseTaken.trim() || null,
-          resolved: triStateToBool(resolved),
+          resolved: resolved,
           resolution_date: resolutionDate.trim() || null,
           reported_by: reportedBy.trim() || null,
-          follow_up_required: triStateToBool(followUpRequired),
+          follow_up_required: followUpRequired,
         }),
       });
 
@@ -265,26 +278,38 @@ export function AddIncidentReportModal({
           <label className="form-label small fw-semibold" htmlFor="i-type">
             Incident Type
           </label>
-          <input
+          <select
             id="i-type"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={incidentType}
             onChange={(e) => setIncidentType(e.target.value)}
-          />
+          >
+            <option value="">Select Incident Type…</option>
+            {incidentTypes.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="i-sev">
             Severity
           </label>
-          <input
+          <select
             id="i-sev"
-            type="text"
-            className="form-control form-control-sm"
+            className="form-select form-select-sm"
             value={severity}
             onChange={(e) => setSeverity(e.target.value)}
-          />
+          >
+            <option value="">Select Severity…</option>
+            {severities.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
@@ -313,20 +338,17 @@ export function AddIncidentReportModal({
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label small fw-semibold" htmlFor="i-resolved">
+        <div className="form-check mb-3">
+          <input
+            id="i-resolved"
+            type="checkbox"
+            className="form-check-input"
+            checked={resolved}
+            onChange={(e) => setResolved(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="i-resolved">
             Resolved
           </label>
-          <select
-            id="i-resolved"
-            className="form-select form-select-sm"
-            value={resolved}
-            onChange={(e) => setResolved(e.target.value)}
-          >
-            <option value="">Not Set</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
         </div>
 
         <div className="mb-3">
@@ -355,20 +377,17 @@ export function AddIncidentReportModal({
           />
         </div>
 
-        <div className="mb-4">
-          <label className="form-label small fw-semibold" htmlFor="i-fu">
+        <div className="form-check mb-4">
+          <input
+            id="i-fu"
+            type="checkbox"
+            className="form-check-input"
+            checked={followUpRequired}
+            onChange={(e) => setFollowUpRequired(e.target.checked)}
+          />
+          <label className="form-check-label small fw-semibold" htmlFor="i-fu">
             Follow Up Required
           </label>
-          <select
-            id="i-fu"
-            className="form-select form-select-sm"
-            value={followUpRequired}
-            onChange={(e) => setFollowUpRequired(e.target.value)}
-          >
-            <option value="">Not Set</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
         </div>
 
         <div className="d-flex gap-2 justify-content-end">

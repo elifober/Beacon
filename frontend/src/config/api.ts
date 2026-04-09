@@ -1,1 +1,1 @@
-export const BASE_URL = "https://beacon-production-a89b.up.railway.app/Beacon";
+export const BASE_URL = "/Beacon";

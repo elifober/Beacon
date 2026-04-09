@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
+import AdminSearchInput from "../components/AdminSearchInput";
+import { useAdminSearch } from "../context/AdminSearchContext";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -30,6 +32,7 @@ function AdminAllPartnersPage() {
   const [page, setPage] = useState(1);
   const pageSize = 15;
   const [view, setView] = useState<"table" | "card">("table");
+  const { query } = useAdminSearch();
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllPartners`, { credentials: "include" })
@@ -39,11 +42,37 @@ function AdminAllPartnersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const totalCount = partners.length;
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredPartners = useMemo(
+    () =>
+      partners.filter((partner) => {
+        if (!normalizedQuery) return true;
+        return [
+          partner.partnerName,
+          partner.organizationType,
+          partner.roleType,
+          partner.email,
+          partner.phone,
+          partner.region,
+          partner.status,
+          partner.assignedSafehouse,
+          String(partner.partnerId),
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      }),
+    [partners, normalizedQuery],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery, view]);
+
+  const totalCount = filteredPartners.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const startIndex = (currentPage - 1) * pageSize;
-  const visiblePartners = partners.slice(startIndex, startIndex + pageSize);
+  const visiblePartners = filteredPartners.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -65,6 +94,7 @@ function AdminAllPartnersPage() {
 
   return (
     <div className="container py-4">
+      <AdminSearchInput placeholder="Search partners by name, role, safehouse, or status..." />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="mb-0">All Partners</h1>
         <div className="btn-group">

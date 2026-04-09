@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
+import AdminSearchInput from "../components/AdminSearchInput";
+import { useAdminSearch } from "../context/AdminSearchContext";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -42,6 +44,7 @@ function AdminAllResidentsPage() {
   const [page, setPage] = useState(1);
   const pageSize = 15;
   const [view, setView] = useState<"table" | "card">("table");
+  const { query } = useAdminSearch();
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllResidents`, { credentials: "include" })
@@ -51,11 +54,36 @@ function AdminAllResidentsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const totalCount = residents.length;
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredResidents = useMemo(
+    () =>
+      residents.filter((resident) => {
+        if (!normalizedQuery) return true;
+        return [
+          resident.name,
+          String(resident.residentId),
+          resident.safehouseCity,
+          resident.sex,
+          resident.caseCategory,
+          resident.caseStatus,
+          resident.reintegrationStatus,
+          resident.currentRiskLevel,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      }),
+    [residents, normalizedQuery],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery, view]);
+
+  const totalCount = filteredResidents.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const startIndex = (currentPage - 1) * pageSize;
-  const visibleResidents = residents.slice(startIndex, startIndex + pageSize);
+  const visibleResidents = filteredResidents.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -77,6 +105,7 @@ function AdminAllResidentsPage() {
 
   return (
     <div className="container py-4">
+      <AdminSearchInput placeholder="Search residents by name, ID, safehouse, status, or risk..." />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="mb-0">All Residents</h1>
         <div className="btn-group">

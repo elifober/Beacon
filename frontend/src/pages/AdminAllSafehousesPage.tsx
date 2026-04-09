@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../config/api";
 import type { Safehouse } from "../types/Safehouse";
 import Pagination from "../components/Pagination";
+import AdminSearchInput from "../components/AdminSearchInput";
+import { useAdminSearch } from "../context/AdminSearchContext";
 
 function AdminAllSafehousesPage() {
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
@@ -9,6 +11,7 @@ function AdminAllSafehousesPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 15;
+  const { query } = useAdminSearch();
 
   useEffect(() => {
     fetch(`${BASE_URL}/Safehouses`)
@@ -18,11 +21,27 @@ function AdminAllSafehousesPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const totalCount = safehouses.length;
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredSafehouses = useMemo(
+    () =>
+      safehouses.filter((safehouse) => {
+        if (!normalizedQuery) return true;
+        return [safehouse.city, safehouse.province, safehouse.country, safehouse.status, String(safehouse.safehouseId)]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      }),
+    [safehouses, normalizedQuery],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery]);
+
+  const totalCount = filteredSafehouses.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const startIndex = (currentPage - 1) * pageSize;
-  const visibleSafehouses = safehouses.slice(startIndex, startIndex + pageSize);
+  const visibleSafehouses = filteredSafehouses.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -40,6 +59,7 @@ function AdminAllSafehousesPage() {
 
   return (
     <div className="container py-4">
+      <AdminSearchInput placeholder="Search safehouses by city, province, country, or status..." />
       <h1 className="mb-4">All Safehouses</h1>
       <div className="row g-4">
         {visibleSafehouses.map((s) => (

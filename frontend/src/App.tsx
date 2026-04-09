@@ -16,6 +16,7 @@ import AdminAllPartnersPage from './pages/AdminAllPartnersPage.tsx'
 import AdminAllDonorsPage from './pages/AdminAllDonorsPage.tsx'
 import AdminAllDonationsPage from './pages/AdminAllDonationsPage.tsx'
 import AdminAllSafehousesPage from './pages/AdminAllSafehousesPage.tsx'
+import { AdminSearchProvider } from './context/AdminSearchContext.tsx'
 import Navbar from './components/Navbar.tsx'
 import RequireRole from './components/RequireRole'
 import RequireAuth from './components/RequireAuth'
@@ -34,6 +35,7 @@ function App() {
           <Navbar />
           <ProfileCompletionRedirect />
           <main id="main-content" tabIndex={-1}>
+          <AdminSearchProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -154,6 +156,7 @@ function App() {
               }
             />
           </Routes>
+          </AdminSearchProvider>
           </main>
         </Router>
       </AuthProvider>

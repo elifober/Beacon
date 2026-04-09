@@ -25,7 +25,7 @@ export interface PostPredictionResponse {
   interpretation: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = "";
 
 export async function predictPostSuccess(
   req: PostPredictionRequest

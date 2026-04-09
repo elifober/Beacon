@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
+import AdminSearchInput from "../components/AdminSearchInput";
+import { useAdminSearch } from "../context/AdminSearchContext";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -30,6 +32,7 @@ function AdminAllDonorsPage() {
   const [page, setPage] = useState(1);
   const [view, setView] = useState<"table" | "card">("table");
   const pageSize = 15;
+  const { query } = useAdminSearch();
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllDonors`, { credentials: "include" })
@@ -39,11 +42,37 @@ function AdminAllDonorsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const totalCount = donors.length;
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredDonors = useMemo(
+    () =>
+      donors.filter((donor) => {
+        if (!normalizedQuery) return true;
+        return [
+          donor.displayName,
+          donor.relationship,
+          donor.region,
+          donor.country,
+          donor.email,
+          donor.phone,
+          donor.status,
+          donor.acquisitionChannel,
+          String(donor.donorId),
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      }),
+    [donors, normalizedQuery],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery, view]);
+
+  const totalCount = filteredDonors.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const startIndex = (currentPage - 1) * pageSize;
-  const visibleDonors = donors.slice(startIndex, startIndex + pageSize);
+  const visibleDonors = filteredDonors.slice(startIndex, startIndex + pageSize);
 
   if (loading) {
     return (
@@ -65,6 +94,7 @@ function AdminAllDonorsPage() {
 
   return (
     <div className="container py-4">
+      <AdminSearchInput placeholder="Search donors by name, contact, location, or status..." />
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="mb-0">All Donors</h1>
         <div className="btn-group">

@@ -1,21 +1,9 @@
 import type { AuthSession } from '../types/AuthSession';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
-
 export type ExternalAuthProvider = {
     name: string;
     displayName: string;
 };
-
-function requireApiBaseUrl(): string {
-    const value = apiBaseUrl.trim();
-    if (!value) {
-        throw new Error(
-            'Missing VITE_API_BASE_URL. Set it in Vercel (Production) and redeploy so the frontend can call the backend.'
-        );
-    }
-    return value;
-}
 
 
 async function readApiError(
@@ -57,8 +45,7 @@ async function readApiError(
 
 
 export async function getAuthSession(): Promise<AuthSession> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/me`,{
+    const response = await fetch(`/api/auth/me`, {
         credentials: 'include',
     });
 
@@ -82,8 +69,7 @@ export type CompleteProfilePayload = {
 export async function completeDonorProfile(
     payload: CompleteProfilePayload
 ): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/complete-profile`, {
+    const response = await fetch(`/api/auth/complete-profile`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -104,8 +90,7 @@ export async function completeDonorProfile(
 }
 
 export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/providers`, {
+    const response = await fetch(`/api/auth/providers`, {
         credentials: 'include',
     });
 
@@ -120,8 +105,7 @@ export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]
 }
 
 export function buildExternalLoginUrl(provider: string, returnPath: string = '/'): string {
-    const baseUrl = requireApiBaseUrl();
-    const url = new URL(`${baseUrl}/api/auth/external-login`, window.location.origin);
+    const url = new URL(`/api/auth/external-login`, window.location.origin);
     url.searchParams.set('provider', provider);
     url.searchParams.set('returnPath', returnPath);
     return url.toString();
@@ -131,13 +115,12 @@ export async function registerUser(
     email: string,
     password: string,
 ): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/register`, {
+    const response = await fetch(`/api/auth/register`, {
         method: 'POST',
-        headers:{
+        headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password}),
+        body: JSON.stringify({ email, password }),
         credentials: 'include',
     });
     if (!response.ok) {
@@ -160,8 +143,7 @@ export type RegisterWithProfilePayload = {
 export async function registerUserWithProfile(
     payload: RegisterWithProfilePayload
 ): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/register-with-profile`, {
+    const response = await fetch(`/api/auth/register-with-profile`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -184,18 +166,17 @@ export async function registerUserWithProfile(
 }
 
 export async function loginUser(email: string, password: string, rememberMe: boolean): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
     const searchParams = new URLSearchParams();
     searchParams.set("useCookies", "true");
 
     if (rememberMe) {
         searchParams.set('useSessionCookies', 'false');
     }
-    else{
+    else {
         searchParams.set('useSessionCookies', 'true');
     }
 
-    const response = await fetch(`${baseUrl}/api/auth/login?${searchParams.toString()}`, {
+    const response = await fetch(`/api/auth/login?${searchParams.toString()}`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -212,8 +193,7 @@ export async function loginUser(email: string, password: string, rememberMe: boo
 }
 
 export async function logoutUser(): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/logout`, {
+    const response = await fetch(`/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
     });
@@ -229,8 +209,7 @@ export async function assignRoleAsAdmin(
     email: string,
     role: 'Admin' | 'Partner'
 ): Promise<void> {
-    const baseUrl = requireApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/auth/admin/assign-role`, {
+    const response = await fetch(`/api/auth/admin/assign-role`, {
         method: 'POST',
         credentials: 'include',
         headers: {

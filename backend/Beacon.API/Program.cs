@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Beacon.Api.Services.PostPlanner;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -135,6 +137,13 @@ builder.Services
     .AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthIdentityDbContext>();
+
+// MapIdentityApi registers DefaultAuthenticateScheme = BearerAndApplication (Bearer first, then cookie).
+// Browser fetch from the SPA sends only cookies; in that path User must come from the app cookie.
+builder.Services.PostConfigure<AuthenticationOptions>(options =>
+{
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+});
 
 builder.Services.AddScoped<UserManager<ApplicationUser>, BeaconUserManager>();
 

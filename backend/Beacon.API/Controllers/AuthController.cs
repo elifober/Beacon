@@ -64,8 +64,12 @@ public class AuthController(
     }
 
     [HttpGet("me")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public async Task<IActionResult> GetCurrentSession()
     {
+        // Edge/CDN must not serve one cached body for all users; ResponseCache + Vary on Cookie.
+        Response.Headers.Append("Vary", "Cookie");
+
         if (User.Identity?.IsAuthenticated != true)
         {
             return Ok(new

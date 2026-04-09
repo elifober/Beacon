@@ -1157,6 +1157,35 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .landing-footer a:hover {
   color: var(--beacon-oat-light);
 }
+.landing-footer__socials {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.55rem;
+}
+.landing-footer__social-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 244, 240, 0.08);
+  border: 1px solid rgba(242, 244, 240, 0.16);
+  color: #F2F4F0 !important;
+  text-decoration: none !important;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.landing-footer__social-link i {
+  font-size: 1rem;
+  line-height: 1;
+}
+.landing-footer__social-link:hover {
+  transform: translateY(-1px);
+  background: rgba(242, 244, 240, 0.14);
+  border-color: rgba(242, 244, 240, 0.28);
+  color: var(--beacon-oat-light) !important;
+}
 
 /* ═══════════════════════════════════════════════
    INTRO TAGLINE
@@ -2028,34 +2057,6 @@ main#main-content.main-below-fixed-nav {
   padding-bottom: 3rem;
 }
 
-.beacon-page {
-  padding-top: 1.5rem;
-}
-
-.beacon-page--auth {
-  padding-top: 2.5rem;
-  padding-bottom: 2rem;
-  min-height: min(72vh, 820px);
-}
-
-.beacon-page--loading {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-}
-
-.beacon-site-main h1:not(.hero__title):not(.admin-dashboard__hero-title) {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
-  font-weight: 600;
-  color: var(--beacon-text);
-  letter-spacing: -0.02em;
-}
-
-.beacon-site-main h2,
-.beacon-site-main h3,
-.beacon-site-main .h1,
-.beacon-site-main .h2,
-.beacon-site-main .h3,
 .beacon-site-main .h4,
 .beacon-site-main .h5 {
   font-family: "Plus Jakarta Sans", sans-serif;

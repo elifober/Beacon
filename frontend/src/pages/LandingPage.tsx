@@ -63,7 +63,7 @@ const pillars = [
   },
   {
     num: "03",
-    icon: "bi-balance-scale",
+    icon: "bi-journal-text",
     title: "Justice",
     body: "We support children in pursuing what justice means for them, walking alongside them every step of the way through the legal process.",
   },
@@ -109,7 +109,7 @@ const waysToHelp = [
     description: "Your financial gift directly funds safe housing, counseling, and education for survivors.",
     cta: "Give Now",
     link: "/donate",
-    image: "/moms.jpg",
+    image: "/donate.jpg",
   },
   {
     title: "Partner With Us",
@@ -666,6 +666,26 @@ function LandingPage() {
                 Have questions? Reach out to us at&nbsp;
                 <a href="mailto:info@beaconsanctuary.org">info@beaconsanctuary.org</a>
               </p>
+              <div className="landing-footer__socials" aria-label="Beacon social media links">
+                <a
+                  className="landing-footer__social-link"
+                  href="https://www.youtube.com/@LighthouseSanctuary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Lighthouse Sanctuary on YouTube"
+                >
+                  <i className="bi bi-youtube" aria-hidden="true" />
+                </a>
+                <a
+                  className="landing-footer__social-link"
+                  href="https://www.facebook.com/LighthouseSanctuary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit Lighthouse Sanctuary on Facebook"
+                >
+                  <i className="bi bi-facebook" aria-hidden="true" />
+                </a>
+              </div>
             </div>
           </div>
           <hr className="landing-footer__rule" />

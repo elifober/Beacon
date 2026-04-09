@@ -272,33 +272,27 @@ public class BeaconController : ControllerBase
             "home_visitations",
             id);
 
-        // Left join safehouses so incidents still appear if FK is missing or orphaned (inner join dropped rows).
         var incidentReports = TryLoadResidentRelated(
             () => _beaconContext.Set<IncidentReport>()
-                .AsNoTracking()
                 .Where(i => i.ResidentId == id)
-                .GroupJoin(
-                    _beaconContext.Safehouses.AsNoTracking(),
+                .OrderByDescending(i => i.IncidentDate)
+                .Join(_beaconContext.Safehouses,
                     i => i.SafehouseId,
                     sh => sh.SafehouseId,
-                    (i, safehouses) => new { i, safehouses })
-                .SelectMany(
-                    x => x.safehouses.DefaultIfEmpty(),
-                    (x, sh) => new ResidentIncidentReportRow
+                    (i, sh) => new ResidentIncidentReportRow
                     {
-                        IncidentId = x.i.IncidentId,
-                        IncidentDate = x.i.IncidentDate,
-                        IncidentType = x.i.IncidentType,
-                        Severity = x.i.Severity,
-                        Description = x.i.Description,
-                        ResponseTaken = x.i.ResponseTaken,
-                        Resolved = x.i.Resolved,
-                        ResolutionDate = x.i.ResolutionDate,
-                        ReportedBy = x.i.ReportedBy,
-                        FollowUpRequired = x.i.FollowUpRequired,
-                        SafehouseName = sh != null ? sh.Name : null,
+                        IncidentId = i.IncidentId,
+                        IncidentDate = i.IncidentDate,
+                        IncidentType = i.IncidentType,
+                        Severity = i.Severity,
+                        Description = i.Description,
+                        ResponseTaken = i.ResponseTaken,
+                        Resolved = i.Resolved,
+                        ResolutionDate = i.ResolutionDate,
+                        ReportedBy = i.ReportedBy,
+                        FollowUpRequired = i.FollowUpRequired,
+                        SafehouseName = sh.Name,
                     })
-                .OrderByDescending(r => r.IncidentDate)
                 .ToList(),
             "incident_reports",
             id);

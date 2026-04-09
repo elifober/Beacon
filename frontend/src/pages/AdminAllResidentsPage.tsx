@@ -233,7 +233,7 @@ function AdminAllResidentsPage() {
   }
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search residents by name, ID, safehouse, status, or risk..." />
 

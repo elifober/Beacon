@@ -241,7 +241,7 @@ function AdminAllDonationsPage() {
   }
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search donations by supporter, type, area, or notes..." />
 

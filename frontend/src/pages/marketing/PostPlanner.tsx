@@ -76,7 +76,7 @@ export default function PostPlanner() {
   const tone = result ? riskTone(result.riskBand) : null;
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       {/* Centered header */}
       <div className="row justify-content-center text-center mb-4">

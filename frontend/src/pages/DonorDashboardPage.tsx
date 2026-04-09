@@ -432,12 +432,6 @@ function DonorDashboardPage() {
                   <a href="/#impact" className="donor-community-actions__btn">
                     Explore impact
                   </a>
-                  <a
-                    href="mailto:info@beaconsanctuary.org?subject=Beacon%20Email%20Updates"
-                    className="donor-community-actions__btn donor-community-actions__btn--accent"
-                  >
-                    Join email updates
-                  </a>
                 </div>
               </div>
             </div>
@@ -447,14 +441,9 @@ function DonorDashboardPage() {
                 <div className="donor-events__list">
                   {upcomingEvents.map((event) => (
                     <article key={event.title} className="donor-events__item">
-                      <div>
-                        <p className="donor-events__title mb-0">{event.title}</p>
-                        <p className="donor-events__meta mb-0">{event.dateLabel}</p>
-                        <p className="donor-events__detail mb-0">{event.detail}</p>
-                      </div>
-                      <button type="button" className="donor-events__cta">
-                        Save my spot
-                      </button>
+                      <p className="donor-events__title mb-0">{event.title}</p>
+                      <p className="donor-events__meta mb-0">{event.dateLabel}</p>
+                      <p className="donor-events__detail mb-0">{event.detail}</p>
                     </article>
                   ))}
                 </div>

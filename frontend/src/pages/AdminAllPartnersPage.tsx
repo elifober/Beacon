@@ -213,7 +213,7 @@ function AdminAllPartnersPage() {
   }
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search partners by name, role, safehouse, or status..." />
 

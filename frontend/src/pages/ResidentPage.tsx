@@ -90,7 +90,7 @@ function ResidentPage() {
     : "\u2014";
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 resident-profile-page">
       <p className="landing-section__eyebrow mb-2">Resident</p>
       <div className="row g-4 align-items-start">
         <div className="col-lg-4 d-flex flex-column gap-3">

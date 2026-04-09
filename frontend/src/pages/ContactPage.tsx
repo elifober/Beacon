@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 
 const boardMembers = [
@@ -28,9 +27,9 @@ function ContactPage() {
 
       <section className="contact-page__main">
         <div className="container">
-          <div className="row g-4 mb-4">
-            <div className="col-lg-6">
-              <article className="contact-page__card">
+          <div className="row g-4 mb-4 align-items-stretch">
+            <div className="col-lg-6 d-flex">
+              <article className="contact-page__card w-100 h-100">
                 <h2 className="h4 mb-3">Contact info</h2>
                 <p className="mb-2">
                   <strong>Phone:</strong>{" "}
@@ -46,13 +45,13 @@ function ContactPage() {
               </article>
             </div>
 
-            <div className="col-lg-6">
-              <article className="contact-page__card contact-page__card--glass">
+            <div className="col-lg-6 d-flex">
+              <article className="contact-page__card contact-page__card--glass w-100 h-100">
                 <h2 className="h4 mb-3">Follow + join updates</h2>
                 <p className="mb-3">
                   Stay in the loop through social media and our donor/community email thread.
                 </p>
-                <div className="contact-page__socials mb-3">
+                <div className="contact-page__socials mb-0">
                   <a
                     className="contact-page__social"
                     href="https://www.facebook.com/LighthouseSanctuary"
@@ -70,12 +69,6 @@ function ContactPage() {
                     YouTube
                   </a>
                 </div>
-                <a
-                  className="contact-page__email-cta"
-                  href="mailto:info@lighthousesanctuary.org?subject=Join%20Beacon%20Email%20Updates"
-                >
-                  Join email updates
-                </a>
               </article>
             </div>
           </div>
@@ -108,9 +101,9 @@ function ContactPage() {
             </div>
           </article>
 
-          <div className="row g-4 mt-1">
-            <div className="col-lg-6">
-              <article className="contact-page__card contact-page__photo-card">
+          <div className="row g-4 mt-1 align-items-stretch">
+            <div className="col-lg-6 d-flex">
+              <article className="contact-page__card contact-page__photo-card w-100">
                 <img
                   src="/garden.jpg"
                   alt="Beacon community garden"
@@ -124,8 +117,8 @@ function ContactPage() {
                 </div>
               </article>
             </div>
-            <div className="col-lg-6">
-              <article className="contact-page__card contact-page__photo-card">
+            <div className="col-lg-6 d-flex">
+              <article className="contact-page__card contact-page__photo-card w-100">
                 <img
                   src="/land.jpg"
                   alt="Beacon shelter surroundings"
@@ -139,12 +132,6 @@ function ContactPage() {
                 </div>
               </article>
             </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Link className="contact-page__secondary-link" to="/impact">
-              View impact stories
-            </Link>
           </div>
         </div>
       </section>

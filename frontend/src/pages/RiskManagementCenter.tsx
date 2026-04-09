@@ -108,7 +108,7 @@ export default function RiskManagementCenter() {
     )?.count ?? 0;
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       {/* Centered header */}
       <div className="row justify-content-center text-center mb-4">
@@ -281,7 +281,7 @@ function SummaryCard({
 }) {
   return (
     <div className="col-sm-6 col-lg-3">
-      <div className="card h-100 shadow-sm">
+      <div className="card h-100 shadow-sm admin-hub-summary-card">
         <div className="card-body">
           <p className="landing-section__eyebrow mb-2">{label}</p>
           <div className={`post-planner__score post-planner__gauge--${tone}`}>

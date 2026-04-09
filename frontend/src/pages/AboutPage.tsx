@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 
 const boardMembers = [
@@ -92,11 +91,6 @@ function AboutPage() {
               ))}
             </div>
           </article>
-
-          <div className="about-page__actions mt-4">
-            <Link to="/impact" className="about-page__btn">View impact</Link>
-            <Link to="/contact" className="about-page__btn about-page__btn--ghost">Contact us</Link>
-          </div>
         </div>
       </section>
 

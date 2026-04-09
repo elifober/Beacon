@@ -82,6 +82,36 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   .admin-all-residents-name-cell:hover .admin-all-residents-name {
     transform: none;
   }
+  .admin-list-page .beacon-detail-card .table tbody tr,
+  .admin-list-page .admin-all-residents-card,
+  .admin-list-page .admin-hub-summary-card,
+  .admin-list-page .post-planner__form-card,
+  .admin-list-page .post-planner__aside,
+  .admin-list-page .admin-hub-search .form-control,
+  .admin-list-page .admin-dashboard-back,
+  .resident-profile-page .beacon-detail-card,
+  .resident-profile-page .resident-record-preview-card,
+  .admin-dashboard__panel,
+  .admin-dashboard__nav-card,
+  .admin-dashboard__search-wrap input.form-control,
+  .admin-dashboard__search-wrap .list-group-item {
+    transition: none;
+  }
+  .admin-list-page .admin-all-residents-card:hover,
+  .admin-list-page a.admin-all-residents-card-link:hover .admin-all-residents-card,
+  .admin-list-page a.admin-all-residents-card-link:focus-visible .admin-all-residents-card,
+  .admin-list-page .admin-hub-summary-card:hover,
+  .admin-list-page .post-planner__form-card:hover,
+  .admin-list-page .post-planner__aside:hover,
+  .resident-profile-page .beacon-detail-card:hover,
+  .resident-profile-page .resident-record-preview-card:hover,
+  .admin-dashboard__panel:hover,
+  .admin-dashboard__nav-card:hover,
+  .admin-dashboard:not(.donor-dashboard) .admin-dashboard__nav-link:hover,
+  .admin-dashboard__search-wrap .list-group-item:hover,
+  .admin-list-page .admin-dashboard-back:hover {
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -820,10 +850,37 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 /* ═══════════════════════════════════════════════
    IMPACT STATS
    ═══════════════════════════════════════════════ */
+.landing-impact-stats__lead {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(242, 244, 240, 0.68);
+  max-width: 36rem;
+  margin: 0.75rem auto 0;
+  line-height: 1.45;
+}
+
 .impact-stat {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 0.45rem 0.35rem;
+  margin: -0.45rem -0.35rem;
+  border-radius: 12px;
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.landing-section--dark .impact-stat:hover {
+  transform: translateY(-4px);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-stat {
+    transition: none;
+  }
+  .landing-section--dark .impact-stat:hover {
+    transform: none;
+  }
 }
 .impact-stat__value {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1231,26 +1288,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   margin-bottom: clamp(1.2rem, 2.6vw, 2rem);
 }
 .landing-events__title {
-  margin: 0 0 0.9rem;
+  margin: 0;
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: clamp(2rem, 4.8vw, 3rem);
   line-height: 1.06;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: #111111;
-}
-.landing-events__tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.58rem 1.15rem;
-  border-radius: 999px;
-  border: 1px solid #1c1c1c;
-  background: transparent;
-  color: #1b1b1b;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 1.1rem;
-  font-weight: 500;
 }
 .landing-events__list {
   border-top: 1px solid rgba(17, 17, 17, 0.12);
@@ -1321,39 +1365,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-weight: 500;
   color: #111111;
 }
-.landing-events__cta {
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.78);
-  color: #1f1f1f;
-  border-radius: 999px;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 1.05rem;
-  font-weight: 500;
-  padding: 0.75rem 1.3rem;
-  white-space: nowrap;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-.landing-events__cta:hover {
-  background: #ffffff;
-  border-color: rgba(17, 17, 17, 0.32);
-  transform: translateY(-1px);
-}
-.landing-events__cta:focus-visible {
-  outline: 2px solid rgba(17, 17, 17, 0.42);
-  outline-offset: 2px;
-}
 
 @media (max-width: 767.98px) {
   .landing-events__item {
     flex-wrap: wrap;
     align-items: flex-start;
     row-gap: 0.85rem;
-  }
-
-  .landing-events__cta {
-    margin-left: calc(clamp(64px, 9vw, 76px) + 0.25rem);
-    padding: 0.65rem 1.1rem;
-    font-size: 0.95rem;
   }
 
   .landing-events__event-title {
@@ -1453,11 +1470,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 2rem 1.5rem;
   min-height: 280px;
   box-shadow: 0 1px 4px rgba(27, 38, 29, 0.05), 0 1px 2px rgba(27, 38, 29, 0.03);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 .admin-dashboard__panel:hover {
-  box-shadow: 0 8px 24px rgba(27, 38, 29, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(27, 38, 29, 0.1);
+  border-color: rgba(45, 79, 53, 0.2);
 }
 
 .admin-dashboard__nav-card {
@@ -1467,6 +1486,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 1.75rem 1.35rem;
   height: 100%;
   box-shadow: 0 1px 4px rgba(27, 38, 29, 0.05), 0 1px 2px rgba(27, 38, 29, 0.03);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.admin-dashboard__nav-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(27, 38, 29, 0.1);
+  border-color: rgba(45, 79, 53, 0.2);
 }
 
 .admin-dashboard__nav {
@@ -1488,10 +1514,24 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+.admin-dashboard:not(.donor-dashboard) .admin-dashboard__nav-link {
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
 .admin-dashboard__nav-link:hover {
   background: var(--beacon-sage-light);
   color: var(--beacon-primary);
   border-color: var(--beacon-border);
+}
+
+.admin-dashboard:not(.donor-dashboard) .admin-dashboard__nav-link:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 16px rgba(45, 79, 53, 0.08);
 }
 
 .admin-dashboard__nav-link:focus-visible {
@@ -1506,6 +1546,103 @@ button.admin-dashboard__nav-link {
   text-align: left;
   background: none;
   cursor: pointer;
+}
+
+.admin-dashboard__search-wrap input.form-control {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-dashboard__search-wrap input.form-control:hover {
+  border-color: rgba(45, 79, 53, 0.32);
+}
+
+.admin-dashboard__search-wrap .list-group-item {
+  transition: background-color 0.16s ease, transform 0.16s ease;
+}
+
+.admin-dashboard__search-wrap .list-group-item:hover {
+  background-color: rgba(45, 79, 53, 0.07);
+  transform: translateX(4px);
+}
+
+/* Admin list hub — All Residents / Donors / … + Risk + Post Planner */
+.admin-list-page .beacon-detail-card .table tbody tr {
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.admin-list-page .beacon-detail-card .table tbody tr:hover {
+  box-shadow: inset 4px 0 0 var(--beacon-primary);
+}
+
+.admin-list-page .admin-all-residents-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.admin-list-page .admin-all-residents-card:hover,
+.admin-list-page a.admin-all-residents-card-link:hover .admin-all-residents-card,
+.admin-list-page a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 36px rgba(45, 79, 53, 0.12);
+  border-color: rgba(45, 79, 53, 0.22);
+}
+
+.admin-list-page .admin-hub-summary-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.admin-list-page .admin-hub-summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(45, 79, 53, 0.12);
+  border-color: rgba(45, 79, 53, 0.2);
+}
+
+.admin-list-page .post-planner__form-card,
+.admin-list-page .post-planner__aside {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.admin-list-page .post-planner__form-card:hover,
+.admin-list-page .post-planner__aside:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(45, 79, 53, 0.1);
+  border-color: rgba(45, 79, 53, 0.22);
+}
+
+.admin-list-page .admin-hub-search .form-control {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-list-page .admin-hub-search .form-control:hover {
+  border-color: rgba(45, 79, 53, 0.32);
+}
+
+.admin-list-page .admin-dashboard-back {
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-list-page .admin-dashboard-back:hover {
+  transform: translateX(-3px);
+}
+
+/* Resident profile (/resident/:id) — detail + record preview cards */
+.resident-profile-page .beacon-detail-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.resident-profile-page .beacon-detail-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(27, 38, 29, 0.1);
+  border-color: rgba(45, 79, 53, 0.18);
+}
+
+.resident-profile-page .resident-record-preview-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.resident-profile-page .resident-record-preview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(45, 79, 53, 0.11);
+  border-color: rgba(45, 79, 53, 0.2);
 }
 
 .donor-dashboard {
@@ -1886,10 +2023,7 @@ button.admin-dashboard__nav-link {
   gap: 0.8rem;
 }
 .donor-dashboard .donor-events__item {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
+  display: block;
   padding: 0.95rem 1rem;
   border-radius: 12px;
   border: 1px solid rgba(59, 82, 69, 0.16);
@@ -1913,24 +2047,6 @@ button.admin-dashboard__nav-link {
 .donor-dashboard .donor-events__detail {
   font-size: 0.84rem;
   color: var(--beacon-text-muted);
-}
-.donor-dashboard .donor-events__cta {
-  border: 1px solid rgba(59, 82, 69, 0.2);
-  background: #fff;
-  border-radius: 999px;
-  padding: 0.45rem 0.95rem;
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--beacon-text);
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-}
-.donor-dashboard .donor-events__cta:hover {
-  border-color: var(--beacon-primary);
-  background: rgba(45, 79, 53, 0.06);
-  color: var(--beacon-primary-dark);
-  transform: scale(1.03);
-  box-shadow: 0 4px 14px rgba(45, 79, 53, 0.12);
 }
 .donor-dashboard .donor-community-actions {
   display: flex;
@@ -1960,10 +2076,6 @@ button.admin-dashboard__nav-link {
   transform: translateY(-3px);
   box-shadow: 0 14px 32px rgba(39, 58, 46, 0.14);
 }
-.donor-dashboard .donor-community-actions__btn--accent {
-  background: linear-gradient(145deg, rgba(106, 154, 140, 0.21), rgba(210, 139, 99, 0.24));
-}
-
 .donor-dashboard .beacon-stat-card {
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
@@ -1985,7 +2097,6 @@ button.admin-dashboard__nav-link {
   .donor-dashboard .donor-trend__chart,
   .donor-dashboard .donor-trend__labels span,
   .donor-dashboard .donor-events__item,
-  .donor-dashboard .donor-events__cta,
   .donor-dashboard .donor-community-actions__btn,
   .donor-dashboard .beacon-stat-card {
     transition: none;
@@ -2000,7 +2111,6 @@ button.admin-dashboard__nav-link {
   .donor-dashboard .donor-trend:hover .donor-trend__chart,
   .donor-dashboard .donor-trend__labels span:hover,
   .donor-dashboard .donor-events__item:hover,
-  .donor-dashboard .donor-events__cta:hover,
   .donor-dashboard .donor-community-actions__btn:hover,
   .donor-dashboard .beacon-stat-card:hover {
     transform: none;
@@ -2030,13 +2140,6 @@ button.admin-dashboard__nav-link {
   }
   .donor-dashboard .donor-overview-meta__value {
     font-size: 0.95rem;
-  }
-  .donor-dashboard .donor-events__item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .donor-dashboard .donor-events__cta {
-    align-self: flex-end;
   }
 }
 
@@ -3181,8 +3284,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   gap: 0.65rem;
   flex-wrap: wrap;
 }
-.contact-page__social,
-.contact-page__email-cta {
+.contact-page__social {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3194,9 +3296,6 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   font-size: 0.86rem;
   color: var(--beacon-primary);
   background: #fff;
-}
-.contact-page__email-cta {
-  background: linear-gradient(145deg, rgba(106, 154, 140, 0.2), rgba(210, 139, 99, 0.22));
 }
 .contact-page__member {
   border: 1px solid rgba(59, 82, 69, 0.12);
@@ -3250,18 +3349,16 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   padding: 0.6rem 0.7rem;
   min-height: 92px;
 }
-.contact-page__secondary-link {
-  color: var(--beacon-primary);
-  font-weight: 700;
-  text-decoration: none;
-}
 .contact-page__photo-card {
   padding: 0;
   overflow: hidden;
   position: relative;
-  min-height: 210px;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
 }
 .contact-page__photo {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -3287,19 +3384,29 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 }
 .impact-page__hero {
   position: relative;
-  background: url("/little_girl_and_baby.jpg") center 28% / cover no-repeat;
-  min-height: clamp(220px, 34vh, 300px);
+  overflow: hidden;
+  /* Taller band + oversized bg layer (inset) = less “telephoto” crop on wide viewports */
+  min-height: clamp(268px, 42vh, 400px);
   display: flex;
   align-items: flex-end;
+  background-color: #141f18;
+}
+.impact-page__hero::before {
+  content: "";
+  position: absolute;
+  inset: -11%;
+  z-index: 0;
+  background: url("/little_girl_and_baby.jpg") center 40% / cover no-repeat;
 }
 .impact-page__hero-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(0deg, rgba(19, 31, 26, 0.72) 0%, rgba(19, 31, 26, 0.18) 100%);
 }
 .impact-page__hero-inner {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding-bottom: clamp(0.9rem, 2.2vw, 1.35rem);
 }
 .impact-page__title {
@@ -3509,23 +3616,6 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 .about-page__member-role {
   color: var(--beacon-text-muted);
   font-size: 0.9rem;
-}
-.about-page__actions {
-  display: flex;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-}
-.about-page__btn {
-  border: 1px solid rgba(59, 82, 69, 0.22);
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  text-decoration: none;
-  background: #fff;
-  color: var(--beacon-primary);
-  font-weight: 700;
-}
-.about-page__btn--ghost {
-  background: linear-gradient(145deg, rgba(106, 154, 140, 0.2), rgba(210, 139, 99, 0.22));
 }
 
 /* ═══════════════════════════════════════════════

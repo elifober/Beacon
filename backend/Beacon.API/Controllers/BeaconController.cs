@@ -168,6 +168,75 @@ public class BeaconController : ControllerBase
             .ToList();
     }
 
+    /// <summary>
+    /// Landing page: share of total <c>amount_allocated</c> by <c>program_area</c> (table <c>donation_allocations</c>).
+    /// Up to four rows; if more than four distinct areas exist, the top three are shown plus an "Other" bucket.
+    /// </summary>
+    [HttpGet("Impact/ProgramAreaPercentages")]
+    [AllowAnonymous]
+    public async Task<ActionResult<IReadOnlyList<ProgramAreaAllocationShareDto>>> GetProgramAreaAllocationPercentages(
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var rows = await _beaconContext.DonationAllocations
+                .AsNoTracking()
+                .Where(a => a.AmountAllocated.HasValue && a.AmountAllocated.Value > 0)
+                .Select(a => new
+                {
+                    Area = string.IsNullOrWhiteSpace(a.ProgramArea) ? "General" : a.ProgramArea!.Trim(),
+                    Amount = a.AmountAllocated!.Value,
+                })
+                .ToListAsync(cancellationToken);
+
+            var total = rows.Sum(r => r.Amount);
+            if (total <= 0)
+                return Ok(Array.Empty<ProgramAreaAllocationShareDto>());
+
+            var grouped = rows
+                .GroupBy(r => r.Area)
+                .Select(g => new { Area = g.Key, Amount = g.Sum(x => x.Amount) })
+                .OrderByDescending(x => x.Amount)
+                .ToList();
+
+            List<(string Area, decimal Amount)> display;
+            if (grouped.Count <= 4)
+            {
+                display = grouped.Select(g => (g.Area, g.Amount)).ToList();
+            }
+            else
+            {
+                var top3 = grouped.Take(3).Select(g => (g.Area, g.Amount)).ToList();
+                var otherAmount = grouped.Skip(3).Sum(g => g.Amount);
+                display = top3;
+                display.Add(("Other", otherAmount));
+            }
+
+            var result = display
+                .Select(d => new ProgramAreaAllocationShareDto
+                {
+                    ProgramArea = d.Area,
+                    AmountAllocated = d.Amount,
+                    PercentOfTotal = Math.Round(100m * d.Amount / total, 1, MidpointRounding.AwayFromZero),
+                })
+                .ToList();
+
+            var sumPct = result.Sum(r => r.PercentOfTotal);
+            if (result.Count > 0 && Math.Abs(sumPct - 100m) > 0.05m)
+            {
+                var drift = 100m - sumPct;
+                result[0].PercentOfTotal = Math.Round(result[0].PercentOfTotal + drift, 1, MidpointRounding.AwayFromZero);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Impact/ProgramAreaPercentages: failed to read donation_allocations.");
+            return Ok(Array.Empty<ProgramAreaAllocationShareDto>());
+        }
+    }
+
     //GET SINGLE RESIDENT WITH SAFEHOUSE CITY AND RELATED RECORDS
     [Authorize(Policy = AuthPolicies.AdminOnly)]
     [HttpGet("Resident/{id}")]

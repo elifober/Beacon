@@ -64,7 +64,7 @@ function AdminAllSafehousesPage() {
   }
 
   return (
-    <div className="beacon-page container py-4">
+    <div className="beacon-page container py-4 admin-list-page">
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search safehouses by city, province, country, or status..." />
       <p className="landing-section__eyebrow mb-1">Admin</p>

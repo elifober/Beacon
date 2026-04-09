@@ -10,7 +10,7 @@ function AdminSearchInput({
   const { query, setQuery } = useAdminSearch();
 
   return (
-    <div className="mb-3">
+    <div className="mb-3 admin-hub-search">
       <input
         type="text"
         className="form-control rounded-pill px-4 py-2"

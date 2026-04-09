@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
+import { BASE_URL } from "../config/api";
 
 /* ── helpers ── */
 
@@ -76,12 +77,19 @@ const pillars = [
   },
 ];
 
-const impactStats = [
+/** Shown if the API returns no allocation rows (empty DB, error, or offline). */
+const fallbackImpactStats = [
   { value: "200+", label: "Girls Rescued" },
   { value: "12", label: "Safe Homes" },
   { value: "95%", label: "Recovery Rate" },
   { value: "30+", label: "Community Partners" },
-];
+] as const;
+
+type ProgramAreaAllocationShare = {
+  programArea: string;
+  percentOfTotal: number;
+  amountAllocated: number;
+};
 
 const programs: { title: string; desc: string; image: string; points: string[] }[] = [
   {
@@ -306,6 +314,44 @@ const stories = [
 function LandingPage() {
   const location = useLocation();
   const [showHeroButtons, setShowHeroButtons] = useState(false);
+  const [impactStats, setImpactStats] = useState<
+    { value: string; label: string; key: string }[]
+  >(() =>
+    fallbackImpactStats.map((s) => ({
+      value: s.value,
+      label: s.label,
+      key: s.label,
+    })),
+  );
+  const [impactStatsFromApi, setImpactStatsFromApi] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const url = new URL("Impact/ProgramAreaPercentages", `${BASE_URL}/`);
+    fetch(url.toString())
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: ProgramAreaAllocationShare[] | null) => {
+        if (cancelled || !Array.isArray(data) || data.length === 0) return;
+        setImpactStatsFromApi(true);
+        setImpactStats(
+          data.map((row, i) => {
+            const pct = Math.round(Number(row.percentOfTotal));
+            const label = row.programArea?.trim() || "Program area";
+            return {
+              key: `${label}-${i}`,
+              value: `${pct}%`,
+              label,
+            };
+          }),
+        );
+      })
+      .catch(() => {
+        /* keep fallbackImpactStats */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const raw = location.hash?.replace(/^#/, "");
@@ -378,9 +424,9 @@ function LandingPage() {
             Join us in our mission to bring safety, healing, justice, and
             empowerment to survivors.
           </h2>
-          <a href="#mission" className="intro-tagline__link">
+          <Link to="/about" className="intro-tagline__link">
             Our story <span aria-hidden="true">&rarr;</span>
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -446,9 +492,14 @@ function LandingPage() {
           <h2 className="landing-section__heading landing-section__heading--light">
             Making a measurable difference
           </h2>
+          {impactStatsFromApi ? (
+            <p className="landing-impact-stats__lead">
+              Share of recorded gifts by program area (from donation allocations).
+            </p>
+          ) : null}
           <div className="row g-4 mt-3 justify-content-center">
             {impactStats.map((s) => (
-              <div key={s.label} className="col-6 col-md-3">
+              <div key={s.key} className="col-6 col-md-3">
                 <AnimatedStat value={s.value} label={s.label} />
               </div>
             ))}
@@ -599,7 +650,6 @@ function LandingPage() {
             <h2 id="landing-events-heading" className="landing-events__title">
               Upcoming events
             </h2>
-            <span className="landing-events__tag">Beacon Community Events</span>
           </div>
 
           <div className="landing-events__list" role="list">
@@ -615,9 +665,6 @@ function LandingPage() {
                   <p className="landing-events__event-dates">{event.dates}</p>
                   <p className="landing-events__event-price">{event.price}</p>
                 </div>
-                <button type="button" className="landing-events__cta">
-                  Save my spot
-                </button>
               </article>
             ))}
           </div>

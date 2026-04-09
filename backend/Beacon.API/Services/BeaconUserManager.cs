@@ -64,6 +64,16 @@ public class BeaconUserManager : UserManager<ApplicationUser>
         return result;
     }
 
+    /// <summary>
+    /// Idempotent: assigns Supporter role and ensures a <c>supporters</c> row.
+    /// Use when the user already existed in Identity (e.g. first Google link) so <see cref="CreateAsync"/> hooks did not run.
+    /// </summary>
+    public async Task EnsureSupporterProfileForUserAsync(ApplicationUser user)
+    {
+        await EnsureSupporterRoleAsync(user);
+        await EnsureSupporterRowAsync(user);
+    }
+
     private async Task EnsureSupporterRoleAsync(ApplicationUser user)
     {
         if (await IsInRoleAsync(user, AuthRoles.Supporter))

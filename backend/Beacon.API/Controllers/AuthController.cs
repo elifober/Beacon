@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Beacon.API.Data;
+using Beacon.API.Services;
 
 namespace Beacon.API.Controllers;
 
@@ -40,6 +41,16 @@ public class AuthController(
     private const string DefaultFrontendUrl = "http://localhost:2026";
     private const string DefaultExternalReturnPath = "/login";
     private const string ProfileCompleteClaimType = "profile_complete";
+
+    private async Task EnsureSupporterProfileAfterExternalSignInAsync(ApplicationUser? user)
+    {
+        if (user is null || userManager is not BeaconUserManager beacon)
+        {
+            return;
+        }
+
+        await beacon.EnsureSupporterProfileForUserAsync(user);
+    }
 
     private static string CombineSupporterDisplayName(string firstName, string lastName)
     {
@@ -221,13 +232,22 @@ public class AuthController(
             isPersistent: false,
             bypassTwoFactor: true);
 
+        var emailFromClaims = info.Principal.FindFirstValue(ClaimTypes.Email) ??
+            info.Principal.FindFirstValue("email");
+
         if (signInResult.Succeeded)
         {
+            var signedInUser = await userManager.GetUserAsync(User);
+            if (signedInUser is null && !string.IsNullOrWhiteSpace(emailFromClaims))
+            {
+                signedInUser = await userManager.FindByEmailAsync(emailFromClaims);
+            }
+
+            await EnsureSupporterProfileAfterExternalSignInAsync(signedInUser);
             return Redirect(BuildFrontendSuccessUrl(returnPath));
         }
 
-        var email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
-            info.Principal.FindFirstValue("email");
+        var email = emailFromClaims;
 
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -261,6 +281,7 @@ public class AuthController(
         }
 
         await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+        await EnsureSupporterProfileAfterExternalSignInAsync(user);
         return Redirect(BuildFrontendSuccessUrl(returnPath));
     }
 

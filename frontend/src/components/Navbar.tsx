@@ -6,7 +6,10 @@ function Navbar() {
   const { authSession, isAuthenticated, isLoading } = useAuth();
   const roles = authSession?.roles ?? [];
   const isAdmin = roles.includes("Admin");
-  const isDonor = roles.includes("Donor");
+  const isDonor = roles.includes("Supporter") || roles.includes("Donor");
+  const donorDashboardPath = authSession?.supporterId != null
+    ? `/donor-dashboard/${authSession.supporterId}`
+    : "/login";
   const location = useLocation();
   const isLanding = location.pathname === "/";
 
@@ -54,7 +57,7 @@ function Navbar() {
     </>
   );
 
-  const roleNavLinks = !isLanding ? (
+  const roleNavLinks = (
     <>
       {isAdmin && (
         <NavLink to="/admin" onClick={() => setMenuOpen(false)}>
@@ -62,12 +65,12 @@ function Navbar() {
         </NavLink>
       )}
       {isDonor && (
-        <NavLink to="/login" onClick={() => setMenuOpen(false)}>
-          My Donations
+        <NavLink to={donorDashboardPath} onClick={() => setMenuOpen(false)}>
+          Dashboard
         </NavLink>
       )}
     </>
-  ) : null;
+  );
 
   return (
     <nav className={navClass}>

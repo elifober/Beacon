@@ -1,16 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
 import { useAdminSearch } from "../context/AdminSearchContext";
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${mm}-${dd}-${yyyy}`;
-}
 
 function calculateAge(dateStr: string): number {
   const dob = new Date(dateStr);
@@ -38,12 +31,13 @@ interface AdminResident {
 }
 
 function AdminAllResidentsPage() {
+  const navigate = useNavigate();
   const [residents, setResidents] = useState<AdminResident[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 15;
-  const [view, setView] = useState<"table" | "card">("table");
+  const [view, setView] = useState<"table" | "card">("card");
   const { query } = useAdminSearch();
 
   useEffect(() => {
@@ -130,31 +124,38 @@ function AdminAllResidentsPage() {
             <table className="table table-striped table-hover mb-0">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Name</th>
-                  <th>Safehouse City</th>
+                  <th>Safehouse</th>
                   <th>Sex</th>
-                  <th>Date of Birth</th>
-                  <th>Religion</th>
-                  <th>Case Category</th>
-                  <th>Date of Admission</th>
-                  <th>Reintegration</th>
-                  <th>Risk Level</th>
+                  <th>Age</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {visibleResidents.map((r) => (
-                  <tr key={r.residentId}>
-                    <td>{r.residentId}</td>
+                  <tr
+                    key={r.residentId}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Open resident profile for ${r.name}`}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/resident/${r.residentId}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/resident/${r.residentId}`);
+                      }
+                    }}
+                  >
                     <td>{r.name}</td>
                     <td>{r.safehouseCity ?? "\u2014"}</td>
                     <td>{r.sex ?? "\u2014"}</td>
-                    <td>{r.dateOfBirth ? formatDate(r.dateOfBirth) : "\u2014"}</td>
-                    <td>{r.religion ?? "\u2014"}</td>
-                    <td>{r.caseCategory ?? "\u2014"}</td>
-                    <td>{r.dateOfAdmission ? formatDate(r.dateOfAdmission) : "\u2014"}</td>
-                    <td>{r.reintegrationStatus ?? "\u2014"}</td>
-                    <td>{r.currentRiskLevel ?? "\u2014"}</td>
+                    <td>
+                      {r.dateOfBirth
+                        ? calculateAge(r.dateOfBirth)
+                        : "\u2014"}
+                    </td>
+                    <td>{r.caseStatus ?? "\u2014"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -165,69 +166,33 @@ function AdminAllResidentsPage() {
         <div className="row g-4">
           {visibleResidents.map((r) => (
             <div key={r.residentId} className="col-sm-6 col-lg-4">
-              <div className="card h-100">
-                <div className="card-body">
-                  <h5 className="card-title mb-3">{r.name}</h5>
-                  <table className="table table-sm mb-0">
-                    <tbody>
-                      {r.safehouseCity && (
-                        <tr>
-                          <th>City</th>
-                          <td>{r.safehouseCity}</td>
-                        </tr>
-                      )}
-                      {r.sex && (
-                        <tr>
-                          <th>Sex</th>
-                          <td>{r.sex}</td>
-                        </tr>
-                      )}
-                      {r.dateOfBirth && (
-                        <tr>
-                          <th>Age</th>
-                          <td>{calculateAge(r.dateOfBirth)}</td>
-                        </tr>
-                      )}
-                      {r.religion && (
-                        <tr>
-                          <th>Religion</th>
-                          <td>{r.religion}</td>
-                        </tr>
-                      )}
-                      {r.caseCategory && (
-                        <tr>
-                          <th>Category</th>
-                          <td>{r.caseCategory}</td>
-                        </tr>
-                      )}
-                      {r.caseStatus && (
-                        <tr>
-                          <th>Status</th>
-                          <td>{r.caseStatus}</td>
-                        </tr>
-                      )}
-                      {r.dateOfAdmission && (
-                        <tr>
-                          <th>Admitted</th>
-                          <td>{formatDate(r.dateOfAdmission)}</td>
-                        </tr>
-                      )}
-                      {r.reintegrationStatus && (
-                        <tr>
-                          <th>Reintegration</th>
-                          <td>{r.reintegrationStatus}</td>
-                        </tr>
-                      )}
-                      {r.currentRiskLevel && (
-                        <tr>
-                          <th>Risk Level</th>
-                          <td>{r.currentRiskLevel}</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+              <Link
+                to={`/resident/${r.residentId}`}
+                className="text-decoration-none text-reset d-block h-100"
+                aria-label={`Open resident profile for ${r.name}`}
+              >
+                <div className="card h-100 shadow-sm">
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title mb-3">{r.name}</h5>
+                    <dl className="row small mb-0 flex-grow-1">
+                      <dt className="col-5 text-muted fw-normal">Safehouse</dt>
+                      <dd className="col-7 mb-2">
+                        {r.safehouseCity ?? "\u2014"}
+                      </dd>
+                      <dt className="col-5 text-muted fw-normal">Sex</dt>
+                      <dd className="col-7 mb-2">{r.sex ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">Age</dt>
+                      <dd className="col-7 mb-2">
+                        {r.dateOfBirth
+                          ? calculateAge(r.dateOfBirth)
+                          : "\u2014"}
+                      </dd>
+                      <dt className="col-5 text-muted fw-normal">Status</dt>
+                      <dd className="col-7 mb-0">{r.caseStatus ?? "\u2014"}</dd>
+                    </dl>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
         </div>

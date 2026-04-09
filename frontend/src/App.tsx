@@ -1,6 +1,6 @@
 import './App.css'
 import type { ReactNode } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LoginPage from './pages/LoginPage.tsx'
 import RegisterPage from './pages/RegisterPage.tsx'
 import LogoutPage from './pages/LogoutPage.tsx'
@@ -25,15 +25,15 @@ import PostPlanner from './pages/marketing/PostPlanner.tsx'
 import ProfileCompletionRedirect from './components/ProfileCompletionRedirect'
 import CompleteProfilePage from './pages/CompleteProfilePage.tsx'
 import DonatePage from './pages/DonatePage.tsx'
+import ContactPage from './pages/ContactPage.tsx'
+import ImpactPage from './pages/ImpactPage.tsx'
+import AboutPage from './pages/AboutPage.tsx'
 
 function RoutedMain({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation()
-  const isLanding = pathname === '/'
   return (
     <main
       id="main-content"
       tabIndex={-1}
-      className={isLanding ? undefined : 'main-below-fixed-nav'}
     >
       {children}
     </main>
@@ -54,7 +54,10 @@ function App() {
           <AdminSearchProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/donate" element={<DonatePage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/impact" element={<ImpactPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route

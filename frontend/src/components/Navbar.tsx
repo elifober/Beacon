@@ -36,24 +36,20 @@ function Navbar() {
     .filter(Boolean)
     .join(" ");
 
-  /** On the home page use in-page anchors; elsewhere link back to home with hash */
-  const sectionHref = (fragment: string) =>
-    isLanding ? `#${fragment}` : `/#${fragment}`;
-
   const primaryNavLinks = (
     <>
-      <a href={sectionHref("mission")} onClick={() => setMenuOpen(false)}>
+      <NavLink to="/about" onClick={() => setMenuOpen(false)}>
         About
-      </a>
-      <a href={sectionHref("impact")} onClick={() => setMenuOpen(false)}>
+      </NavLink>
+      <NavLink to="/impact" onClick={() => setMenuOpen(false)}>
         Impact
-      </a>
+      </NavLink>
       <NavLink to="/donate" onClick={() => setMenuOpen(false)}>
         Donate
       </NavLink>
-      <a href={sectionHref("involved")} onClick={() => setMenuOpen(false)}>
+      <NavLink to="/contact" onClick={() => setMenuOpen(false)}>
         Contact Us
-      </a>
+      </NavLink>
     </>
   );
 

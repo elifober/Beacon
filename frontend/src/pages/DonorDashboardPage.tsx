@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDonorDashboard } from "../api/Donors";
 import type { DonorDashboard } from "../types/DonorDashboard";
@@ -58,8 +58,6 @@ function DonorDashboardPage() {
     0,
   );
   const grandTotal = monetaryTotal + nonMonetaryTotal;
-  const monetaryShare = grandTotal > 0 ? (monetaryTotal / grandTotal) * 100 : 50;
-  const nonMonetaryShare = 100 - monetaryShare;
 
   const byProgramArea = data.donationHistory.reduce<Record<string, number>>((acc, item) => {
     const key = item.programArea?.trim() || "Unspecified";
@@ -79,10 +77,41 @@ function DonorDashboardPage() {
     ? new Date(latestDonationDate).toLocaleDateString()
     : "No donations yet";
 
-  const donutRadius = 42;
-  const donutCircumference = 2 * Math.PI * donutRadius;
-  const monetaryArc = (monetaryShare / 100) * donutCircumference;
-  const nonMonetaryArc = donutCircumference - monetaryArc;
+  const allocationPalette = ["#6a9a8c", "#d28b63", "#55628e", "#bfa15a", "#8f74b6"];
+  const programAllocations = Object.entries(
+    data.donationHistory.reduce<Record<string, number>>((acc, item) => {
+      const key = item.programArea?.trim() || "Unspecified";
+      const numericValue = (item.amount ?? 0) + (item.estimatedValue ?? 0);
+      // Fall back to count-based weighting when value fields are empty.
+      const weight = numericValue > 0 ? numericValue : 1;
+      acc[key] = (acc[key] ?? 0) + weight;
+      return acc;
+    }, {}),
+  )
+    .map(([program, value]) => ({ program, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const totalAllocationWeight = programAllocations.reduce((sum, item) => sum + item.value, 0) || 1;
+  const hasCurrencyAllocations = programAllocations.some((item) => item.value > 1);
+
+  const allocationSlices = programAllocations.map((item, index) => ({
+    ...item,
+    color: allocationPalette[index % allocationPalette.length],
+    share: (item.value / totalAllocationWeight) * 100,
+  }));
+
+  let runningPercent = 0;
+  const gradientStops = allocationSlices
+    .map((slice) => {
+      const start = runningPercent;
+      runningPercent += slice.share;
+      return `${slice.color} ${start.toFixed(2)}% ${runningPercent.toFixed(2)}%`;
+    })
+    .join(", ");
+
+  const allocationChartStyle = {
+    "--donor-allocation-gradient": `conic-gradient(${gradientStops})`,
+  } as CSSProperties;
 
   const upcomingEvents = [
     {
@@ -201,38 +230,38 @@ function DonorDashboardPage() {
           <div id="donor-analytics" className="row g-4 mb-4">
             <div className="col-xl-5">
               <div className="admin-dashboard__nav-card donor-dashboard__glass-panel h-100">
-                <h2 className="landing-section__heading h4 mb-3">Donation mix</h2>
-                <div className="donor-mix-chart" role="img" aria-label="Donation mix chart">
-                  <svg viewBox="0 0 120 120" className="donor-mix-chart__svg" aria-hidden="true">
-                    <circle className="donor-mix-chart__track" cx="60" cy="60" r={donutRadius} />
-                    <circle
-                      className="donor-mix-chart__slice donor-mix-chart__slice--monetary"
-                      cx="60"
-                      cy="60"
-                      r={donutRadius}
-                      strokeDasharray={`${monetaryArc} ${donutCircumference - monetaryArc}`}
-                      strokeDashoffset="0"
-                    />
-                    <circle
-                      className="donor-mix-chart__slice donor-mix-chart__slice--nonmonetary"
-                      cx="60"
-                      cy="60"
-                      r={donutRadius}
-                      strokeDasharray={`${nonMonetaryArc} ${donutCircumference - nonMonetaryArc}`}
-                      strokeDashoffset={-monetaryArc}
-                    />
-                  </svg>
-                  <div className="donor-mix-chart__center">
-                    <p className="mb-0 donor-mix-chart__center-kicker">Total impact</p>
-                    <p className="mb-0 donor-mix-chart__center-value">{formatCurrency(grandTotal)}</p>
+                <h2 className="landing-section__heading h4 mb-3">Donation allocations</h2>
+                <div className="donor-allocation-chart">
+                  <div
+                    className="donor-allocation-chart__ring"
+                    style={allocationChartStyle}
+                    role="img"
+                    aria-label="Donation allocation by program area"
+                  >
+                    <div className="donor-allocation-chart__center">
+                      <p className="mb-0 donor-allocation-chart__center-kicker">Allocated</p>
+                      <p className="mb-0 donor-allocation-chart__center-value">{formatCurrency(grandTotal)}</p>
+                    </div>
                   </div>
-                  <div className="donor-mix-chart__callout donor-mix-chart__callout--left">
-                    <p className="mb-0 fw-semibold">Monetary ({monetaryDonations.length})</p>
-                    <p className="mb-0">{monetaryShare.toFixed(1)}%</p>
-                  </div>
-                  <div className="donor-mix-chart__callout donor-mix-chart__callout--right">
-                    <p className="mb-0 fw-semibold">Non-monetary ({nonMonetaryDonations.length})</p>
-                    <p className="mb-0">{nonMonetaryShare.toFixed(1)}%</p>
+                  <div className="donor-allocation-chart__legend mt-3">
+                    {allocationSlices.map((slice) => (
+                      <div key={slice.program} className="donor-allocation-chart__legend-row">
+                        <p className="mb-0">
+                          <span
+                            className="donor-dot"
+                            style={{ backgroundColor: slice.color }}
+                            aria-hidden="true"
+                          />{" "}
+                          {slice.program}
+                        </p>
+                        <p className="mb-0 text-end">
+                          {slice.share.toFixed(1)}% ·{" "}
+                          {hasCurrencyAllocations
+                            ? formatCurrency(slice.value)
+                            : `${Math.round(slice.value)} donation(s)`}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

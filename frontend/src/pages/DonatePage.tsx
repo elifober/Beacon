@@ -33,6 +33,17 @@ function DonatePage() {
 
   return (
     <div className="donate-external">
+      <div className="donate-external__bg" aria-hidden="true">
+        <video
+          className="donate-external__bg-video"
+          src="/flag.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="donate-external__bg-overlay" />
+      </div>
       <div className="donate-external__wrap">
         <div className="donate-external__card">
           <div className="donate-external__brand">

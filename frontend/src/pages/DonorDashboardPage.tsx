@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDonorDashboard } from "../api/Donors";
 import type { DonorDashboard } from "../types/DonorDashboard";
@@ -76,9 +76,28 @@ function DonorDashboardPage() {
     ? new Date(latestDonationDate).toLocaleDateString()
     : "No donations yet";
 
-  const chartStyle = {
-    "--donor-monetary-share": `${monetaryShare.toFixed(2)}%`,
-  } as CSSProperties;
+  const donutRadius = 42;
+  const donutCircumference = 2 * Math.PI * donutRadius;
+  const monetaryArc = (monetaryShare / 100) * donutCircumference;
+  const nonMonetaryArc = donutCircumference - monetaryArc;
+
+  const upcomingEvents = [
+    {
+      title: "Community Build Day",
+      dateLabel: "Sat · May 24, 2026",
+      detail: "Family shelter upgrades",
+    },
+    {
+      title: "Back-to-School Drive",
+      dateLabel: "Thu · Jun 12, 2026",
+      detail: "Supply packing and distribution",
+    },
+    {
+      title: "Donor Appreciation Night",
+      dateLabel: "Fri · Jul 03, 2026",
+      detail: "Stories, updates, and impact highlights",
+    },
+  ] as const;
 
   return (
     <div className="admin-dashboard beacon-page donor-dashboard">
@@ -100,7 +119,7 @@ function DonorDashboardPage() {
         <div className="container">
           <div className="row g-4 align-items-stretch mb-4">
             <div className="col-lg-8">
-              <div className="admin-dashboard__panel h-100">
+              <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
                 <p className="landing-section__eyebrow mb-2">Overview</p>
                 <h2 className="landing-section__heading mb-3">Your giving at a glance</h2>
                 <p className="landing-section__body mb-0">
@@ -111,7 +130,7 @@ function DonorDashboardPage() {
             </div>
 
             <div className="col-lg-4">
-              <div className="admin-dashboard__nav-card">
+              <div className="admin-dashboard__nav-card donor-dashboard__glass-panel donor-dashboard__glass-panel--nav">
                 <p className="landing-section__eyebrow mb-3">Quick actions</p>
                 <nav className="admin-dashboard__nav" aria-label="Donor quick actions">
                   <Link to="/donate" className="admin-dashboard__nav-link">
@@ -130,7 +149,7 @@ function DonorDashboardPage() {
 
           <div className="row g-3 mb-4">
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card h-100">
+              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Monetary total</p>
                   <p className="beacon-stat-value h3 mb-0">{formatCurrency(monetaryTotal)}</p>
@@ -138,7 +157,7 @@ function DonorDashboardPage() {
               </div>
             </div>
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card h-100">
+              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Non-monetary estimate</p>
                   <p className="beacon-stat-value h3 mb-0">{formatCurrency(nonMonetaryTotal)}</p>
@@ -146,7 +165,7 @@ function DonorDashboardPage() {
               </div>
             </div>
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card h-100">
+              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Most supported area</p>
                   <p className="beacon-stat-value h4 mb-0">
@@ -156,7 +175,7 @@ function DonorDashboardPage() {
               </div>
             </div>
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card h-100">
+              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Latest donation</p>
                   <p className="beacon-stat-value h4 mb-0">{latestDonationLabel}</p>
@@ -167,23 +186,45 @@ function DonorDashboardPage() {
 
           <div id="donor-analytics" className="row g-4 mb-4">
             <div className="col-xl-5">
-              <div className="admin-dashboard__nav-card h-100">
+              <div className="admin-dashboard__nav-card donor-dashboard__glass-panel h-100">
                 <h2 className="landing-section__heading h4 mb-3">Donation mix</h2>
-                <div className="donor-pie donor-pie--clean" style={chartStyle} role="img" aria-label="Donation mix chart" />
-                <div className="donor-pie__legend mt-3">
-                  <p className="mb-1">
-                    <span className="donor-dot donor-dot--monetary" /> Monetary:{" "}
-                    {monetaryShare.toFixed(1)}%
-                  </p>
-                  <p className="mb-0">
-                    <span className="donor-dot donor-dot--nonmonetary" /> Non-monetary:{" "}
-                    {nonMonetaryShare.toFixed(1)}%
-                  </p>
+                <div className="donor-mix-chart" role="img" aria-label="Donation mix chart">
+                  <svg viewBox="0 0 120 120" className="donor-mix-chart__svg" aria-hidden="true">
+                    <circle className="donor-mix-chart__track" cx="60" cy="60" r={donutRadius} />
+                    <circle
+                      className="donor-mix-chart__slice donor-mix-chart__slice--monetary"
+                      cx="60"
+                      cy="60"
+                      r={donutRadius}
+                      strokeDasharray={`${monetaryArc} ${donutCircumference - monetaryArc}`}
+                      strokeDashoffset="0"
+                    />
+                    <circle
+                      className="donor-mix-chart__slice donor-mix-chart__slice--nonmonetary"
+                      cx="60"
+                      cy="60"
+                      r={donutRadius}
+                      strokeDasharray={`${nonMonetaryArc} ${donutCircumference - nonMonetaryArc}`}
+                      strokeDashoffset={-monetaryArc}
+                    />
+                  </svg>
+                  <div className="donor-mix-chart__center">
+                    <p className="mb-0 donor-mix-chart__center-kicker">Total impact</p>
+                    <p className="mb-0 donor-mix-chart__center-value">{formatCurrency(grandTotal)}</p>
+                  </div>
+                  <div className="donor-mix-chart__callout donor-mix-chart__callout--left">
+                    <p className="mb-0 fw-semibold">Monetary ({monetaryDonations.length})</p>
+                    <p className="mb-0">{monetaryShare.toFixed(1)}%</p>
+                  </div>
+                  <div className="donor-mix-chart__callout donor-mix-chart__callout--right">
+                    <p className="mb-0 fw-semibold">Non-monetary ({nonMonetaryDonations.length})</p>
+                    <p className="mb-0">{nonMonetaryShare.toFixed(1)}%</p>
+                  </div>
                 </div>
               </div>
             </div>
             <div className="col-xl-7">
-              <div className="admin-dashboard__panel h-100">
+              <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
                 <h2 className="landing-section__heading h4 mb-3">Donation activity</h2>
                 <div className="donor-mini-grid donor-mini-grid--clean">
                   <div className="donor-mini-grid__item">
@@ -214,6 +255,38 @@ function DonorDashboardPage() {
             <div className="col-lg-7 d-flex flex-column gap-4">
               <MonetaryDonationHistory history={data.donationHistory} />
               <NonMonetaryDonationHistory history={data.donationHistory} />
+            </div>
+          </div>
+
+          <div className="row g-4 mt-1">
+            <div className="col-lg-5">
+              <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
+                <p className="landing-section__eyebrow mb-2">Community</p>
+                <h2 className="landing-section__heading h4 mb-3">Stay close to the impact</h2>
+                <p className="landing-section__body mb-0">
+                  Join upcoming Beacon events, meet other supporters, and see how your
+                  contributions directly power safe shelter, health, and rehabilitation.
+                </p>
+              </div>
+            </div>
+            <div className="col-lg-7">
+              <div className="admin-dashboard__nav-card donor-dashboard__glass-panel donor-events h-100">
+                <h2 className="landing-section__heading h4 mb-3">Upcoming events</h2>
+                <div className="donor-events__list">
+                  {upcomingEvents.map((event) => (
+                    <article key={event.title} className="donor-events__item">
+                      <div>
+                        <p className="donor-events__title mb-0">{event.title}</p>
+                        <p className="donor-events__meta mb-0">{event.dateLabel}</p>
+                        <p className="donor-events__detail mb-0">{event.detail}</p>
+                      </div>
+                      <button type="button" className="donor-events__cta">
+                        Save my spot
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

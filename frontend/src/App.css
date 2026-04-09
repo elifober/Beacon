@@ -1350,8 +1350,39 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   outline-offset: 2px;
 }
 
+.donor-dashboard {
+  margin-top: calc(-1 * (80px + 2rem + env(safe-area-inset-top, 0px)));
+  background:
+    radial-gradient(circle at 12% 22%, rgba(114, 159, 147, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 11%, rgba(225, 181, 129, 0.12), transparent 36%),
+    linear-gradient(180deg, #f5f7f4 0%, #edf2ec 100%);
+}
 .donor-dashboard .admin-dashboard__hero {
-  margin-top: calc(-2rem - env(safe-area-inset-top, 0px));
+  margin-top: 0;
+}
+.donor-dashboard .admin-dashboard__hero-overlay {
+  background: linear-gradient(
+    0deg,
+    rgba(20, 33, 27, 0.6) 0%,
+    rgba(20, 33, 27, 0.24) 55%,
+    rgba(20, 33, 27, 0.05) 100%
+  );
+}
+.donor-dashboard .admin-dashboard__hero-content {
+  padding-bottom: clamp(1.2rem, 3vw, 2.1rem);
+}
+.donor-dashboard .admin-dashboard__main {
+  padding-top: 2.25rem;
+}
+.donor-dashboard__glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(246, 249, 246, 0.72)) !important;
+  box-shadow: 0 12px 30px rgba(39, 58, 46, 0.08) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.donor-dashboard__glass-panel--nav .admin-dashboard__nav-link {
+  background: rgba(255, 255, 255, 0.45);
 }
 .donor-dashboard .beacon-stat-value {
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -1360,37 +1391,81 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
-.donor-dashboard .donor-pie--clean {
-  width: min(66vw, 216px);
+.donor-dashboard .donor-mix-chart {
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  background: conic-gradient(
-    #4f8a83 0 var(--donor-monetary-share),
-    #c98562 var(--donor-monetary-share) 100%
-  );
-  box-shadow:
-    0 12px 24px rgba(27, 38, 29, 0.12),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-  transform: rotate(-90deg);
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 230px;
 }
-.donor-dashboard .donor-pie--clean::after {
+.donor-dashboard .donor-mix-chart__svg {
+  width: min(72vw, 250px);
+  display: block;
+  margin: 0 auto;
+}
+.donor-dashboard .donor-mix-chart__track {
+  fill: none;
+  stroke: rgba(31, 55, 45, 0.1);
+  stroke-width: 20;
+}
+.donor-dashboard .donor-mix-chart__slice {
+  fill: none;
+  stroke-width: 20;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+}
+.donor-dashboard .donor-mix-chart__slice--monetary {
+  stroke: #6a9a8c;
+}
+.donor-dashboard .donor-mix-chart__slice--nonmonetary {
+  stroke: #d28b63;
+}
+.donor-dashboard .donor-mix-chart__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.donor-dashboard .donor-mix-chart__center-kicker {
+  font-size: 0.72rem;
+  color: var(--beacon-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.donor-dashboard .donor-mix-chart__center-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--beacon-primary);
+}
+.donor-dashboard .donor-mix-chart__callout {
+  position: absolute;
+  font-size: 0.88rem;
+  color: var(--beacon-text);
+  max-width: 145px;
+}
+.donor-dashboard .donor-mix-chart__callout::before {
   content: "";
   position: absolute;
-  inset: 28%;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8f6 100%);
-  box-shadow:
-    inset 0 0 0 1px var(--beacon-border),
-    0 1px 4px rgba(27, 38, 29, 0.08);
+  top: 50%;
+  width: 18px;
+  height: 1px;
+  background: rgba(31, 55, 45, 0.35);
 }
-.donor-dashboard .donor-pie__legend {
-  max-width: 260px;
-  margin-left: auto;
-  margin-right: auto;
+.donor-dashboard .donor-mix-chart__callout--left {
+  left: 0;
+  top: 30%;
+  text-align: right;
 }
-.donor-dashboard .donor-pie__legend p {
-  color: var(--beacon-text);
-  font-weight: 600;
+.donor-dashboard .donor-mix-chart__callout--left::before {
+  right: -22px;
+}
+.donor-dashboard .donor-mix-chart__callout--right {
+  right: 0;
+  top: 60%;
+}
+.donor-dashboard .donor-mix-chart__callout--right::before {
+  left: -22px;
 }
 .donor-dashboard .donor-mini-grid--clean .donor-mini-grid__item {
   border: 1px solid var(--beacon-border);
@@ -1404,10 +1479,74 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   color: var(--beacon-primary);
 }
 .donor-dashboard .donor-dot--monetary {
-  background: #4f8a83;
+  background: #6a9a8c;
 }
 .donor-dashboard .donor-dot--nonmonetary {
-  background: #c98562;
+  background: #d28b63;
+}
+.donor-dashboard .donor-events__list {
+  display: grid;
+  gap: 0.8rem;
+}
+.donor-dashboard .donor-events__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(59, 82, 69, 0.16);
+  background: rgba(255, 255, 255, 0.55);
+}
+.donor-dashboard .donor-events__title {
+  font-weight: 700;
+  color: var(--beacon-text);
+}
+.donor-dashboard .donor-events__meta {
+  font-size: 0.88rem;
+  color: var(--beacon-primary);
+}
+.donor-dashboard .donor-events__detail {
+  font-size: 0.84rem;
+  color: var(--beacon-text-muted);
+}
+.donor-dashboard .donor-events__cta {
+  border: 1px solid rgba(59, 82, 69, 0.2);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--beacon-text);
+}
+.donor-dashboard .donor-events__cta:hover {
+  border-color: rgba(59, 82, 69, 0.35);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 992px) {
+  .donor-dashboard {
+    margin-top: calc(-1 * (80px + 1rem + env(safe-area-inset-top, 0px)));
+  }
+  .donor-dashboard .donor-mix-chart__callout {
+    position: static;
+    max-width: none;
+    text-align: left;
+    margin-top: 0.35rem;
+  }
+  .donor-dashboard .donor-mix-chart__callout::before {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .donor-dashboard .donor-events__item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .donor-dashboard .donor-events__cta {
+    align-self: flex-end;
+  }
 }
 
 /* ═══════════════════════════════════════════════

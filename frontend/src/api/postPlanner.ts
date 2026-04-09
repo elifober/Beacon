@@ -1,3 +1,4 @@
+import { requireApiBaseUrl } from "../lib/apiBaseUrl";
 // src/api/postPlanner.ts
 export interface PostPredictionRequest {
   platform: string;
@@ -25,12 +26,10 @@ export interface PostPredictionResponse {
   interpretation: string;
 }
 
-const API_BASE = "";
-
 export async function predictPostSuccess(
   req: PostPredictionRequest
 ): Promise<PostPredictionResponse> {
-  const res = await fetch(`${API_BASE}/api/marketing/predict-post`, {
+  const res = await fetch(new URL(`/api/marketing/predict-post`, requireApiBaseUrl()).toString(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

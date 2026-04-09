@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { HomeVisitationRow } from "../../types/residentRecords";
 import Pagination from "../Pagination";
+import { AddHomeVisitationModal } from "./AddHomeVisitationModal";
 import { InlineDetailsCell } from "./InlineDetailsCell";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
@@ -11,10 +12,16 @@ import {
   RESIDENT_RECORD_MODAL_PAGE_SIZE,
 } from "./residentRecordFormat";
 
-type Props = { records: HomeVisitationRow[] };
+type Props = {
+  records: HomeVisitationRow[];
+  residentId: number;
+  onRecordsChanged: () => void;
+};
 
-export function HomeVisitsRecordsSection({ records }: Props) {
+export function HomeVisitsRecordsSection({ records, residentId, onRecordsChanged }: Props) {
   const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<HomeVisitationRow | null>(null);
   const [modalPage, setModalPage] = useState(1);
   const count = records.length;
   const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
@@ -56,15 +63,38 @@ export function HomeVisitsRecordsSection({ records }: Props) {
               {count}
             </span>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary mt-auto"
-            onClick={() => setOpen(true)}
-          >
-            View
-          </button>
+          <div className="d-flex gap-2 mt-auto">
+            <button
+              type="button"
+              className="btn btn-primary flex-grow-1"
+              onClick={() => setOpen(true)}
+            >
+              View
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary flex-grow-1"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
+
+      <AddHomeVisitationModal
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        initialResidentId={Number.isFinite(residentId) ? residentId : undefined}
+        existingRecord={editing}
+        onCreated={onRecordsChanged}
+      />
 
       <ResidentRecordModal
         title="Home Visits"
@@ -89,6 +119,7 @@ export function HomeVisitsRecordsSection({ records }: Props) {
                   <th>Outcome</th>
                   <th>Follow-up notes</th>
                   <th>Observations</th>
+                  <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -108,6 +139,19 @@ export function HomeVisitsRecordsSection({ records }: Props) {
                         text={v.observations}
                         ariaLabel="Show or hide full visit observations"
                       />
+                    </td>
+                    <td className="text-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                          setOpen(false);
+                          setEditing(v);
+                          setFormOpen(true);
+                        }}
+                      >
+                        Update
+                      </button>
                     </td>
                   </tr>
                 ))}

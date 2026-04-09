@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { IncidentReportRow } from "../../types/residentRecords";
 import Pagination from "../Pagination";
+import { AddIncidentReportModal } from "./AddIncidentReportModal";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   dashIfEmpty,
@@ -9,10 +10,22 @@ import {
   RESIDENT_RECORD_MODAL_PAGE_SIZE,
 } from "./residentRecordFormat";
 
-type Props = { records: IncidentReportRow[] };
+type Props = {
+  records: IncidentReportRow[];
+  residentId: number;
+  initialSafehouseId?: number;
+  onRecordsChanged: () => void;
+};
 
-export function IncidentReportsSection({ records }: Props) {
+export function IncidentReportsSection({
+  records,
+  residentId,
+  initialSafehouseId,
+  onRecordsChanged,
+}: Props) {
   const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<IncidentReportRow | null>(null);
   const [modalPage, setModalPage] = useState(1);
   const count = records.length;
   const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
@@ -54,15 +67,45 @@ export function IncidentReportsSection({ records }: Props) {
               {count}
             </span>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary mt-auto"
-            onClick={() => setOpen(true)}
-          >
-            View
-          </button>
+          <div className="d-flex gap-2 mt-auto">
+            <button
+              type="button"
+              className="btn btn-primary flex-grow-1"
+              onClick={() => setOpen(true)}
+            >
+              View
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary flex-grow-1"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
+
+      <AddIncidentReportModal
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        initialResidentId={Number.isFinite(residentId) ? residentId : undefined}
+        initialSafehouseId={
+          initialSafehouseId !== undefined &&
+          initialSafehouseId !== null &&
+          Number.isFinite(initialSafehouseId)
+            ? initialSafehouseId
+            : undefined
+        }
+        existingRecord={editing}
+        onCreated={onRecordsChanged}
+      />
 
       <ResidentRecordModal
         title="Incident Reports"
@@ -85,6 +128,7 @@ export function IncidentReportsSection({ records }: Props) {
                   <th>Resolution date</th>
                   <th>Reported by</th>
                   <th>Follow-up req.</th>
+                  <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -98,6 +142,19 @@ export function IncidentReportsSection({ records }: Props) {
                     <td>{formatDate(i.resolutionDate)}</td>
                     <td>{dashIfEmpty(i.reportedBy)}</td>
                     <td>{fmtBool(i.followUpRequired)}</td>
+                    <td className="text-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                          setOpen(false);
+                          setEditing(i);
+                          setFormOpen(true);
+                        }}
+                      >
+                        Update
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

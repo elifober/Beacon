@@ -58,6 +58,7 @@ public sealed class ResidentHomeVisitationRow
     public string? SocialWorker { get; set; }
     public string? VisitType { get; set; }
     public string? LocationVisited { get; set; }
+    public string? FamilyMembersPresent { get; set; }
     public string? Purpose { get; set; }
     public string? Observations { get; set; }
     public string? FamilyCooperationLevel { get; set; }
@@ -70,9 +71,12 @@ public sealed class ResidentHomeVisitationRow
 public sealed class ResidentIncidentReportRow
 {
     public int IncidentId { get; set; }
+    public int SafehouseId { get; set; }
     public DateOnly IncidentDate { get; set; }
     public string? IncidentType { get; set; }
     public string? Severity { get; set; }
+    public string? Description { get; set; }
+    public string? ResponseTaken { get; set; }
     public bool? Resolved { get; set; }
     public DateOnly? ResolutionDate { get; set; }
     public string? ReportedBy { get; set; }

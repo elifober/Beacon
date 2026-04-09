@@ -8,6 +8,8 @@ type ResidentRecordModalProps = {
   children: React.ReactNode;
   /** Shown below the white dialog card (e.g. pagination), not inside the card */
   belowCard?: React.ReactNode;
+  /** Narrower shell width (e.g. forms) */
+  narrow?: boolean;
 };
 
 export function ResidentRecordModal({
@@ -16,6 +18,7 @@ export function ResidentRecordModal({
   onClose,
   children,
   belowCard,
+  narrow,
 }: ResidentRecordModalProps) {
   const titleId = useId();
 
@@ -42,7 +45,11 @@ export function ResidentRecordModal({
       onClick={onClose}
     >
       <div
-        className="resident-record-modal-shell"
+        className={
+          narrow
+            ? "resident-record-modal-shell resident-record-modal-shell--narrow"
+            : "resident-record-modal-shell"
+        }
         onClick={(e) => e.stopPropagation()}
         role="presentation"
       >

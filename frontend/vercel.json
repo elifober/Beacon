@@ -8,6 +8,10 @@
       "source": "/Beacon/:path*",
       "destination": "https://beacon-production-a89b.up.railway.app/Beacon/:path*"
     },
+    {
+      "source": "/Risk/:path*",
+      "destination": "https://beacon-production-a89b.up.railway.app/Risk/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

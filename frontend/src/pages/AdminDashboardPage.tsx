@@ -8,6 +8,7 @@ const navLinks = [
   { to: "/admin/all-partners", label: "Partners" },
   { to: "/admin/all-donors", label: "Donors" },
   { to: "/admin/all-donations", label: "Donations" },
+  { to: "/admin/risk", label: "Risk Center" },
 ] as const;
 
 function AdminDashboardPage() {

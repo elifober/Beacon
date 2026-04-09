@@ -1,4 +1,5 @@
 import type { AuthSession } from '../types/AuthSession';
+import { requireApiBaseUrl } from '../lib/apiBaseUrl';
 
 export type ExternalAuthProvider = {
     name: string;
@@ -45,7 +46,7 @@ async function readApiError(
 
 
 export async function getAuthSession(): Promise<AuthSession> {
-    const response = await fetch(`/api/auth/me`, {
+    const response = await fetch(new URL(`/api/auth/me`, requireApiBaseUrl()).toString(), {
         credentials: 'include',
     });
 
@@ -69,7 +70,7 @@ export type CompleteProfilePayload = {
 export async function completeDonorProfile(
     payload: CompleteProfilePayload
 ): Promise<void> {
-    const response = await fetch(`/api/auth/complete-profile`, {
+    const response = await fetch(new URL(`/api/auth/complete-profile`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -90,7 +91,7 @@ export async function completeDonorProfile(
 }
 
 export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]> {
-    const response = await fetch(`/api/auth/providers`, {
+    const response = await fetch(new URL(`/api/auth/providers`, requireApiBaseUrl()).toString(), {
         credentials: 'include',
     });
 
@@ -105,7 +106,7 @@ export async function getExternalAuthProviders(): Promise<ExternalAuthProvider[]
 }
 
 export function buildExternalLoginUrl(provider: string, returnPath: string = '/'): string {
-    const url = new URL(`/api/auth/external-login`, window.location.origin);
+    const url = new URL(`/api/auth/external-login`, requireApiBaseUrl());
     url.searchParams.set('provider', provider);
     url.searchParams.set('returnPath', returnPath);
     return url.toString();
@@ -115,7 +116,7 @@ export async function registerUser(
     email: string,
     password: string,
 ): Promise<void> {
-    const response = await fetch(`/api/auth/register`, {
+    const response = await fetch(new URL(`/api/auth/register`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -143,7 +144,7 @@ export type RegisterWithProfilePayload = {
 export async function registerUserWithProfile(
     payload: RegisterWithProfilePayload
 ): Promise<void> {
-    const response = await fetch(`/api/auth/register-with-profile`, {
+    const response = await fetch(new URL(`/api/auth/register-with-profile`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -176,7 +177,7 @@ export async function loginUser(email: string, password: string, rememberMe: boo
         searchParams.set('useSessionCookies', 'true');
     }
 
-    const response = await fetch(`/api/auth/login?${searchParams.toString()}`, {
+    const response = await fetch(new URL(`/api/auth/login?${searchParams.toString()}`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -193,7 +194,7 @@ export async function loginUser(email: string, password: string, rememberMe: boo
 }
 
 export async function logoutUser(): Promise<void> {
-    const response = await fetch(`/api/auth/logout`, {
+    const response = await fetch(new URL(`/api/auth/logout`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         credentials: 'include',
     });
@@ -209,7 +210,7 @@ export async function assignRoleAsAdmin(
     email: string,
     role: 'Admin' | 'Partner'
 ): Promise<void> {
-    const response = await fetch(`/api/auth/admin/assign-role`, {
+    const response = await fetch(new URL(`/api/auth/admin/assign-role`, requireApiBaseUrl()).toString(), {
         method: 'POST',
         credentials: 'include',
         headers: {

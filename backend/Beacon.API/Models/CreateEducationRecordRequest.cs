@@ -1,0 +1,36 @@
+using System.Text.Json.Serialization;
+
+namespace Beacon.API.Models;
+
+/// <summary>
+/// Admin create payload for <c>education_records</c>. JSON uses snake_case to match database column names.
+/// <see cref="EducationRecord.EducationRecordId"/> is assigned server-side (legacy key without IDENTITY) and is not sent.
+/// </summary>
+public sealed class CreateEducationRecordRequest
+{
+    [JsonPropertyName("resident_id")]
+    public int ResidentId { get; set; }
+
+    [JsonPropertyName("record_date")]
+    public DateOnly RecordDate { get; set; }
+
+    [JsonPropertyName("school_name")]
+    public string SchoolName { get; set; } = "";
+
+    /// <summary>Enrolled or Not Enrolled</summary>
+    [JsonPropertyName("enrollment_status")]
+    public string EnrollmentStatus { get; set; } = "";
+
+    [JsonPropertyName("attendance_rate")]
+    public decimal? AttendanceRate { get; set; }
+
+    [JsonPropertyName("progress_percent")]
+    public decimal? ProgressPercent { get; set; }
+
+    /// <summary>NotStarted or InProgress</summary>
+    [JsonPropertyName("completion_status")]
+    public string CompletionStatus { get; set; } = "";
+
+    [JsonPropertyName("notes")]
+    public string? Notes { get; set; }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ProcessRecordingRow } from "../../types/residentRecords";
 import Pagination from "../Pagination";
+import { AddProcessRecordingModal } from "./AddProcessRecordingModal";
 import { InlineDetailsCell } from "./InlineDetailsCell";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
@@ -11,10 +12,16 @@ import {
   RESIDENT_RECORD_MODAL_PAGE_SIZE,
 } from "./residentRecordFormat";
 
-type Props = { records: ProcessRecordingRow[] };
+type Props = {
+  records: ProcessRecordingRow[];
+  residentId: number;
+  onRecordsChanged: () => void;
+};
 
-export function MentalWellbeingRecordsSection({ records }: Props) {
+export function MentalWellbeingRecordsSection({ records, residentId, onRecordsChanged }: Props) {
   const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<ProcessRecordingRow | null>(null);
   const [modalPage, setModalPage] = useState(1);
   const count = records.length;
   const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
@@ -56,15 +63,38 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
               {count}
             </span>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary mt-auto"
-            onClick={() => setOpen(true)}
-          >
-            View
-          </button>
+          <div className="d-flex gap-2 mt-auto">
+            <button
+              type="button"
+              className="btn btn-primary flex-grow-1"
+              onClick={() => setOpen(true)}
+            >
+              View
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary flex-grow-1"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
+
+      <AddProcessRecordingModal
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        initialResidentId={Number.isFinite(residentId) ? residentId : undefined}
+        existingRecord={editing}
+        onCreated={onRecordsChanged}
+      />
 
       <ResidentRecordModal
         title="Mental Wellbeing"
@@ -91,6 +121,7 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
                   <th>Interventions</th>
                   <th>Follow-up</th>
                   <th>Narrative</th>
+                  <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,6 +145,19 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
                         text={p.sessionNarrative}
                         ariaLabel="Show or hide full session narrative"
                       />
+                    </td>
+                    <td className="text-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                          setOpen(false);
+                          setEditing(p);
+                          setFormOpen(true);
+                        }}
+                      >
+                        Update
+                      </button>
                     </td>
                   </tr>
                 ))}

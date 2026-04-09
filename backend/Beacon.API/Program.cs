@@ -4,10 +4,13 @@ using Beacon.API.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Beacon.API.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpOverrides;
 using Beacon.Api.Services.PostPlanner;
 
@@ -58,6 +61,32 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SameSite = useCrossSiteCookies ? SameSiteMode.None : SameSiteMode.Lax;
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
+    // Cookie auth defaults redirect browsers to a login page on challenge. fetch() follows 302 and gets HTML,
+    // so the SPA never sees JSON and modals fail for every POST. For API paths, return 401/403 instead.
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api")
+            || context.Request.Path.StartsWithSegments("/Beacon"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api")
+            || context.Request.Path.StartsWithSegments("/Beacon"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -123,7 +152,11 @@ builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
     options.UseNpgsql(
             builder.Configuration.GetConnectionString("BeaconConnection"),
             npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null))
-        .UseSnakeCaseNamingConvention());
+        .UseSnakeCaseNamingConvention()
+        // EF Core 9+ treats pending model drift as an error during Migrate; that crashes the container
+        // if the deployed build is missing the latest migration files or snapshot. Prefer deploying
+        // migrations (see SyncRecordPrimaryKeyMetadataWithFluentApi); this avoids boot loops on Railway.
+        .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // Persist DP keys in Postgres so OAuth correlation survives multiple Railway instances / cold starts.
 builder.Services.AddDataProtection()
@@ -175,6 +208,7 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         {
             context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
             context.Response.Headers.Pragma = "no-cache";
+            context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
     });
@@ -218,6 +252,36 @@ using (var scope = app.Services.CreateScope())
 
 // Must run before HSTS / HTTPS redirect / auth so OAuth redirect_uri and cookies use the public Railway host and https.
 app.UseForwardedHeaders();
+
+// Unhandled exceptions must still emit Access-Control-Allow-* or browsers hide the failure behind a CORS error.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var log = context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("GlobalException");
+        if (ex != null)
+            log.LogError(ex, "Unhandled exception");
+
+        var corsProvider = context.RequestServices.GetRequiredService<ICorsPolicyProvider>();
+        var corsService = context.RequestServices.GetRequiredService<ICorsService>();
+        if (await corsProvider.GetPolicyAsync(context, "Frontend") is { } corsPolicy)
+        {
+            var eval = corsService.EvaluatePolicy(context, corsPolicy);
+            corsService.ApplyResult(eval, context.Response);
+        }
+
+        if (context.Response.HasStarted)
+            return;
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json; charset=utf-8";
+        var detail = app.Environment.IsDevelopment() && ex != null
+            ? ex.Message
+            : "An unexpected error occurred.";
+        await context.Response.WriteAsJsonAsync(new { title = "Server error", detail });
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {

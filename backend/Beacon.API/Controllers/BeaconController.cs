@@ -275,6 +275,7 @@ public class BeaconController : ControllerBase
                     SocialWorker = v.SocialWorker,
                     VisitType = v.VisitType,
                     LocationVisited = v.LocationVisited,
+                    FamilyMembersPresent = v.FamilyMembersPresent,
                     Purpose = v.Purpose,
                     Observations = v.Observations,
                     FamilyCooperationLevel = v.FamilyCooperationLevel,
@@ -298,14 +299,16 @@ public class BeaconController : ControllerBase
                     .Select(i => new
                     {
                         i.IncidentId,
+                        i.SafehouseId,
                         i.IncidentDate,
                         i.IncidentType,
                         i.Severity,
+                        i.Description,
+                        i.ResponseTaken,
                         i.Resolved,
                         i.ResolutionDate,
                         i.ReportedBy,
                         i.FollowUpRequired,
-                        i.SafehouseId,
                     })
                     .ToList();
                 var shIds = incidents.Select(i => i.SafehouseId).Distinct().ToList();
@@ -315,9 +318,12 @@ public class BeaconController : ControllerBase
                 return incidents.ConvertAll(i => new ResidentIncidentReportRow
                 {
                     IncidentId = i.IncidentId,
+                    SafehouseId = i.SafehouseId,
                     IncidentDate = i.IncidentDate,
                     IncidentType = i.IncidentType,
                     Severity = i.Severity,
+                    Description = i.Description,
+                    ResponseTaken = i.ResponseTaken,
                     Resolved = i.Resolved,
                     ResolutionDate = i.ResolutionDate,
                     ReportedBy = i.ReportedBy,
@@ -334,6 +340,7 @@ public class BeaconController : ControllerBase
             r.DateOfBirth,
             r.Sex,
             r.CaseStatus,
+            SafehouseId = r.SafehouseId,
             SafehouseCity = safehouse?.City,
             r.LengthOfStay,
             r.CurrentRiskLevel,
@@ -343,6 +350,763 @@ public class BeaconController : ControllerBase
             homeVisitations,
             incidentReports,
         });
+    }
+
+    /// <summary>Distinct school names from existing records plus a small default list for new entries.</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("EducationRecordSchoolNames")]
+    public IActionResult GetEducationRecordSchoolNames()
+    {
+        try
+        {
+            var fromDb = _beaconContext.Set<EducationRecord>()
+                .AsNoTracking()
+                .Where(e => e.SchoolName != null && e.SchoolName != "")
+                .Select(e => e.SchoolName!)
+                .Distinct()
+                .ToList();
+            string[] defaults =
+            [
+                "Beacon Learning Center",
+                "Community High School",
+                "Online Academy",
+                "GED Preparation Program",
+            ];
+            var merged = fromDb
+                .Concat(defaults)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            return Ok(merged);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetEducationRecordSchoolNames failed.");
+            return Ok(Array.Empty<string>());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("ProcessRecordingPicklists")]
+    public IActionResult GetProcessRecordingPicklists()
+    {
+        try
+        {
+            var sessionTypes = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.SessionType != null && p.SessionType != "")
+                .Select(p => p.SessionType!).Distinct().ToList();
+            var emotionalObs = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.EmotionalStateObserved != null && p.EmotionalStateObserved != "")
+                .Select(p => p.EmotionalStateObserved!).Distinct().ToList();
+            var emotionalEnd = _beaconContext.Set<ProcessRecording>().AsNoTracking()
+                .Where(p => p.EmotionalStateEnd != null && p.EmotionalStateEnd != "")
+                .Select(p => p.EmotionalStateEnd!).Distinct().ToList();
+
+            string[] defSession = ["Initial Assessment", "Follow-up Session", "Check-in", "Crisis Support"];
+            string[] defEmotional = ["Calm", "Stable", "Anxious", "Low", "Distressed", "Hopeful"];
+
+            return Ok(new ProcessRecordingPicklistsResponse
+            {
+                SessionTypes = MergeDistinctStrings(sessionTypes, defSession),
+                EmotionalStatesObserved = MergeDistinctStrings(emotionalObs, defEmotional),
+                EmotionalStatesEnd = MergeDistinctStrings(emotionalEnd, defEmotional),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetProcessRecordingPicklists failed.");
+            return Ok(new ProcessRecordingPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("HomeVisitationPicklists")]
+    public IActionResult GetHomeVisitationPicklists()
+    {
+        try
+        {
+            var visitTypes = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.VisitType != null && v.VisitType != "")
+                .Select(v => v.VisitType!).Distinct().ToList();
+            var coop = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.FamilyCooperationLevel != null && v.FamilyCooperationLevel != "")
+                .Select(v => v.FamilyCooperationLevel!).Distinct().ToList();
+            var outcomes = _beaconContext.Set<HomeVisitation>().AsNoTracking()
+                .Where(v => v.VisitOutcome != null && v.VisitOutcome != "")
+                .Select(v => v.VisitOutcome!).Distinct().ToList();
+
+            string[] defVisit = ["Scheduled", "Unscheduled", "Follow-up"];
+            string[] defCoop = ["High", "Medium", "Low", "Mixed"];
+            string[] defOut = ["Successful", "Partial", "Deferred", "No change"];
+
+            return Ok(new HomeVisitationPicklistsResponse
+            {
+                VisitTypes = MergeDistinctStrings(visitTypes, defVisit),
+                FamilyCooperationLevels = MergeDistinctStrings(coop, defCoop),
+                VisitOutcomes = MergeDistinctStrings(outcomes, defOut),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetHomeVisitationPicklists failed.");
+            return Ok(new HomeVisitationPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("IncidentReportPicklists")]
+    public IActionResult GetIncidentReportPicklists()
+    {
+        try
+        {
+            var types = _beaconContext.Set<IncidentReport>().AsNoTracking()
+                .Where(i => i.IncidentType != null && i.IncidentType != "")
+                .Select(i => i.IncidentType!).Distinct().ToList();
+            var sev = _beaconContext.Set<IncidentReport>().AsNoTracking()
+                .Where(i => i.Severity != null && i.Severity != "")
+                .Select(i => i.Severity!).Distinct().ToList();
+
+            string[] defTypes = ["Medical", "Behavioral", "Safety", "Property", "Other"];
+            string[] defSev = ["Low", "Medium", "High", "Critical"];
+
+            return Ok(new IncidentReportPicklistsResponse
+            {
+                IncidentTypes = MergeDistinctStrings(types, defTypes),
+                Severities = MergeDistinctStrings(sev, defSev),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetIncidentReportPicklists failed.");
+            return Ok(new IncidentReportPicklistsResponse());
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("EducationRecord")]
+    public async Task<IActionResult> CreateEducationRecord([FromBody] CreateEducationRecordRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+
+        var residentExists = body.ResidentId > 0 &&
+                             await _beaconContext.Residents.AsNoTracking()
+                                 .AnyAsync(r => r.ResidentId == body.ResidentId);
+        if (body.ResidentId > 0 && !residentExists)
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.RecordDate == default)
+            errors["record_date"] = "Required";
+
+        if (string.IsNullOrWhiteSpace(body.SchoolName))
+            errors["school_name"] = "Required";
+
+        var enrollment = (body.EnrollmentStatus ?? "").Trim();
+        if (enrollment is not ("Enrolled" or "Not Enrolled"))
+            errors["enrollment_status"] = "Choose Enrolled or Not Enrolled.";
+
+        var completion = (body.CompletionStatus ?? "").Trim();
+        if (completion is not ("NotStarted" or "InProgress"))
+            errors["completion_status"] = "Choose Not Started or In Progress.";
+
+        if (body.AttendanceRate is null)
+            errors["attendance_rate"] = "Required";
+        else
+        {
+            var att = Math.Round(body.AttendanceRate.Value, 3, MidpointRounding.AwayFromZero);
+            if (att < 0m || att > 1m)
+                errors["attendance_rate"] = "Must be between 0 and 1.";
+        }
+
+        if (body.ProgressPercent is null)
+            errors["progress_percent"] = "Required";
+        else
+        {
+            var prog = Math.Round(body.ProgressPercent.Value, 1, MidpointRounding.AwayFromZero);
+            if (prog < 0m || prog > 100m)
+                errors["progress_percent"] = "Must be between 0 and 100.";
+        }
+
+        if (errors.Count > 0)
+            return BadRequest(new
+            {
+                message = "Please complete all required fields.",
+                errors,
+            });
+
+        var attendanceRounded = Math.Round(body.AttendanceRate!.Value, 3, MidpointRounding.AwayFromZero);
+        var progressRounded = Math.Round(body.ProgressPercent!.Value, 1, MidpointRounding.AwayFromZero);
+
+        var educationRecordId = await _beaconContext.AllocateNextEducationRecordIdAsync();
+        var entity = new EducationRecord
+        {
+            EducationRecordId = educationRecordId,
+            ResidentId = body.ResidentId,
+            RecordDate = body.RecordDate,
+            SchoolName = body.SchoolName.Trim(),
+            EnrollmentStatus = enrollment,
+            AttendanceRate = attendanceRounded,
+            ProgressPercent = progressRounded,
+            CompletionStatus = completion,
+            Notes = string.IsNullOrWhiteSpace(body.Notes) ? null : body.Notes.Trim(),
+            EducationLevel = null,
+        };
+
+        _beaconContext.Set<EducationRecord>().Add(entity);
+        await _beaconContext.SaveChangesAsync();
+
+        return StatusCode(StatusCodes.Status201Created,
+            new CreateEducationRecordResult { EducationRecordId = entity.EducationRecordId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HealthWellbeingRecord")]
+    public async Task<IActionResult> CreateHealthWellbeingRecord([FromBody] CreateHealthWellbeingRecordRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.RecordDate == default)
+            errors["record_date"] = "Required";
+
+        AddHealthScore0To5(errors, body.GeneralHealthScore, "general_health_score");
+        AddHealthScore0To5(errors, body.NutritionScore, "nutrition_score");
+        AddHealthScore0To5(errors, body.SleepQualityScore, "sleep_quality_score");
+        AddHealthScore0To5(errors, body.EnergyLevelScore, "energy_level_score");
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        var healthRecordId = await _beaconContext.AllocateNextHealthRecordIdAsync();
+        var entity = new HealthWellbeingRecord
+        {
+            HealthRecordId = healthRecordId,
+            ResidentId = body.ResidentId,
+            RecordDate = body.RecordDate,
+            GeneralHealthScore = body.GeneralHealthScore,
+            NutritionScore = body.NutritionScore,
+            SleepQualityScore = body.SleepQualityScore,
+            EnergyLevelScore = body.EnergyLevelScore,
+            HeightCm = body.HeightCm,
+            WeightKg = body.WeightKg,
+            Bmi = body.Bmi,
+            MedicalCheckupDone = body.MedicalCheckupDone,
+            DentalCheckupDone = body.DentalCheckupDone,
+            PsychologicalCheckupDone = body.PsychologicalCheckupDone,
+            Notes = NullIfWhiteSpace(body.Notes),
+        };
+        _beaconContext.Set<HealthWellbeingRecord>().Add(entity);
+        await _beaconContext.SaveChangesAsync();
+        return StatusCode(StatusCodes.Status201Created,
+            new CreateHealthWellbeingRecordResult { HealthRecordId = entity.HealthRecordId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("ProcessRecording")]
+    public async Task<IActionResult> CreateProcessRecording([FromBody] CreateProcessRecordingRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.SessionDate == default)
+            errors["session_date"] = "Required";
+
+        if (body.SessionDurationMinutes is < 0)
+            errors["session_duration_minutes"] = "Must be zero or greater.";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        var recordingId = await _beaconContext.AllocateNextProcessRecordingIdAsync();
+        var entity = new ProcessRecording
+        {
+            RecordingId = recordingId,
+            ResidentId = body.ResidentId,
+            SessionDate = body.SessionDate,
+            SocialWorker = NullIfWhiteSpace(body.SocialWorker),
+            SessionType = NullIfWhiteSpace(body.SessionType),
+            SessionDurationMinutes = body.SessionDurationMinutes,
+            EmotionalStateObserved = NullIfWhiteSpace(body.EmotionalStateObserved),
+            EmotionalStateEnd = NullIfWhiteSpace(body.EmotionalStateEnd),
+            SessionNarrative = NullIfWhiteSpace(body.SessionNarrative),
+            InterventionsApplied = NullIfWhiteSpace(body.InterventionsApplied),
+            FollowUpActions = NullIfWhiteSpace(body.FollowUpActions),
+            ProgressNoted = body.ProgressNoted,
+            ConcernsFlagged = body.ConcernsFlagged,
+            ReferralMade = body.ReferralMade,
+            NotesRestricted = NullIfWhiteSpace(body.NotesRestricted),
+        };
+        _beaconContext.Set<ProcessRecording>().Add(entity);
+        await _beaconContext.SaveChangesAsync();
+        return StatusCode(StatusCodes.Status201Created,
+            new CreateProcessRecordingResult { RecordingId = entity.RecordingId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HomeVisitation")]
+    public async Task<IActionResult> CreateHomeVisitation([FromBody] CreateHomeVisitationRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.VisitDate == default)
+            errors["visit_date"] = "Required";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        var visitationId = await _beaconContext.AllocateNextHomeVisitationIdAsync();
+        var entity = new HomeVisitation
+        {
+            VisitationId = visitationId,
+            ResidentId = body.ResidentId,
+            VisitDate = body.VisitDate,
+            SocialWorker = NullIfWhiteSpace(body.SocialWorker),
+            VisitType = NullIfWhiteSpace(body.VisitType),
+            LocationVisited = NullIfWhiteSpace(body.LocationVisited),
+            FamilyMembersPresent = NullIfWhiteSpace(body.FamilyMembersPresent),
+            Purpose = NullIfWhiteSpace(body.Purpose),
+            Observations = NullIfWhiteSpace(body.Observations),
+            FamilyCooperationLevel = NullIfWhiteSpace(body.FamilyCooperationLevel),
+            SafetyConcernsNoted = body.SafetyConcernsNoted,
+            FollowUpNeeded = body.FollowUpNeeded,
+            FollowUpNotes = NullIfWhiteSpace(body.FollowUpNotes),
+            VisitOutcome = NullIfWhiteSpace(body.VisitOutcome),
+        };
+        _beaconContext.Set<HomeVisitation>().Add(entity);
+        await _beaconContext.SaveChangesAsync();
+        return StatusCode(StatusCodes.Status201Created,
+            new CreateHomeVisitationResult { VisitationId = entity.VisitationId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("IncidentReport")]
+    public async Task<IActionResult> CreateIncidentReport([FromBody] CreateIncidentReportRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.SafehouseId <= 0)
+            errors["safehouse_id"] = "Required";
+        else if (!await _beaconContext.Safehouses.AsNoTracking().AnyAsync(s => s.SafehouseId == body.SafehouseId))
+            errors["safehouse_id"] = "Safehouse not found.";
+
+        if (body.IncidentDate == default)
+            errors["incident_date"] = "Required";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        var incidentId = await _beaconContext.AllocateNextIncidentReportIdAsync();
+        var entity = new IncidentReport
+        {
+            IncidentId = incidentId,
+            ResidentId = body.ResidentId,
+            SafehouseId = body.SafehouseId,
+            IncidentDate = body.IncidentDate,
+            IncidentType = NullIfWhiteSpace(body.IncidentType),
+            Severity = NullIfWhiteSpace(body.Severity),
+            Description = NullIfWhiteSpace(body.Description),
+            ResponseTaken = NullIfWhiteSpace(body.ResponseTaken),
+            Resolved = body.Resolved,
+            ResolutionDate = body.ResolutionDate,
+            ReportedBy = NullIfWhiteSpace(body.ReportedBy),
+            FollowUpRequired = body.FollowUpRequired,
+        };
+        _beaconContext.Set<IncidentReport>().Add(entity);
+        await _beaconContext.SaveChangesAsync();
+        return StatusCode(StatusCodes.Status201Created,
+            new CreateIncidentReportResult { IncidentId = entity.IncidentId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("EducationRecord/{educationRecordId:int}")]
+    public async Task<IActionResult> UpdateEducationRecord(
+        int educationRecordId,
+        [FromBody] CreateEducationRecordRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var entity = await _beaconContext.Set<EducationRecord>()
+            .FirstOrDefaultAsync(e => e.EducationRecordId == educationRecordId);
+        if (entity == null)
+            return NotFound(new { message = "Education record not found." });
+        if (entity.ResidentId != body.ResidentId)
+        {
+            return BadRequest(new
+            {
+                message = "This record belongs to another resident.",
+                errors = new Dictionary<string, string> { ["resident_id"] = "Does not match this record." },
+            });
+        }
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        var residentExists = body.ResidentId > 0 &&
+                             await _beaconContext.Residents.AsNoTracking()
+                                 .AnyAsync(r => r.ResidentId == body.ResidentId);
+        if (body.ResidentId > 0 && !residentExists)
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.RecordDate == default)
+            errors["record_date"] = "Required";
+
+        if (string.IsNullOrWhiteSpace(body.SchoolName))
+            errors["school_name"] = "Required";
+
+        var enrollment = (body.EnrollmentStatus ?? "").Trim();
+        if (enrollment is not ("Enrolled" or "Not Enrolled"))
+            errors["enrollment_status"] = "Choose Enrolled or Not Enrolled.";
+
+        var completion = (body.CompletionStatus ?? "").Trim();
+        if (completion is not ("NotStarted" or "InProgress"))
+            errors["completion_status"] = "Choose Not Started or In Progress.";
+
+        if (body.AttendanceRate is null)
+            errors["attendance_rate"] = "Required";
+        else
+        {
+            var att = Math.Round(body.AttendanceRate.Value, 3, MidpointRounding.AwayFromZero);
+            if (att < 0m || att > 1m)
+                errors["attendance_rate"] = "Must be between 0 and 1.";
+        }
+
+        if (body.ProgressPercent is null)
+            errors["progress_percent"] = "Required";
+        else
+        {
+            var prog = Math.Round(body.ProgressPercent.Value, 1, MidpointRounding.AwayFromZero);
+            if (prog < 0m || prog > 100m)
+                errors["progress_percent"] = "Must be between 0 and 100.";
+        }
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        var attendanceRounded = Math.Round(body.AttendanceRate!.Value, 3, MidpointRounding.AwayFromZero);
+        var progressRounded = Math.Round(body.ProgressPercent!.Value, 1, MidpointRounding.AwayFromZero);
+
+        entity.RecordDate = body.RecordDate;
+        entity.SchoolName = body.SchoolName.Trim();
+        entity.EnrollmentStatus = enrollment;
+        entity.AttendanceRate = attendanceRounded;
+        entity.ProgressPercent = progressRounded;
+        entity.CompletionStatus = completion;
+        entity.Notes = string.IsNullOrWhiteSpace(body.Notes) ? null : body.Notes.Trim();
+
+        var save = await TrySaveResidentRecordUpdateAsync(nameof(UpdateEducationRecord));
+        if (save != null) return save;
+        return Ok(new CreateEducationRecordResult { EducationRecordId = entity.EducationRecordId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("HealthWellbeingRecord/{healthRecordId:int}")]
+    public async Task<IActionResult> UpdateHealthWellbeingRecord(
+        int healthRecordId,
+        [FromBody] CreateHealthWellbeingRecordRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var entity = await _beaconContext.Set<HealthWellbeingRecord>()
+            .FirstOrDefaultAsync(h => h.HealthRecordId == healthRecordId);
+        if (entity == null)
+            return NotFound(new { message = "Health record not found." });
+        if (entity.ResidentId != body.ResidentId)
+        {
+            return BadRequest(new
+            {
+                message = "This record belongs to another resident.",
+                errors = new Dictionary<string, string> { ["resident_id"] = "Does not match this record." },
+            });
+        }
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.RecordDate == default)
+            errors["record_date"] = "Required";
+
+        AddHealthScore0To5(errors, body.GeneralHealthScore, "general_health_score");
+        AddHealthScore0To5(errors, body.NutritionScore, "nutrition_score");
+        AddHealthScore0To5(errors, body.SleepQualityScore, "sleep_quality_score");
+        AddHealthScore0To5(errors, body.EnergyLevelScore, "energy_level_score");
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        entity.RecordDate = body.RecordDate;
+        entity.GeneralHealthScore = body.GeneralHealthScore;
+        entity.NutritionScore = body.NutritionScore;
+        entity.SleepQualityScore = body.SleepQualityScore;
+        entity.EnergyLevelScore = body.EnergyLevelScore;
+        entity.HeightCm = body.HeightCm;
+        entity.WeightKg = body.WeightKg;
+        entity.Bmi = body.Bmi;
+        entity.MedicalCheckupDone = body.MedicalCheckupDone;
+        entity.DentalCheckupDone = body.DentalCheckupDone;
+        entity.PsychologicalCheckupDone = body.PsychologicalCheckupDone;
+        entity.Notes = NullIfWhiteSpace(body.Notes);
+
+        var save = await TrySaveResidentRecordUpdateAsync(nameof(UpdateHealthWellbeingRecord));
+        if (save != null) return save;
+        return Ok(new CreateHealthWellbeingRecordResult { HealthRecordId = entity.HealthRecordId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("ProcessRecording/{recordingId:int}")]
+    public async Task<IActionResult> UpdateProcessRecording(
+        int recordingId,
+        [FromBody] CreateProcessRecordingRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var entity = await _beaconContext.Set<ProcessRecording>()
+            .FirstOrDefaultAsync(p => p.RecordingId == recordingId);
+        if (entity == null)
+            return NotFound(new { message = "Process recording not found." });
+        if (entity.ResidentId != body.ResidentId)
+        {
+            return BadRequest(new
+            {
+                message = "This record belongs to another resident.",
+                errors = new Dictionary<string, string> { ["resident_id"] = "Does not match this record." },
+            });
+        }
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.SessionDate == default)
+            errors["session_date"] = "Required";
+
+        if (body.SessionDurationMinutes is < 0)
+            errors["session_duration_minutes"] = "Must be zero or greater.";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        entity.SessionDate = body.SessionDate;
+        entity.SocialWorker = NullIfWhiteSpace(body.SocialWorker);
+        entity.SessionType = NullIfWhiteSpace(body.SessionType);
+        entity.SessionDurationMinutes = body.SessionDurationMinutes;
+        entity.EmotionalStateObserved = NullIfWhiteSpace(body.EmotionalStateObserved);
+        entity.EmotionalStateEnd = NullIfWhiteSpace(body.EmotionalStateEnd);
+        entity.SessionNarrative = NullIfWhiteSpace(body.SessionNarrative);
+        entity.InterventionsApplied = NullIfWhiteSpace(body.InterventionsApplied);
+        entity.FollowUpActions = NullIfWhiteSpace(body.FollowUpActions);
+        entity.ProgressNoted = body.ProgressNoted;
+        entity.ConcernsFlagged = body.ConcernsFlagged;
+        entity.ReferralMade = body.ReferralMade;
+        entity.NotesRestricted = NullIfWhiteSpace(body.NotesRestricted);
+
+        var save = await TrySaveResidentRecordUpdateAsync(nameof(UpdateProcessRecording));
+        if (save != null) return save;
+        return Ok(new CreateProcessRecordingResult { RecordingId = entity.RecordingId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("HomeVisitation/{visitationId:int}")]
+    public async Task<IActionResult> UpdateHomeVisitation(
+        int visitationId,
+        [FromBody] CreateHomeVisitationRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var entity = await _beaconContext.Set<HomeVisitation>()
+            .FirstOrDefaultAsync(v => v.VisitationId == visitationId);
+        if (entity == null)
+            return NotFound(new { message = "Home visit not found." });
+        if (entity.ResidentId != body.ResidentId)
+        {
+            return BadRequest(new
+            {
+                message = "This record belongs to another resident.",
+                errors = new Dictionary<string, string> { ["resident_id"] = "Does not match this record." },
+            });
+        }
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.VisitDate == default)
+            errors["visit_date"] = "Required";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        entity.VisitDate = body.VisitDate;
+        entity.SocialWorker = NullIfWhiteSpace(body.SocialWorker);
+        entity.VisitType = NullIfWhiteSpace(body.VisitType);
+        entity.LocationVisited = NullIfWhiteSpace(body.LocationVisited);
+        entity.FamilyMembersPresent = NullIfWhiteSpace(body.FamilyMembersPresent);
+        entity.Purpose = NullIfWhiteSpace(body.Purpose);
+        entity.Observations = NullIfWhiteSpace(body.Observations);
+        entity.FamilyCooperationLevel = NullIfWhiteSpace(body.FamilyCooperationLevel);
+        entity.SafetyConcernsNoted = body.SafetyConcernsNoted;
+        entity.FollowUpNeeded = body.FollowUpNeeded;
+        entity.FollowUpNotes = NullIfWhiteSpace(body.FollowUpNotes);
+        entity.VisitOutcome = NullIfWhiteSpace(body.VisitOutcome);
+
+        var save = await TrySaveResidentRecordUpdateAsync(nameof(UpdateHomeVisitation));
+        if (save != null) return save;
+        return Ok(new CreateHomeVisitationResult { VisitationId = entity.VisitationId });
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("IncidentReport/{incidentId:int}")]
+    public async Task<IActionResult> UpdateIncidentReport(
+        int incidentId,
+        [FromBody] CreateIncidentReportRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body.", errors = (object?)null });
+
+        var entity = await _beaconContext.Set<IncidentReport>()
+            .FirstOrDefaultAsync(i => i.IncidentId == incidentId);
+        if (entity == null)
+            return NotFound(new { message = "Incident report not found." });
+        if (entity.ResidentId != body.ResidentId)
+        {
+            return BadRequest(new
+            {
+                message = "This record belongs to another resident.",
+                errors = new Dictionary<string, string> { ["resident_id"] = "Does not match this record." },
+            });
+        }
+
+        var errors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (body.ResidentId <= 0)
+            errors["resident_id"] = "Required";
+        else if (!await _beaconContext.Residents.AsNoTracking().AnyAsync(x => x.ResidentId == body.ResidentId))
+            return NotFound(new { message = "Resident not found." });
+
+        if (body.SafehouseId <= 0)
+            errors["safehouse_id"] = "Required";
+        else if (!await _beaconContext.Safehouses.AsNoTracking().AnyAsync(s => s.SafehouseId == body.SafehouseId))
+            errors["safehouse_id"] = "Safehouse not found.";
+
+        if (body.IncidentDate == default)
+            errors["incident_date"] = "Required";
+
+        if (errors.Count > 0)
+            return BadRequest(new { message = "Please complete all required fields.", errors });
+
+        entity.SafehouseId = body.SafehouseId;
+        entity.IncidentDate = body.IncidentDate;
+        entity.IncidentType = NullIfWhiteSpace(body.IncidentType);
+        entity.Severity = NullIfWhiteSpace(body.Severity);
+        entity.Description = NullIfWhiteSpace(body.Description);
+        entity.ResponseTaken = NullIfWhiteSpace(body.ResponseTaken);
+        entity.Resolved = body.Resolved;
+        entity.ResolutionDate = body.ResolutionDate;
+        entity.ReportedBy = NullIfWhiteSpace(body.ReportedBy);
+        entity.FollowUpRequired = body.FollowUpRequired;
+
+        var save = await TrySaveResidentRecordUpdateAsync(nameof(UpdateIncidentReport));
+        if (save != null) return save;
+        return Ok(new CreateIncidentReportResult { IncidentId = entity.IncidentId });
+    }
+
+    /// <summary>POST aliases for SPA updates: some edge/proxy setups return 404 for PUT; POST is universally routed.</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("EducationRecord/{educationRecordId:int}/Update")]
+    public Task<IActionResult> PostUpdateEducationRecord(int educationRecordId, [FromBody] CreateEducationRecordRequest? body)
+        => UpdateEducationRecord(educationRecordId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HealthWellbeingRecord/{healthRecordId:int}/Update")]
+    public Task<IActionResult> PostUpdateHealthWellbeingRecord(int healthRecordId, [FromBody] CreateHealthWellbeingRecordRequest? body)
+        => UpdateHealthWellbeingRecord(healthRecordId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("ProcessRecording/{recordingId:int}/Update")]
+    public Task<IActionResult> PostUpdateProcessRecording(int recordingId, [FromBody] CreateProcessRecordingRequest? body)
+        => UpdateProcessRecording(recordingId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("HomeVisitation/{visitationId:int}/Update")]
+    public Task<IActionResult> PostUpdateHomeVisitation(int visitationId, [FromBody] CreateHomeVisitationRequest? body)
+        => UpdateHomeVisitation(visitationId, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("IncidentReport/{incidentId:int}/Update")]
+    public Task<IActionResult> PostUpdateIncidentReport(int incidentId, [FromBody] CreateIncidentReportRequest? body)
+        => UpdateIncidentReport(incidentId, body);
+
+    private async Task<IActionResult?> TrySaveResidentRecordUpdateAsync(string operationLabel)
+    {
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "{Operation}: database update failed", operationLabel);
+            return Problem(
+                title: "Could not save the record",
+                detail: "The database rejected this update. Check logs and migrations.",
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
+        return null;
+    }
+
+    private static string? NullIfWhiteSpace(string? s) =>
+        string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>
+        fromDb.Concat(defaults).Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
+
+    private static void AddHealthScore0To5(Dictionary<string, string> errors, decimal? val, string key)
+    {
+        if (val is null) return;
+        if (val < 0m || val > 5m)
+            errors[key] = "Must be a number between 0 and 5.";
     }
 
     //GET SINGLE DONOR WITH FULL DONATION HISTORY

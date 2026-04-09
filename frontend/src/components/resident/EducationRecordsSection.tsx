@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { EducationRecordRow } from "../../types/residentRecords";
 import Pagination from "../Pagination";
+import { AddEducationRecordModal } from "./AddEducationRecordModal";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   dashIfEmpty,
@@ -10,10 +11,20 @@ import {
   RESIDENT_RECORD_MODAL_PAGE_SIZE,
 } from "./residentRecordFormat";
 
-type Props = { records: EducationRecordRow[] };
+type Props = {
+  records: EducationRecordRow[];
+  residentId: number;
+  onEducationRecordsChanged: () => void;
+};
 
-export function EducationRecordsSection({ records }: Props) {
+export function EducationRecordsSection({
+  records,
+  residentId,
+  onEducationRecordsChanged,
+}: Props) {
   const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<EducationRecordRow | null>(null);
   const [modalPage, setModalPage] = useState(1);
   const count = records.length;
   const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
@@ -55,15 +66,38 @@ export function EducationRecordsSection({ records }: Props) {
               {count}
             </span>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary mt-auto"
-            onClick={() => setOpen(true)}
-          >
-            View
-          </button>
+          <div className="d-flex gap-2 mt-auto">
+            <button
+              type="button"
+              className="btn btn-primary flex-grow-1"
+              onClick={() => setOpen(true)}
+            >
+              View
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary flex-grow-1"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
+
+      <AddEducationRecordModal
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        initialResidentId={Number.isFinite(residentId) ? residentId : undefined}
+        existingRecord={editing}
+        onCreated={onEducationRecordsChanged}
+      />
 
       <ResidentRecordModal
         title="Education"
@@ -85,6 +119,7 @@ export function EducationRecordsSection({ records }: Props) {
                   <th>Attendance %</th>
                   <th>Progress %</th>
                   <th>Completion</th>
+                  <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,6 +132,19 @@ export function EducationRecordsSection({ records }: Props) {
                     <td>{fmtNum(e.attendanceRate)}</td>
                     <td>{fmtNum(e.progressPercent)}</td>
                     <td>{formatCompletionStatus(e.completionStatus)}</td>
+                    <td className="text-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => {
+                          setOpen(false);
+                          setEditing(e);
+                          setFormOpen(true);
+                        }}
+                      >
+                        Update
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

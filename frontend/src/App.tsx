@@ -28,6 +28,7 @@ import DonatePage from './pages/DonatePage.tsx'
 import ContactPage from './pages/ContactPage.tsx'
 import ImpactPage from './pages/ImpactPage.tsx'
 import AboutPage from './pages/AboutPage.tsx'
+import RiskManagementCenter from './pages/RiskManagementCenter.tsx'
 
 function RoutedMain({ children }: { children: ReactNode }) {
   return (
@@ -71,9 +72,7 @@ function App() {
             <Route
               path="/logout"
               element={
-                <RequireAuth>
                   <LogoutPage />
-                </RequireAuth>
               }
             />
 
@@ -164,6 +163,14 @@ function App() {
               element={
                 <RequireRole anyOf={['Admin']}>
                   <AdminAllSafehousesPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="/admin/risk"
+              element={
+                <RequireRole anyOf={['Admin']}>
+                  <RiskManagementCenter />
                 </RequireRole>
               }
             />

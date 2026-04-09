@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { ResidentDetail } from "../types/residentRecords";
@@ -26,16 +26,35 @@ function ResidentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadResident = useCallback(async () => {
     if (!id) return;
-    fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Resident not found");
-        return res.json();
-      })
-      .then(setResident)
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Resident not found");
+      setResident(await res.json());
+    } catch (err) {
+      setError((err as Error).message);
+      setResident(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    void loadResident();
+  }, [loadResident]);
+
+  const refetchResidentQuiet = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" });
+      if (!res.ok) return;
+      setResident(await res.json());
+    } catch {
+      /* keep existing data */
+    }
   }, [id]);
 
   if (loading) {
@@ -57,6 +76,7 @@ function ResidentPage() {
   }
 
   const educationRecords = resident.educationRecords ?? [];
+  const residentIdNum = Number(id);
   const healthWellbeingRecords = resident.healthWellbeingRecords ?? [];
   const processRecordings = resident.processRecordings ?? [];
   const homeVisitations = resident.homeVisitations ?? [];
@@ -114,19 +134,40 @@ function ResidentPage() {
         <div className="col-lg-8">
           <div className="row row-cols-1 row-cols-md-2 g-3 resident-record-sections-grid">
             <div className="col">
-              <EducationRecordsSection records={educationRecords} />
+              <EducationRecordsSection
+                records={educationRecords}
+                residentId={residentIdNum}
+                onEducationRecordsChanged={refetchResidentQuiet}
+              />
             </div>
             <div className="col">
-              <HealthRecordsSection records={healthWellbeingRecords} />
+              <HealthRecordsSection
+                records={healthWellbeingRecords}
+                residentId={residentIdNum}
+                onRecordsChanged={refetchResidentQuiet}
+              />
             </div>
             <div className="col">
-              <MentalWellbeingRecordsSection records={processRecordings} />
+              <MentalWellbeingRecordsSection
+                records={processRecordings}
+                residentId={residentIdNum}
+                onRecordsChanged={refetchResidentQuiet}
+              />
             </div>
             <div className="col">
-              <HomeVisitsRecordsSection records={homeVisitations} />
+              <HomeVisitsRecordsSection
+                records={homeVisitations}
+                residentId={residentIdNum}
+                onRecordsChanged={refetchResidentQuiet}
+              />
             </div>
             <div className="col">
-              <IncidentReportsSection records={incidentReports} />
+              <IncidentReportsSection
+                records={incidentReports}
+                residentId={residentIdNum}
+                initialSafehouseId={resident.safehouseId}
+                onRecordsChanged={refetchResidentQuiet}
+              />
             </div>
           </div>
         </div>

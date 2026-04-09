@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Beacon.API.Models;
 
 namespace Beacon.API.Data;
@@ -11,7 +12,18 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         : base(options)
     {
     }
-    
+
+    /// <summary>
+    /// Ensures <see cref="RelationalEventId.PendingModelChangesWarning"/> is ignored here, not only on
+    /// <c>UseNpgsql</c> in DI. Some startup paths (e.g. <c>MigrateAsync</c>) otherwise still throw when the
+    /// snapshot in the published assembly differs slightly from production expectations.
+    /// </summary>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w =>
+            w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+
     public DbSet<Supporter> Supporters { get; set; }
     public DbSet<Partner> Partners { get; set; }
     public DbSet<Donation> Donations { get; set; }
@@ -29,6 +41,8 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
     public DbSet<Safehouse> Safehouses { get; set; }
     public DbSet<SafehouseMonthlyMetric> SafehouseMonthlyMetrics { get; set; }
     public DbSet<SocialMediaPost> SocialMediaPosts { get; set; }
+    public DbSet<ResidentMlScore> ResidentMlScores { get; set; }
+    public DbSet<SupporterMlScore> SupporterMlScores { get; set; }
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
@@ -55,6 +69,56 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             .AsNoTracking()
             .OrderByDescending(r => r.ResidentId)
             .Select(r => r.ResidentId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextEducationRecordIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await EducationRecords
+            .AsNoTracking()
+            .OrderByDescending(e => e.EducationRecordId)
+            .Select(e => e.EducationRecordId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextHealthRecordIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await HealthWellbeingRecords
+            .AsNoTracking()
+            .OrderByDescending(h => h.HealthRecordId)
+            .Select(h => h.HealthRecordId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextProcessRecordingIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await ProcessRecordings
+            .AsNoTracking()
+            .OrderByDescending(p => p.RecordingId)
+            .Select(p => p.RecordingId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextHomeVisitationIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await HomeVisitations
+            .AsNoTracking()
+            .OrderByDescending(v => v.VisitationId)
+            .Select(v => v.VisitationId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextIncidentReportIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await IncidentReports
+            .AsNoTracking()
+            .OrderByDescending(i => i.IncidentId)
+            .Select(i => i.IncidentId)
             .FirstOrDefaultAsync(cancellationToken);
         return maxId + 1;
     }
@@ -120,10 +184,39 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             .Property(r => r.ResidentId)
             .ValueGeneratedNever();
 
+        // Legacy/imported tables: integer PKs without PG IDENTITY; inserts must supply keys explicitly.
+        modelBuilder.Entity<EducationRecord>()
+            .Property(e => e.EducationRecordId)
+            .ValueGeneratedNever();
+        modelBuilder.Entity<HealthWellbeingRecord>()
+            .Property(h => h.HealthRecordId)
+            .ValueGeneratedNever();
+        modelBuilder.Entity<ProcessRecording>()
+            .Property(p => p.RecordingId)
+            .ValueGeneratedNever();
+        modelBuilder.Entity<HomeVisitation>()
+            .Property(v => v.VisitationId)
+            .ValueGeneratedNever();
+        modelBuilder.Entity<IncidentReport>()
+            .Property(i => i.IncidentId)
+            .ValueGeneratedNever();
+
         // Partner (Admin/Staff) Foreign Key Mapping
         modelBuilder.Entity<Partner>()
             .HasOne(p => p.IdentityUser)
             .WithMany()
             .HasForeignKey(p => p.IdentityUserId);
+
+        modelBuilder.Entity<ResidentMlScore>(entity =>
+        {
+            entity.HasKey(e => e.ResidentId);
+            entity.Property(e => e.ResidentId).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<SupporterMlScore>(entity =>
+        {
+            entity.HasKey(e => e.SupporterId);
+            entity.Property(e => e.SupporterId).ValueGeneratedNever();
+        });
     }
 }

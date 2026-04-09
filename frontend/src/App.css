@@ -3185,8 +3185,15 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 .post-planner__form-grid {
   display: grid;
   gap: 0.75rem;
-  max-width: 600px;
+  grid-template-columns: 1fr;
 }
+
+@media (min-width: 768px) {
+  .post-planner__form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 
 .post-planner__form-grid label > div:first-child {
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -3201,14 +3208,27 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   padding-top: 0.15rem;
 }
 
-.post-planner__aside {
-  position: sticky;
-  top: 1rem;
+.post-planner__form-card {
   padding: 1.25rem;
   background: var(--beacon-bg-card);
   border: 1px solid var(--beacon-border);
   border-radius: var(--beacon-radius);
   box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+}
+
+.post-planner__aside {
+  padding: 1.25rem;
+  background: var(--beacon-bg-card);
+  border: 1px solid var(--beacon-border);
+  border-radius: var(--beacon-radius);
+  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+}
+
+@media (min-width: 992px) {
+  .post-planner__aside {
+    position: sticky;
+    top: 1rem;
+  }
 }
 
 .post-planner__aside h3,
@@ -3340,6 +3360,11 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   width: min(1100px, 100%);
   max-height: min(92vh, 940px);
   pointer-events: auto;
+}
+
+.resident-record-modal-shell--narrow {
+  width: min(28rem, 100%);
+  max-width: 100%;
 }
 
 .resident-record-modal-dialog {

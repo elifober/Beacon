@@ -49,6 +49,7 @@ export interface HomeVisitationRow {
   socialWorker?: string;
   visitType?: string;
   locationVisited?: string;
+  familyMembersPresent?: string;
   purpose?: string;
   observations?: string;
   familyCooperationLevel?: string;
@@ -60,9 +61,13 @@ export interface HomeVisitationRow {
 
 export interface IncidentReportRow {
   incidentId: number;
+  /** Present when loaded from GET Resident; required for update prefills. */
+  safehouseId?: number;
   incidentDate: string;
   incidentType?: string;
   severity?: string;
+  description?: string;
+  responseTaken?: string;
   resolved?: boolean;
   resolutionDate?: string;
   reportedBy?: string;
@@ -75,6 +80,8 @@ export interface ResidentDetail {
   dateOfBirth?: string;
   sex?: string;
   caseStatus?: string;
+  /** Resident's assigned safehouse (for incident create prefill). */
+  safehouseId?: number;
   safehouseCity?: string;
   lengthOfStay?: string;
   currentRiskLevel?: string;

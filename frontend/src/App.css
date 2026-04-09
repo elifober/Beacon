@@ -3387,6 +3387,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   font-size: 1.05rem;
   line-height: 1.65;
   max-width: 42rem;
+  margin-inline: auto;
   margin-bottom: 1.5rem;
 }
 

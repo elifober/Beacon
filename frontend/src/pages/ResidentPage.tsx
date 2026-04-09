@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { ResidentDetail } from "../types/residentRecords";
 import { dashIfEmpty, formatDate } from "../components/resident/residentRecordFormat";
+import SearchBar from "../components/SearchBar";
 import { EducationRecordsSection } from "../components/resident/EducationRecordsSection";
 import { HealthRecordsSection } from "../components/resident/HealthRecordsSection";
 import { MentalWellbeingRecordsSection } from "../components/resident/MentalWellbeingRecordsSection";
@@ -25,6 +26,9 @@ function ResidentPage() {
   const [resident, setResident] = useState<ResidentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openResidentMenu, setOpenResidentMenu] = useState<
+    "risk" | "safehouse" | "time-housed" | "age" | null
+  >(null);
 
   const loadResident = useCallback(async () => {
     if (!id) return;
@@ -92,6 +96,119 @@ function ResidentPage() {
   return (
     <div className="beacon-page container py-4">
       <p className="landing-section__eyebrow mb-2">Resident</p>
+      <div className="admin-dashboard__search-wrap resident-page__search-wrap mb-3">
+        <SearchBar maxWidth={760} inputClassName="rounded-pill px-4 py-2" />
+      </div>
+
+      <section className="resident-glass-menu-wrap mb-4" aria-label="Resident quick details">
+        <div className="resident-glass-menu">
+          <button
+            type="button"
+            className={`resident-glass-menu__tab ${openResidentMenu === "risk" ? "is-open" : ""}`}
+            aria-expanded={openResidentMenu === "risk"}
+            aria-controls="resident-glass-menu-risk"
+            onClick={() =>
+              setOpenResidentMenu((prev) => (prev === "risk" ? null : "risk"))
+            }
+          >
+            Risk
+            <i className={`bi ${openResidentMenu === "risk" ? "bi-chevron-up" : "bi-chevron-down"}`} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={`resident-glass-menu__tab ${openResidentMenu === "safehouse" ? "is-open" : ""}`}
+            aria-expanded={openResidentMenu === "safehouse"}
+            aria-controls="resident-glass-menu-safehouse"
+            onClick={() =>
+              setOpenResidentMenu((prev) => (prev === "safehouse" ? null : "safehouse"))
+            }
+          >
+            Safehouse
+            <i className={`bi ${openResidentMenu === "safehouse" ? "bi-chevron-up" : "bi-chevron-down"}`} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={`resident-glass-menu__tab ${openResidentMenu === "time-housed" ? "is-open" : ""}`}
+            aria-expanded={openResidentMenu === "time-housed"}
+            aria-controls="resident-glass-menu-time-housed"
+            onClick={() =>
+              setOpenResidentMenu((prev) => (prev === "time-housed" ? null : "time-housed"))
+            }
+          >
+            Time Housed
+            <i className={`bi ${openResidentMenu === "time-housed" ? "bi-chevron-up" : "bi-chevron-down"}`} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={`resident-glass-menu__tab ${openResidentMenu === "age" ? "is-open" : ""}`}
+            aria-expanded={openResidentMenu === "age"}
+            aria-controls="resident-glass-menu-age"
+            onClick={() =>
+              setOpenResidentMenu((prev) => (prev === "age" ? null : "age"))
+            }
+          >
+            Age
+            <i className={`bi ${openResidentMenu === "age" ? "bi-chevron-up" : "bi-chevron-down"}`} aria-hidden="true" />
+          </button>
+        </div>
+
+        {openResidentMenu ? (
+          <div className="resident-glass-menu__dropdown" role="region" aria-live="polite">
+            {openResidentMenu === "risk" ? (
+              <div id="resident-glass-menu-risk" className="resident-glass-menu__grid">
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Current risk level</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(resident.currentRiskLevel)}</p>
+                </article>
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Case status</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(resident.caseStatus)}</p>
+                </article>
+              </div>
+            ) : null}
+
+            {openResidentMenu === "safehouse" ? (
+              <div id="resident-glass-menu-safehouse" className="resident-glass-menu__grid">
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">City</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(resident.safehouseCity)}</p>
+                </article>
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Safehouse ID</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(String(resident.safehouseId ?? ""))}</p>
+                </article>
+              </div>
+            ) : null}
+
+            {openResidentMenu === "time-housed" ? (
+              <div id="resident-glass-menu-time-housed" className="resident-glass-menu__grid">
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Length of stay</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(resident.lengthOfStay)}</p>
+                </article>
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Resident</p>
+                  <p className="resident-glass-menu__value mb-0">{dashIfEmpty(resident.name)}</p>
+                </article>
+              </div>
+            ) : null}
+
+            {openResidentMenu === "age" ? (
+              <div id="resident-glass-menu-age" className="resident-glass-menu__grid">
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Age</p>
+                  <p className="resident-glass-menu__value mb-0">{ageDisplay}</p>
+                </article>
+                <article className="resident-glass-menu__item">
+                  <p className="resident-glass-menu__label">Date of birth</p>
+                  <p className="resident-glass-menu__value mb-0">{dobDisplay}</p>
+                </article>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+
       <div className="row g-4 align-items-start">
         <div className="col-lg-4 d-flex flex-column gap-3">
           <div className="card shadow-sm beacon-detail-card">

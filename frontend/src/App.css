@@ -2656,6 +2656,16 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   padding-top: calc(80px + env(safe-area-inset-top, 0px));
 }
 
+.register-page .container {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+}
+
+.register-page .row {
+  width: 100%;
+}
+
 .donate-external {
   position: relative;
   isolation: isolate;
@@ -3485,6 +3495,129 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   font-size: 0.92rem;
   color: var(--beacon-text-muted);
   line-height: 1.55;
+}
+
+.resident-page__search-wrap {
+  max-width: 760px;
+}
+
+.resident-glass-menu-wrap {
+  max-width: 980px;
+}
+
+.resident-glass-menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  border-radius: 14px;
+  padding: 0.4rem;
+  background: rgba(22, 26, 23, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 30px rgba(15, 24, 19, 0.24);
+}
+
+.resident-glass-menu__tab {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0);
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  min-height: 48px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  font-size: clamp(1rem, 1.45vw, 1.65rem);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.resident-glass-menu__tab:hover,
+.resident-glass-menu__tab.is-open {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.resident-glass-menu__tab:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.72);
+  outline-offset: 2px;
+}
+
+.resident-glass-menu__dropdown {
+  margin-top: 0.6rem;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(27, 38, 29, 0.1);
+  box-shadow: 0 10px 26px rgba(27, 38, 29, 0.15);
+  padding: 1.05rem 1.15rem;
+}
+
+.resident-glass-menu__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.resident-glass-menu__item {
+  border: 0;
+  border-right: 1px solid rgba(27, 38, 29, 0.11);
+  padding: 0.15rem 1rem 0.15rem 0;
+  background: transparent;
+}
+
+.resident-glass-menu__label {
+  margin: 0 0 0.18rem;
+  color: #111;
+  font-size: clamp(1.04rem, 1.5vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.resident-glass-menu__value {
+  font-size: clamp(0.98rem, 1.15vw, 1.24rem);
+  font-weight: 500;
+  color: #243027;
+  line-height: 1.28;
+}
+
+@media (max-width: 991.98px) {
+  .resident-glass-menu {
+    flex-wrap: wrap;
+  }
+
+  .resident-glass-menu__tab {
+    min-width: calc(50% - 0.225rem);
+    flex: 0 0 calc(50% - 0.225rem);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .resident-glass-menu {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .resident-glass-menu__tab {
+    min-width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .resident-glass-menu__item {
+    border-right: 0;
+    border-bottom: 1px solid rgba(27, 38, 29, 0.11);
+    padding-right: 0;
+    padding-bottom: 0.6rem;
+  }
+
+  .resident-glass-menu__item:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
 }
 
 /* Resident detail — record accordions */

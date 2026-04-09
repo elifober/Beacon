@@ -110,7 +110,7 @@ function RegisterPage() {
 
   return (
     <>
-    <div className="beacon-page beacon-page--auth">
+    <div className="beacon-page beacon-page--auth register-page">
       <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">

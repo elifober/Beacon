@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
 import type { Partner } from "../types/Partner";
 
 function formatDate(dateStr: string): string {
@@ -31,11 +32,9 @@ function PartnerPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`${BASE_URL}/Partner/${id}`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Partner not found");
-        return res.json();
-      })
+    fetchJson<PartnerPageData>(`${BASE_URL}/Partner/${id}`, {
+      credentials: "include",
+    })
       .then(setData)
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));

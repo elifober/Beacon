@@ -1,4 +1,5 @@
-// src/api/postPlanner.ts
+import { fetchJson } from "../lib/fetchJson";
+
 export interface PostPredictionRequest {
   platform: string;
   postType: string;
@@ -30,12 +31,13 @@ const API_BASE = "";
 export async function predictPostSuccess(
   req: PostPredictionRequest
 ): Promise<PostPredictionResponse> {
-  const res = await fetch(`${API_BASE}/api/marketing/predict-post`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(req),
-  });
-  if (!res.ok) throw new Error(`Prediction failed: ${res.status}`);
-  return res.json();
+  return fetchJson<PostPredictionResponse>(
+    `${API_BASE}/api/marketing/predict-post`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(req),
+    }
+  );
 }

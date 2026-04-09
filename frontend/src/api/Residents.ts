@@ -1,4 +1,5 @@
 import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
 import type { Resident } from "../types/Resident";
 import type { ResidentList } from "../types/ResidentList";
 
@@ -14,37 +15,24 @@ export interface ResidentInput {
 }
 
 export const getResidentList = async (): Promise<ResidentList[]> => {
-  const response = await fetch(`${BASE_URL}/Residents`, {
+  return fetchJson<ResidentList[]>(`${BASE_URL}/Residents`, {
     credentials: "include",
   });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
 };
-
 
 export async function getManagingResidents(): Promise<Resident[]> {
-  const response = await fetch (`${BASE_URL}/admin/residents`, {
+  return fetchJson<Resident[]>(`${BASE_URL}/admin/residents`, {
     credentials: "include",
   });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
-};
+}
 
 export async function createResident(resident: ResidentInput): Promise<Resident> {
-  const response = await fetch (`${BASE_URL}`, {
+  return fetchJson<Resident>(`${BASE_URL}`, {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(resident),
-    });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
-};
+  });
+}

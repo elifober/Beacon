@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
 
 function formatDate(dateStr: string | undefined | null): string {
   if (dateStr == null || dateStr === "") return "\u2014";
@@ -201,31 +202,9 @@ function ResidentPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" })
-      .then(async (res) => {
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) {
-            throw new Error(
-              "You must be signed in as an admin to view this resident."
-            );
-          }
-          if (res.status === 404) {
-            throw new Error("Resident not found.");
-          }
-          throw new Error(`Could not load resident (HTTP ${res.status}).`);
-        }
-        const text = await res.text();
-        if (!text?.trim()) {
-          throw new Error("Empty response from server.");
-        }
-        try {
-          return JSON.parse(text) as ResidentDetail;
-        } catch {
-          throw new Error(
-            "Invalid response from server (expected JSON). Check API URL and network."
-          );
-        }
-      })
+    fetchJson<ResidentDetail>(`${BASE_URL}/Resident/${id}`, {
+      credentials: "include",
+    })
       .then((data) => {
         if (!cancelled) setResident(data);
       })

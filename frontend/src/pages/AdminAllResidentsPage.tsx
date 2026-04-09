@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
 import { useAdminSearch } from "../context/AdminSearchContext";
@@ -41,8 +42,9 @@ function AdminAllResidentsPage() {
   const { query } = useAdminSearch();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/AllResidents`, { credentials: "include" })
-      .then((res) => res.json())
+    fetchJson<AdminResident[]>(`${BASE_URL}/AllResidents`, {
+      credentials: "include",
+    })
       .then(setResidents)
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));

@@ -1,9 +1,11 @@
-import { BASE_URL } from "../config/api"
-import type { Safehouse } from "../types/Safehouse"
+import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
+import type { Safehouse } from "../types/Safehouse";
 
-//return all safehouses
+/** Admin-only: same endpoint as the all-safehouses admin page. */
 export const getSafehouses = async (): Promise<Safehouse[]> => {
-    const response = await fetch(`${BASE_URL}/AllSafehouses`)
-    return await response.json()
-}
+  return fetchJson<Safehouse[]>(`${BASE_URL}/Safehouses`, {
+    credentials: "include",
+  });
+};
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../config/api";
+import { fetchJson } from "../lib/fetchJson";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
 import { useAdminSearch } from "../context/AdminSearchContext";
@@ -35,8 +36,9 @@ function AdminAllPartnersPage() {
   const { query } = useAdminSearch();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/AllPartners`, { credentials: "include" })
-      .then((res) => res.json())
+    fetchJson<AdminPartner[]>(`${BASE_URL}/AllPartners`, {
+      credentials: "include",
+    })
       .then(setPartners)
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));

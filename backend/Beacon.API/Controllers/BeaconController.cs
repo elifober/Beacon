@@ -156,12 +156,11 @@ public class BeaconController : ControllerBase
                 {
                     Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
                     r.DateOfBirth,
-                    SafehouseCity = s.City,
                     r.Sex,
-                    r.Religion,
-                    r.CaseCategory,
-                    r.DateOfAdmission,
-                    r.CurrentRiskLevel
+                    r.CaseStatus,
+                    SafehouseCity = s.City,
+                    r.LengthOfStay,
+                    r.CurrentRiskLevel,
                 })
             .FirstOrDefault();
 

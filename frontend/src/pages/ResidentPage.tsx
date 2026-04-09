@@ -10,14 +10,29 @@ function formatDate(dateStr: string): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
+function calculateAge(dateStr: string): number {
+  const dob = new Date(dateStr);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+function dashIfEmpty(value: string | null | undefined): string {
+  if (value == null || String(value).trim() === "") return "\u2014";
+  return value;
+}
+
 interface ResidentDetail {
   name: string;
   dateOfBirth?: string;
-  safehouseCity?: string;
   sex?: string;
-  religion?: string;
-  caseCategory?: string;
-  dateOfAdmission?: string;
+  caseStatus?: string;
+  safehouseCity?: string;
+  lengthOfStay?: string;
   currentRiskLevel?: string;
 }
 
@@ -57,30 +72,68 @@ function ResidentPage() {
     );
   }
 
-  const fields: [string, string | undefined | null][] = [
-    ["Date of Birth", resident.dateOfBirth ? formatDate(resident.dateOfBirth) : null],
-    ["Sex", resident.sex],
-    ["Safehouse", resident.safehouseCity],
-    ["Religion", resident.religion],
-    ["Case Category", resident.caseCategory],
-    ["Date of Admission", resident.dateOfAdmission ? formatDate(resident.dateOfAdmission) : null],
-    ["Current Risk Level", resident.currentRiskLevel],
-  ];
+  const dobDisplay = resident.dateOfBirth
+    ? formatDate(resident.dateOfBirth)
+    : "\u2014";
+  const ageDisplay = resident.dateOfBirth
+    ? String(calculateAge(resident.dateOfBirth))
+    : "\u2014";
 
   return (
     <div className="container py-4">
-      <h1 className="mb-4">{resident.name}</h1>
-      <div className="card">
-        <div className="card-body">
-          <table className="table table-sm mb-0">
-            <tbody>
-              {fields
-                .filter(([, value]) => value != null && value !== "")
-                .map(([label, value]) => (
-                  <tr key={label}><th>{label}</th><td>{value}</td></tr>
-                ))}
-            </tbody>
-          </table>
+      <div className="row g-4 align-items-stretch">
+        <div className="col-lg-4">
+          <div className="card h-100 shadow-sm">
+            <div className="card-body">
+              <dl className="row small mb-0">
+                <dt className="col-5 text-muted fw-normal">Name</dt>
+                <dd className="col-7 mb-2">{dashIfEmpty(resident.name)}</dd>
+                <dt className="col-5 text-muted fw-normal">Date of birth</dt>
+                <dd className="col-7 mb-2">{dobDisplay}</dd>
+                <dt className="col-5 text-muted fw-normal">Age</dt>
+                <dd className="col-7 mb-2">{ageDisplay}</dd>
+                <dt className="col-5 text-muted fw-normal">Sex</dt>
+                <dd className="col-7 mb-2">{dashIfEmpty(resident.sex)}</dd>
+                <dt className="col-5 text-muted fw-normal">Status</dt>
+                <dd className="col-7 mb-0">{dashIfEmpty(resident.caseStatus)}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-8">
+          <div className="row g-3 h-100">
+            <div className="col-md-4 d-flex">
+              <div className="card flex-grow-1 shadow-sm">
+                <div className="card-body d-flex flex-column">
+                  <p className="text-muted small mb-2 mb-md-3">Safehouse</p>
+                  <p className="mb-0 fs-5 fw-semibold mt-auto">
+                    {dashIfEmpty(resident.safehouseCity)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4 d-flex">
+              <div className="card flex-grow-1 shadow-sm">
+                <div className="card-body d-flex flex-column">
+                  <p className="text-muted small mb-2 mb-md-3">Time Housed</p>
+                  <p className="mb-0 fs-5 fw-semibold mt-auto">
+                    {dashIfEmpty(resident.lengthOfStay)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4 d-flex">
+              <div className="card flex-grow-1 shadow-sm">
+                <div className="card-body d-flex flex-column">
+                  <p className="text-muted small mb-2 mb-md-3">Risk Level</p>
+                  <p className="mb-0 fs-5 fw-semibold mt-auto">
+                    {dashIfEmpty(resident.currentRiskLevel)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

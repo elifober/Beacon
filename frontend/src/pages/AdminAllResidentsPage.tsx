@@ -147,7 +147,9 @@ function AdminAllResidentsPage() {
                       }
                     }}
                   >
-                    <td>{r.name}</td>
+                    <td className="admin-all-residents-name-cell">
+                      <span className="admin-all-residents-name">{r.name}</span>
+                    </td>
                     <td>{r.safehouseCity ?? "\u2014"}</td>
                     <td>{r.sex ?? "\u2014"}</td>
                     <td>
@@ -168,10 +170,10 @@ function AdminAllResidentsPage() {
             <div key={r.residentId} className="col-sm-6 col-lg-4">
               <Link
                 to={`/resident/${r.residentId}`}
-                className="text-decoration-none text-reset d-block h-100"
+                className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
                 aria-label={`Open resident profile for ${r.name}`}
               >
-                <div className="card h-100 shadow-sm">
+                <div className="admin-all-residents-card card h-100 shadow-sm">
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title mb-3">{r.name}</h5>
                     <dl className="row small mb-0 flex-grow-1">

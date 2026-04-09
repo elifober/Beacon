@@ -49,6 +49,42 @@
 }
 
 /* ═══════════════════════════════════════════════
+   ADMIN — ALL RESIDENTS (hover swell)
+   ═══════════════════════════════════════════════ */
+.admin-all-residents-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transform-origin: center center;
+}
+
+a.admin-all-residents-card-link:hover .admin-all-residents-card,
+a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
+  transform: scale(1.03);
+  box-shadow: 0 0.5rem 1.25rem rgba(27, 38, 29, 0.14);
+}
+
+.admin-all-residents-name-cell .admin-all-residents-name {
+  display: inline-block;
+  transform-origin: left center;
+  transition: transform 0.22s ease;
+}
+
+.admin-all-residents-name-cell:hover .admin-all-residents-name {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-all-residents-card,
+  .admin-all-residents-name-cell .admin-all-residents-name {
+    transition: none;
+  }
+  a.admin-all-residents-card-link:hover .admin-all-residents-card,
+  a.admin-all-residents-card-link:focus-visible .admin-all-residents-card,
+  .admin-all-residents-name-cell:hover .admin-all-residents-name {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════
    NAVBAR
    ═══════════════════════════════════════════════ */
 .beacon-navbar {

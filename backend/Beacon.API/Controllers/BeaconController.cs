@@ -403,6 +403,37 @@ public class BeaconController : ControllerBase
             "incident_reports",
             id);
 
+        var safehousePartners = TryLoadResidentRelated(
+            () =>
+            {
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                return _beaconContext.PartnerAssignments
+                    .AsNoTracking()
+                    .Where(pa =>
+                        pa.SafehouseId == r.SafehouseId
+                        && (pa.AssignmentEnd == null || pa.AssignmentEnd >= today))
+                    .Join(
+                        _beaconContext.Partners.AsNoTracking(),
+                        pa => pa.PartnerId,
+                        p => p.PartnerId,
+                        (pa, p) => new ResidentSafehousePartnerRow
+                        {
+                            PartnerId = p.PartnerId,
+                            PartnerName = p.PartnerName ?? "",
+                            ContactName = p.ContactName,
+                            Email = p.Email,
+                            Phone = p.Phone,
+                            ProgramArea = pa.ProgramArea,
+                            IsPrimary = pa.IsPrimary,
+                            AssignmentStatus = pa.Status,
+                        })
+                    .OrderByDescending(x => x.IsPrimary == true)
+                    .ThenBy(x => x.PartnerName)
+                    .ToList();
+            },
+            "partner_assignments_safehouse",
+            id);
+
         return Ok(new
         {
             Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
@@ -418,6 +449,7 @@ public class BeaconController : ControllerBase
             processRecordings,
             homeVisitations,
             incidentReports,
+            safehousePartners,
         });
     }
 

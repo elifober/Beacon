@@ -1,13 +1,13 @@
 import Footer from "../components/Footer";
 
 const boardMembers = [
-  { name: "Julie Hernando", role: "President / Co-Founder", image: "/julie.jpg" },
-  { name: "Lance Platt", role: "Vice President", image: "/Lance-Plattjpg.jpg" },
-  { name: "Candace Kunze", role: "Secretary of the Board", image: "/candace.jpeg" },
-  { name: "Kalli Kamauoha-Wilson", role: "Board Member", image: "/Kalli.jpg" },
-  { name: "Russell J. Osguthorpe", role: "Board Member", image: "/Russell.jpg" },
-  { name: "Apple Lanman", role: "Board Member", image: "/Lanman.jpeg" },
-  { name: "Steven Shraedel", role: "Board Member", image: "/Steven.jpeg" },
+  { name: "Julie Hernando", role: "President / Co-Founder" },
+  { name: "Lance Platt", role: "Vice President" },
+  { name: "Candace Kunze", role: "Secretary of the Board" },
+  { name: "Kalli Kamauoha-Wilson", role: "Board Member" },
+  { name: "Russell J. Osguthorpe", role: "Board Member" },
+  { name: "Apple Lanman", role: "Board Member" },
+  { name: "Steven Shraedel", role: "Board Member" },
 ] as const;
 
 function ContactPage() {
@@ -81,21 +81,12 @@ function ContactPage() {
             <div className="row g-4">
               {boardMembers.map((member) => (
                 <div className="col-sm-6 col-lg-4 col-xl-3" key={member.name}>
-                  <figure className="contact-page__board-member mb-0">
-                    <div className="contact-page__board-photo-wrap">
-                      <img
-                        className={`contact-page__board-photo ${member.name === "Russell J. Osguthorpe" ? "contact-page__board-photo--russell" : ""} ${member.name === "Julie Hernando" ? "contact-page__board-photo--julie" : ""}`}
-                        src={member.image}
-                        alt={member.name}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                    <figcaption className="contact-page__board-copy">
+                  <div className="contact-page__board-member mb-0">
+                    <div className="contact-page__board-copy">
                       <p className="contact-page__member-name mb-1">{member.name}</p>
                       <p className="contact-page__member-role mb-0">{member.role}</p>
-                    </figcaption>
-                  </figure>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

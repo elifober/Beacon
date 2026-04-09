@@ -75,6 +75,17 @@ export interface IncidentReportRow {
   safehouseCity?: string;
 }
 
+export interface SafehousePartnerRow {
+  partnerId: number;
+  partnerName: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  programArea?: string;
+  isPrimary?: boolean;
+  assignmentStatus?: string;
+}
+
 export interface ResidentDetail {
   name: string;
   dateOfBirth?: string;
@@ -85,6 +96,8 @@ export interface ResidentDetail {
   safehouseCity?: string;
   lengthOfStay?: string;
   currentRiskLevel?: string;
+  /** Partners with an active assignment to this safehouse (contact for care coordination). */
+  safehousePartners?: SafehousePartnerRow[];
   educationRecords?: EducationRecordRow[];
   healthWellbeingRecords?: HealthWellbeingRow[];
   processRecordings?: ProcessRecordingRow[];

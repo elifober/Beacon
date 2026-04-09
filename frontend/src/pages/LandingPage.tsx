@@ -436,7 +436,7 @@ function LandingPage() {
           <div className="text-center mb-5">
             <p className="landing-section__eyebrow">What We Do</p>
             <h2 className="landing-section__heading">
-              Provide Safety. Healing. And&nbsp;Empowerment.
+              Provide safety, healing, justice, and empowerment.
             </h2>
           </div>
           <div className="row g-4">

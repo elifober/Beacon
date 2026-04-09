@@ -83,3 +83,16 @@ public sealed class ResidentIncidentReportRow
     public bool? FollowUpRequired { get; set; }
     public string? SafehouseCity { get; set; }
 }
+
+/// <summary>Partners assigned to the resident&apos;s safehouse (active assignments) for admin contact.</summary>
+public sealed class ResidentSafehousePartnerRow
+{
+    public int PartnerId { get; set; }
+    public string PartnerName { get; set; } = "";
+    public string? ContactName { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public string? ProgramArea { get; set; }
+    public bool? IsPrimary { get; set; }
+    public string? AssignmentStatus { get; set; }
+}

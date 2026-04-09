@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
-import type { ResidentDetail } from "../types/residentRecords";
+import type { ResidentDetail, SafehousePartnerRow } from "../types/residentRecords";
 import { dashIfEmpty, formatDate } from "../components/resident/residentRecordFormat";
 import { EducationRecordsSection } from "../components/resident/EducationRecordsSection";
 import { HealthRecordsSection } from "../components/resident/HealthRecordsSection";
@@ -18,6 +18,61 @@ function calculateAge(dateStr: string): number {
     age--;
   }
   return age;
+}
+
+function parseDateOnlyLocal(iso: string): Date | null {
+  const part = iso.split("T")[0];
+  if (!part) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(part);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const d = Number(m[3]);
+  const dt = new Date(y, mo, d);
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function getEighteenthBirthday(dob: Date): Date {
+  return new Date(dob.getFullYear() + 18, dob.getMonth(), dob.getDate());
+}
+
+function startOfLocalDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+type TransitionCountdown =
+  | { kind: "no-dob" }
+  | { kind: "past"; eighteenth: Date }
+  | { kind: "today" }
+  | { kind: "future"; days: number; eighteenth: Date };
+
+function getTransitionCountdown(dateOfBirth?: string): TransitionCountdown {
+  if (!dateOfBirth) return { kind: "no-dob" };
+  const dob = parseDateOnlyLocal(dateOfBirth);
+  if (!dob) return { kind: "no-dob" };
+  const eighteenth = getEighteenthBirthday(dob);
+  const today = startOfLocalDay(new Date());
+  const target = startOfLocalDay(eighteenth);
+  const days = Math.round((target.getTime() - today.getTime()) / 86400000);
+  if (days < 0) return { kind: "past", eighteenth };
+  if (days === 0) return { kind: "today" };
+  return { kind: "future", days, eighteenth };
+}
+
+function riskAccentClass(level?: string): "high" | "medium" | "low" | "unknown" {
+  const s = (level ?? "").trim().toLowerCase();
+  if (!s) return "unknown";
+  if (s.includes("high")) return "high";
+  if (s.includes("medium") || s.includes("moderate")) return "medium";
+  if (s.includes("low")) return "low";
+  return "unknown";
+}
+
+function formatLocalDateMdY(d: Date): string {
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${mm}-${dd}-${yyyy}`;
 }
 
 function ResidentPage() {
@@ -89,8 +144,18 @@ function ResidentPage() {
     ? String(calculateAge(resident.dateOfBirth))
     : "\u2014";
 
+  const transition = getTransitionCountdown(resident.dateOfBirth);
+  const riskAccent = riskAccentClass(resident.currentRiskLevel);
+  const partners = resident.safehousePartners ?? [];
+
   return (
     <div className="beacon-page container py-4 resident-profile-page">
+      <div className="mb-3">
+        <Link to="/admin/all-residents" className="admin-dashboard-back">
+          <i className="bi bi-arrow-left-short" aria-hidden="true" />
+          <span>All residents</span>
+        </Link>
+      </div>
       <p className="landing-section__eyebrow mb-2">Resident</p>
       <div className="row g-4 align-items-start">
         <div className="col-lg-4 d-flex flex-column gap-3">
@@ -125,8 +190,77 @@ function ResidentPage() {
           </div>
           <div className="card shadow-sm beacon-detail-card">
             <div className="card-body">
+              <p className="landing-section__eyebrow mb-2">Days Till 18</p>
+              {transition.kind === "no-dob" ? (
+                <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty("")}</p>
+              ) : transition.kind === "past" ? (
+                <>
+                  <p className="mb-1 fs-5 fw-semibold">Past transition age</p>
+                  <p className="mb-0 small text-muted">
+                    18th birthday was {formatLocalDateMdY(transition.eighteenth)}
+                  </p>
+                </>
+              ) : transition.kind === "today" ? (
+                <>
+                  <p className="mb-1 fs-5 fw-semibold">Today</p>
+                  <p className="mb-0 small text-muted">18th birthday — coordinate transition planning.</p>
+                </>
+              ) : (
+                <>
+                  <p className="mb-1 fs-5 fw-semibold">
+                    {transition.days.toLocaleString()} day{transition.days === 1 ? "" : "s"}
+                  </p>
+                  <p className="mb-0 small text-muted">
+                    Until {formatLocalDateMdY(transition.eighteenth)}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+          <div
+            className={`card shadow-sm beacon-detail-card resident-risk-card resident-risk-card--${riskAccent}`}
+          >
+            <div className="card-body">
               <p className="landing-section__eyebrow mb-2">Risk Level</p>
               <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty(resident.currentRiskLevel)}</p>
+            </div>
+          </div>
+          <div className="card shadow-sm beacon-detail-card">
+            <div className="card-body">
+              <p className="landing-section__eyebrow mb-2">Partner contacts</p>
+              <p className="small text-muted mb-3">
+                Active partners assigned to this safehouse — reach out for day-to-day coordination.
+              </p>
+              {partners.length === 0 ? (
+                <p className="mb-0 small text-muted">No active partner assignments for this safehouse.</p>
+              ) : (
+                <ul className="list-unstyled mb-0 small resident-safehouse-partners">
+                  {partners.map((p: SafehousePartnerRow, i: number) => (
+                    <li key={`${p.partnerId}-${i}`} className="resident-safehouse-partners__item">
+                      <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
+                        <span className="fw-semibold">{dashIfEmpty(p.partnerName)}</span>
+                        {p.isPrimary ? (
+                          <span className="badge bg-primary rounded-pill">Primary</span>
+                        ) : null}
+                      </div>
+                      {p.programArea ? (
+                        <p className="mb-1 text-muted">{p.programArea}</p>
+                      ) : null}
+                      {p.contactName ? <p className="mb-1">{p.contactName}</p> : null}
+                      {p.email ? (
+                        <p className="mb-1">
+                          <a href={`mailto:${p.email}`}>{p.email}</a>
+                        </p>
+                      ) : null}
+                      {p.phone ? (
+                        <p className="mb-0">
+                          <a href={`tel:${p.phone.replace(/[^\d+]/g, "")}`}>{p.phone}</a>
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>

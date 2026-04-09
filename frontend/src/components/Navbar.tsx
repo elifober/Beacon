@@ -14,13 +14,18 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (!isLanding) {
+      setScrolled(false);
+      return;
+    }
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isLanding]);
 
   const navClass = [
     "beacon-navbar",
+    isLanding ? "beacon-navbar--fixed" : "beacon-navbar--static",
     isLanding && !scrolled ? "beacon-navbar--glass" : "",
     !isLanding ? "beacon-navbar--solid" : "",
     scrolled ? "beacon-navbar--scrolled" : "",

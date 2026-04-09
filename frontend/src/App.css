@@ -52,14 +52,23 @@
    NAVBAR
    ═══════════════════════════════════════════════ */
 .beacon-navbar {
-  position: fixed;
-  top: 40px;
-  left: 0;
-  right: 0;
   z-index: 1030;
   padding: 1rem 0;
   transition: background 0.4s ease, backdrop-filter 0.4s ease,
     box-shadow 0.4s ease, padding 0.4s ease;
+}
+
+/* Landing only: overlay hero and stay visible while scrolling */
+.beacon-navbar--fixed {
+  position: fixed;
+  top: 40px;
+  left: 0;
+  right: 0;
+}
+
+/* App routes: in document flow at top; scrolls away with the page */
+.beacon-navbar--static {
+  position: static;
 }
 
 .beacon-navbar--glass {

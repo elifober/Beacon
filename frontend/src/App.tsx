@@ -34,7 +34,7 @@ function App() {
           </a>
           <Navbar />
           <ProfileCompletionRedirect />
-          <main id="main-content" tabIndex={-1}>
+          <main id="main-content" className="beacon-site-main" tabIndex={-1}>
           <AdminSearchProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />

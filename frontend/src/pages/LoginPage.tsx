@@ -91,11 +91,13 @@ function LoginPage() {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="beacon-page beacon-page--auth">
+      <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">
             <div className="card-body p-4">
+              <p className="landing-section__eyebrow mb-2">Account</p>
               <h2 className="h4 mb-3">Login</h2>
               <p className="text-muted">
                 Sign in with an Identity cookie so the app can call protected
@@ -164,7 +166,7 @@ function LoginPage() {
                   ) : null}
                   <button
                     type="button"
-                    className="btn btn-outline-dark w-100"
+                    className="btn btn-outline-primary w-100"
                     disabled={isSubmitting}
                     onClick={() => {
                       try {
@@ -191,6 +193,7 @@ function LoginPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

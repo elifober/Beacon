@@ -24,7 +24,7 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
   }
 
   return (
-    <div className="card">
+    <div className="card beacon-detail-card">
       <div className="card-body">
         <h2 className="card-title h5 mb-3">Monetary Donations</h2>
         <table className="table table-striped table-hover mb-0">

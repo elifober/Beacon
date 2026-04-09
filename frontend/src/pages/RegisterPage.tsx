@@ -109,11 +109,14 @@ function RegisterPage() {
   }
 
   return (
-    <div className="container mt-4">
+    <>
+    <div className="beacon-page beacon-page--auth">
+      <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">
             <div className="card-body p-4">
+              <p className="landing-section__eyebrow mb-2">Account</p>
               <h2 className="h4 mb-3">Register</h2>
               <p className="text-muted">
                 Create a donor account. We will ask for your name, contact
@@ -144,7 +147,7 @@ function RegisterPage() {
                   ) : null}
                   <button
                     type="button"
-                    className="btn btn-outline-dark w-100"
+                    className="btn btn-outline-primary w-100"
                     onClick={() => {
                       try {
                         window.location.assign(buildExternalLoginUrl('Google', '/'));
@@ -175,16 +178,17 @@ function RegisterPage() {
           </div>
         </div>
       </div>
+      </div>
+    </div>
 
       {showModal ? (
         <>
           <div
-            className="modal fade show d-block"
+            className="modal fade show d-block beacon-modal-backdrop"
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="registerModalTitle"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
           >
             {/* Fixed max height + scrollable body so the Create account button is always reachable. */}
             <div
@@ -370,7 +374,7 @@ function RegisterPage() {
           </div>
         </>
       ) : null}
-    </div>
+    </>
   );
 }
 

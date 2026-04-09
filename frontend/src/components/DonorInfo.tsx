@@ -30,7 +30,7 @@ function DonorInfo({ supporter }: DonorInfoProps) {
   ];
 
   return (
-    <div className="card">
+    <div className="card beacon-detail-card">
       <div className="card-body">
         <h2 className="card-title h5 mb-3">{name}</h2>
         <table className="table table-sm mb-0">

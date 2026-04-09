@@ -1,5 +1,5 @@
 // src/pages/marketing/PostPlanner.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   predictPostSuccess,
   type PostPredictionRequest,
@@ -33,7 +33,6 @@ const defaultReq: PostPredictionRequest = {
   isBoosted: false,
 };
 
-// Simple debounce hook
 function useDebounced<T>(value: T, delay = 500): T {
   const [v, setV] = useState(value);
   useEffect(() => {
@@ -41,6 +40,12 @@ function useDebounced<T>(value: T, delay = 500): T {
     return () => clearTimeout(t);
   }, [value, delay]);
   return v;
+}
+
+function riskTone(band: string): "high" | "medium" | "low" {
+  if (band === "High") return "high";
+  if (band === "Medium") return "medium";
+  return "low";
 }
 
 export default function PostPlanner() {
@@ -66,80 +71,75 @@ export default function PostPlanner() {
     value: PostPredictionRequest[K]
   ) => setReq((r) => ({ ...r, [key]: value }));
 
-  const gaugeColor = useMemo(() => {
-    if (!result) return "#999";
-    if (result.riskBand === "High") return "#16a34a";
-    if (result.riskBand === "Medium") return "#eab308";
-    return "#dc2626";
-  }, [result]);
+  const tone = result ? riskTone(result.riskBand) : null;
 
   return (
-    <div className="post-planner" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24, padding: 24 }}>
-      <div>
-        <h1>Post Planner</h1>
-        <p>Draft a post and see its predicted success rate in real time.</p>
+    <div className="beacon-page container-fluid py-4">
+      <div className="post-planner">
+        <div>
+          <p className="landing-section__eyebrow mb-2">Marketing</p>
+          <h1>Post Planner</h1>
+          <p className="post-planner__lead">
+            Draft a post and see its predicted success rate in real time.
+          </p>
 
-        <div className="form-grid" style={{ display: "grid", gap: 12, maxWidth: 600 }}>
-          <Select label="Platform" value={req.platform} options={PLATFORMS} onChange={(v) => update("platform", v)} />
-          <Select label="Post Type" value={req.postType} options={POST_TYPES} onChange={(v) => update("postType", v)} />
-          <Select label="Media Type" value={req.mediaType} options={MEDIA_TYPES} onChange={(v) => update("mediaType", v)} />
-          <Select label="Content Topic" value={req.contentTopic} options={CONTENT_TOPICS} onChange={(v) => update("contentTopic", v)} />
-          <Select label="Sentiment Tone" value={req.sentimentTone} options={SENTIMENT_TONES} onChange={(v) => update("sentimentTone", v)} />
+          <div className="post-planner__form-grid">
+            <Select label="Platform" value={req.platform} options={PLATFORMS} onChange={(v) => update("platform", v)} />
+            <Select label="Post Type" value={req.postType} options={POST_TYPES} onChange={(v) => update("postType", v)} />
+            <Select label="Media Type" value={req.mediaType} options={MEDIA_TYPES} onChange={(v) => update("mediaType", v)} />
+            <Select label="Content Topic" value={req.contentTopic} options={CONTENT_TOPICS} onChange={(v) => update("contentTopic", v)} />
+            <Select label="Sentiment Tone" value={req.sentimentTone} options={SENTIMENT_TONES} onChange={(v) => update("sentimentTone", v)} />
 
-          <NumberInput label="Post Hour (0-23)" value={req.postHour} onChange={(v) => update("postHour", v)} min={0} max={23} />
-          <NumberInput label="# Hashtags" value={req.numHashtags} onChange={(v) => update("numHashtags", v)} />
-          <NumberInput label="# Mentions" value={req.mentionsCount} onChange={(v) => update("mentionsCount", v)} />
-          <NumberInput label="Caption Length" value={req.captionLength} onChange={(v) => update("captionLength", v)} />
+            <NumberInput label="Post Hour (0-23)" value={req.postHour} onChange={(v) => update("postHour", v)} min={0} max={23} />
+            <NumberInput label="# Hashtags" value={req.numHashtags} onChange={(v) => update("numHashtags", v)} />
+            <NumberInput label="# Mentions" value={req.mentionsCount} onChange={(v) => update("mentionsCount", v)} />
+            <NumberInput label="Caption Length" value={req.captionLength} onChange={(v) => update("captionLength", v)} />
 
-          <Checkbox label="Peak hour" checked={req.isPeakHour} onChange={(v) => update("isPeakHour", v)} />
-          <Checkbox label="Video" checked={req.isVideo} onChange={(v) => update("isVideo", v)} />
-          <Checkbox label="Part of campaign" checked={req.hasCampaign} onChange={(v) => update("hasCampaign", v)} />
-          <Checkbox label="Has call to action" checked={req.hasCallToAction} onChange={(v) => update("hasCallToAction", v)} />
-          <Checkbox label="Features resident story" checked={req.featuresResidentStory} onChange={(v) => update("featuresResidentStory", v)} />
-          <Checkbox label="Boosted" checked={req.isBoosted} onChange={(v) => update("isBoosted", v)} />
+            <Checkbox id="pp-peak" label="Peak hour" checked={req.isPeakHour} onChange={(v) => update("isPeakHour", v)} />
+            <Checkbox id="pp-video" label="Video" checked={req.isVideo} onChange={(v) => update("isVideo", v)} />
+            <Checkbox id="pp-campaign" label="Part of campaign" checked={req.hasCampaign} onChange={(v) => update("hasCampaign", v)} />
+            <Checkbox id="pp-cta" label="Has call to action" checked={req.hasCallToAction} onChange={(v) => update("hasCallToAction", v)} />
+            <Checkbox id="pp-story" label="Features resident story" checked={req.featuresResidentStory} onChange={(v) => update("featuresResidentStory", v)} />
+            <Checkbox id="pp-boost" label="Boosted" checked={req.isBoosted} onChange={(v) => update("isBoosted", v)} />
+          </div>
         </div>
-      </div>
 
-      {/* Prediction panel */}
-      <aside style={{ position: "sticky", top: 24, alignSelf: "start", padding: 20, border: "1px solid #e5e7eb", borderRadius: 12 }}>
-        <h3>Predicted Success</h3>
-        {loading && <p>Scoring…</p>}
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
-        {result && (
-          <>
-            <div style={{ fontSize: 48, fontWeight: 700, color: gaugeColor }}>
-              {(result.successProbability * 100).toFixed(0)}%
-            </div>
-            <div style={{
-              display: "inline-block", padding: "4px 10px", borderRadius: 999,
-              background: gaugeColor, color: "white", fontSize: 12, fontWeight: 600,
-            }}>
-              {result.riskBand} confidence
-            </div>
-            <p style={{ marginTop: 12 }}>{result.interpretation}</p>
-            <hr />
-            <h4 style={{ marginBottom: 6 }}>Top drivers of success</h4>
-            <ul style={{ fontSize: 13, paddingLeft: 18 }}>
-              <li>Fundraising appeals (4.3× odds)</li>
-              <li>Emotional tone (3.2×)</li>
-              <li>Impact stories (3.1×)</li>
-              <li>YouTube platform (2.8×)</li>
-            </ul>
-          </>
-        )}
-      </aside>
+        <aside className="post-planner__aside">
+          <h3>Predicted Success</h3>
+          {loading && <p className="mb-0">Scoring…</p>}
+          {error && <p className="text-danger mb-0">{error}</p>}
+          {result && tone && (
+            <>
+              <div className={`post-planner__score post-planner__gauge--${tone}`}>
+                {(result.successProbability * 100).toFixed(0)}%
+              </div>
+              <div className={`post-planner__badge post-planner__badge--${tone}`}>
+                {result.riskBand} confidence
+              </div>
+              <p className="mt-3">{result.interpretation}</p>
+              <hr className="border-opacity-25 my-3" />
+              <h4>Top drivers of success</h4>
+              <ul>
+                <li>Fundraising appeals (4.3× odds)</li>
+                <li>Emotional tone (3.2×)</li>
+                <li>Impact stories (3.1×)</li>
+                <li>YouTube platform (2.8×)</li>
+              </ul>
+            </>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }
 
-/* ---------- Small form field helpers ---------- */
 function Select({ label, value, options, onChange }: {
   label: string; value: string; options: string[]; onChange: (v: string) => void;
 }) {
   return (
-    <label>
+    <label className="w-100">
       <div>{label}</div>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <select className="form-select" value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     </label>
@@ -150,21 +150,36 @@ function NumberInput({ label, value, onChange, min, max }: {
   label: string; value: number; onChange: (v: number) => void; min?: number; max?: number;
 }) {
   return (
-    <label>
+    <label className="w-100">
       <div>{label}</div>
-      <input type="number" value={value} min={min} max={max}
-             onChange={(e) => onChange(Number(e.target.value))} />
+      <input
+        type="number"
+        className="form-control"
+        value={value}
+        min={min}
+        max={max}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
     </label>
   );
 }
 
-function Checkbox({ label, checked, onChange }: {
-  label: string; checked: boolean; onChange: (v: boolean) => void;
+function Checkbox({ id, label, checked, onChange }: {
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
 }) {
   return (
-    <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      {label}
-    </label>
+    <div className="form-check">
+      <input
+        id={id}
+        className="form-check-input"
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <label className="form-check-label" htmlFor={id}>{label}</label>
+    </div>
   );
 }

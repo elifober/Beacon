@@ -46,7 +46,7 @@ function DonorPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -56,7 +56,7 @@ function DonorPage() {
 
   if (error || !data) {
     return (
-      <div className="container py-4">
+      <div className="beacon-page container py-4">
         <div className="alert alert-danger">{error ?? "Donor not found."}</div>
       </div>
     );
@@ -82,11 +82,12 @@ function DonorPage() {
   ];
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
+      <p className="landing-section__eyebrow mb-2">Donor record</p>
       <div className="row g-4 mb-4">
         <div className="col-lg-6">
           <h1 className="mb-3">{name}</h1>
-          <div className="card">
+          <div className="card beacon-detail-card">
             <div className="card-body">
               <table className="table table-sm mb-0">
                 <tbody>
@@ -103,7 +104,7 @@ function DonorPage() {
         {mostRecent && (
           <div className="col-lg-6">
             <h2 className="h5 mb-3">Most Recent Donation</h2>
-            <div className="card">
+            <div className="card beacon-detail-card">
               <div className="card-body">
                 <table className="table table-sm mb-0">
                   <tbody>
@@ -130,7 +131,7 @@ function DonorPage() {
       {donationHistory.length === 0 ? (
         <div className="alert alert-secondary">No donation history found.</div>
       ) : (
-        <div className="card">
+        <div className="card beacon-detail-card">
           <div className="card-body">
             <table className="table table-striped table-hover mb-0">
               <thead>

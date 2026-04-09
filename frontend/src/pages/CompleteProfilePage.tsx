@@ -76,7 +76,7 @@ function CompleteProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -85,11 +85,13 @@ function CompleteProfilePage() {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="beacon-page beacon-page--auth">
+      <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">
             <div className="card-body p-4">
+              <p className="landing-section__eyebrow mb-2">Donor profile</p>
               <h2 className="h4 mb-3">Complete your profile</h2>
               <p className="text-muted small mb-3">
                 You signed in with Google. Add your donor details so we can
@@ -182,6 +184,7 @@ function CompleteProfilePage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

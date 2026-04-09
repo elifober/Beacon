@@ -12,7 +12,7 @@ const navLinks = [
 
 function AdminDashboardPage() {
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard beacon-page">
       <header className="admin-dashboard__hero" aria-label="Admin dashboard header">
         <img
           className="admin-dashboard__hero-img"

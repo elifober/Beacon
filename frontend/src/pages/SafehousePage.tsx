@@ -28,7 +28,7 @@ function SafehousePage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -38,7 +38,7 @@ function SafehousePage() {
 
   if (error || !data) {
     return (
-      <div className="container py-4">
+      <div className="beacon-page container py-4">
         <div className="alert alert-danger">{error ?? "Safehouse not found."}</div>
       </div>
     );
@@ -57,10 +57,11 @@ function SafehousePage() {
   ];
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
+      <p className="landing-section__eyebrow mb-2">Safehouse</p>
       <h1 className="mb-4">{safehouse.name}</h1>
 
-      <div className="card mb-4">
+      <div className="card beacon-detail-card mb-4">
         <div className="card-body">
           <table className="table table-sm mb-0">
             <tbody>

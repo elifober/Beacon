@@ -13,7 +13,7 @@ function AdminSearchInput({
     <div className="mb-3">
       <input
         type="text"
-        className="form-control"
+        className="form-control rounded-pill px-4 py-2"
         placeholder={placeholder}
         value={query}
         onChange={(event) => setQuery(event.target.value)}

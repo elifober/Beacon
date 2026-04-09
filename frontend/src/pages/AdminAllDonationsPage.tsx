@@ -91,7 +91,7 @@ function AdminAllDonationsPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -100,14 +100,19 @@ function AdminAllDonationsPage() {
   }
 
   if (error) {
-    return <div className="container py-4"><div className="alert alert-danger">{error}</div></div>;
+    return (
+      <div className="beacon-page container py-4">
+        <div className="alert alert-danger">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
       <AdminSearchInput placeholder="Search donations by supporter, type, area, or notes..." />
+      <p className="landing-section__eyebrow mb-1">Admin</p>
       <h1 className="mb-4">All Donations</h1>
-      <div className="card">
+      <div className="card beacon-detail-card">
         <div className="card-body table-responsive">
           <table className="table table-striped table-hover mb-0">
             <thead>

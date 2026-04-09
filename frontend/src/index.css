@@ -37,6 +37,16 @@ body {
   color: var(--beacon-text);
 }
 
+.text-muted {
+  color: var(--beacon-text-muted) !important;
+}
+
+.alert-success {
+  background-color: var(--beacon-sage-light);
+  border-color: var(--beacon-sage);
+  color: var(--beacon-text);
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
   color: var(--beacon-text);

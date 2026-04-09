@@ -1143,3 +1143,186 @@ header a.active {
 }
 .beacon-footer a { color: var(--beacon-oat); }
 .beacon-footer a:hover { color: var(--beacon-oat-light); }
+
+/* ═══════════════════════════════════════════════
+   SITE-WIDE SHELL (landing-aligned, non-marketing routes)
+   ═══════════════════════════════════════════════ */
+.beacon-site-main {
+  flex: 1 0 auto;
+  width: 100%;
+  background-color: var(--beacon-bg);
+  padding-bottom: 3rem;
+}
+
+.beacon-page {
+  padding-top: 1.5rem;
+}
+
+.beacon-page--auth {
+  padding-top: 2.5rem;
+  padding-bottom: 2rem;
+  min-height: min(72vh, 820px);
+}
+
+.beacon-page--loading {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.beacon-site-main h1:not(.hero__title):not(.admin-dashboard__hero-title) {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  color: var(--beacon-text);
+  letter-spacing: -0.02em;
+}
+
+.beacon-site-main h2,
+.beacon-site-main h3,
+.beacon-site-main .h1,
+.beacon-site-main .h2,
+.beacon-site-main .h3,
+.beacon-site-main .h4,
+.beacon-site-main .h5 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: var(--beacon-text);
+}
+
+.beacon-site-main .card-title {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+}
+
+.beacon-site-main .table {
+  --bs-table-striped-bg: rgba(214, 226, 216, 0.28);
+  --bs-table-hover-bg: rgba(214, 226, 216, 0.42);
+}
+
+.beacon-site-main .btn-group .btn {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+}
+
+.beacon-modal-backdrop.modal,
+.beacon-modal-backdrop.modal.show {
+  background-color: rgba(27, 38, 29, 0.5) !important;
+}
+
+/* Post planner (admin marketing tool) */
+.post-planner {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .post-planner {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+.post-planner__lead {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: var(--beacon-text-muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  max-width: 42rem;
+  margin-bottom: 1.5rem;
+}
+
+.post-planner__form-grid {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 600px;
+}
+
+.post-planner__form-grid label > div:first-child {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--beacon-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.post-planner__form-grid .form-check {
+  margin-bottom: 0;
+  padding-top: 0.15rem;
+}
+
+.post-planner__aside {
+  position: sticky;
+  top: 1rem;
+  padding: 1.25rem;
+  background: var(--beacon-bg-card);
+  border: 1px solid var(--beacon-border);
+  border-radius: var(--beacon-radius);
+  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+}
+
+.post-planner__aside h3,
+.post-planner__aside h4 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.post-planner__aside h4 {
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.post-planner__score {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.post-planner__gauge--high {
+  color: var(--beacon-primary);
+}
+
+.post-planner__gauge--medium {
+  color: #a16207;
+}
+
+.post-planner__gauge--low {
+  color: #991b1b;
+}
+
+.post-planner__badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.post-planner__badge--high {
+  background: var(--beacon-primary);
+}
+
+.post-planner__badge--medium {
+  background: #a16207;
+}
+
+.post-planner__badge--low {
+  background: #991b1b;
+}
+
+.post-planner__aside ul {
+  font-size: 0.88rem;
+  color: var(--beacon-text-muted);
+  padding-left: 1.15rem;
+  margin-bottom: 0;
+}
+
+.post-planner__aside p {
+  font-size: 0.92rem;
+  color: var(--beacon-text-muted);
+  line-height: 1.55;
+}

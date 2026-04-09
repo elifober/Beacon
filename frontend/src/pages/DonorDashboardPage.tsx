@@ -22,7 +22,7 @@ function DonorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -32,7 +32,7 @@ function DonorDashboardPage() {
 
   if (error || !data) {
     return (
-      <div className="container py-4">
+      <div className="beacon-page container py-4">
         <div className="alert alert-danger">
           {error ?? "Donor not found."}
         </div>
@@ -41,7 +41,8 @@ function DonorDashboardPage() {
   }
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
+      <p className="landing-section__eyebrow mb-2">Supporter</p>
       <h1 className="mb-4">Donor Dashboard</h1>
       <div className="row g-4">
         <div className="col-lg-5">

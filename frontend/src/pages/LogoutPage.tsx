@@ -35,11 +35,13 @@ function LogoutPage() {
   }, []);
 
   return (
-    <div className="container mt-4">
+    <div className="beacon-page beacon-page--auth">
+      <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">
             <div className="card-body p-4">
+              <p className="landing-section__eyebrow mb-2">Session</p>
               <h2 className="h4 mb-3">Logout</h2>
               <p>{message}</p>
               {errorMessage ? (
@@ -58,6 +60,7 @@ function LogoutPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ function PartnerPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -53,7 +53,7 @@ function PartnerPage() {
 
   if (error || !data) {
     return (
-      <div className="container py-4">
+      <div className="beacon-page container py-4">
         <div className="alert alert-danger">{error ?? "Partner not found."}</div>
       </div>
     );
@@ -72,10 +72,11 @@ function PartnerPage() {
   ];
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
+      <p className="landing-section__eyebrow mb-2">Partner</p>
       <h1 className="mb-4">{partner.partnerName}</h1>
 
-      <div className="card mb-4">
+      <div className="card beacon-detail-card mb-4">
         <div className="card-body">
           <table className="table table-sm mb-0">
             <tbody>
@@ -93,7 +94,7 @@ function PartnerPage() {
       {safehouseAssignments.length === 0 ? (
         <div className="alert alert-secondary">No safehouse assignments found.</div>
       ) : (
-        <div className="card">
+        <div className="card beacon-detail-card">
           <div className="card-body">
             <table className="table table-striped table-hover mb-0">
               <thead>

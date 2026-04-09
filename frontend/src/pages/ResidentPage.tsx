@@ -56,7 +56,7 @@ function ResidentPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div className="beacon-page beacon-page--loading text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -66,7 +66,7 @@ function ResidentPage() {
 
   if (error || !resident) {
     return (
-      <div className="container py-4">
+      <div className="beacon-page container py-4">
         <div className="alert alert-danger">{error ?? "Resident not found."}</div>
       </div>
     );
@@ -80,10 +80,11 @@ function ResidentPage() {
     : "\u2014";
 
   return (
-    <div className="container py-4">
+    <div className="beacon-page container py-4">
+      <p className="landing-section__eyebrow mb-2">Resident</p>
       <div className="row g-4 align-items-stretch">
         <div className="col-lg-4">
-          <div className="card h-100 shadow-sm">
+          <div className="card h-100 shadow-sm beacon-detail-card">
             <div className="card-body">
               <dl className="row small mb-0">
                 <dt className="col-5 text-muted fw-normal">Name</dt>
@@ -104,9 +105,9 @@ function ResidentPage() {
         <div className="col-lg-8">
           <div className="row g-3 h-100">
             <div className="col-md-4 d-flex">
-              <div className="card flex-grow-1 shadow-sm">
+              <div className="card flex-grow-1 shadow-sm beacon-detail-card">
                 <div className="card-body d-flex flex-column">
-                  <p className="text-muted small mb-2 mb-md-3">Safehouse</p>
+                  <p className="landing-section__eyebrow mb-2 mb-md-3">Safehouse</p>
                   <p className="mb-0 fs-5 fw-semibold mt-auto">
                     {dashIfEmpty(resident.safehouseCity)}
                   </p>
@@ -114,9 +115,9 @@ function ResidentPage() {
               </div>
             </div>
             <div className="col-md-4 d-flex">
-              <div className="card flex-grow-1 shadow-sm">
+              <div className="card flex-grow-1 shadow-sm beacon-detail-card">
                 <div className="card-body d-flex flex-column">
-                  <p className="text-muted small mb-2 mb-md-3">Time Housed</p>
+                  <p className="landing-section__eyebrow mb-2 mb-md-3">Time Housed</p>
                   <p className="mb-0 fs-5 fw-semibold mt-auto">
                     {dashIfEmpty(resident.lengthOfStay)}
                   </p>
@@ -124,9 +125,9 @@ function ResidentPage() {
               </div>
             </div>
             <div className="col-md-4 d-flex">
-              <div className="card flex-grow-1 shadow-sm">
+              <div className="card flex-grow-1 shadow-sm beacon-detail-card">
                 <div className="card-body d-flex flex-column">
-                  <p className="text-muted small mb-2 mb-md-3">Risk Level</p>
+                  <p className="landing-section__eyebrow mb-2 mb-md-3">Risk Level</p>
                   <p className="mb-0 fs-5 fw-semibold mt-auto">
                     {dashIfEmpty(resident.currentRiskLevel)}
                   </p>

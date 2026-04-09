@@ -16,7 +16,7 @@ function AdminAllSafehousesPage() {
   const { query } = useAdminSearch();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/Safehouses`)
+    fetch(`${BASE_URL}/Safehouses`, { credentials: "include" })
       .then((res) => res.json())
       .then(setSafehouses)
       .catch((err) => setError((err as Error).message))

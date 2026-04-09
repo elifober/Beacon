@@ -1351,7 +1351,6 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 .donor-dashboard {
-  margin-top: calc(-1 * (80px + 2rem + env(safe-area-inset-top, 0px)));
   background:
     radial-gradient(circle at 12% 22%, rgba(114, 159, 147, 0.12), transparent 40%),
     radial-gradient(circle at 88% 11%, rgba(225, 181, 129, 0.12), transparent 36%),

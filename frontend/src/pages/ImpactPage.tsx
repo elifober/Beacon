@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const impactPosts = [
   {
@@ -98,6 +99,8 @@ function ImpactPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

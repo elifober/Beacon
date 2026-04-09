@@ -6,6 +6,7 @@ import {
   registerUserWithProfile,
 } from '../lib/authAPI';
 import { useAuth } from '../context/AuthContext';
+import { AuthHeroVideo } from '../components/AuthHeroVideo';
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ function RegisterPage() {
   return (
     <>
     <div className="beacon-page beacon-page--auth register-page">
-      <div className="register-page__bg" aria-hidden="true" />
+      <AuthHeroVideo />
       <div className="container register-page__content">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">

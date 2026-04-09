@@ -134,7 +134,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .beacon-navbar--fixed:not(.beacon-navbar--auth-overlay) {
   top: 40px;
 }
-/* Login / logout / register: no announcement bar — flush to top */
+/* Glass overlay nav routes (no home announcement) — flush to top */
 .beacon-navbar--fixed.beacon-navbar--auth-overlay {
   top: 0;
 }
@@ -3151,7 +3151,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   box-sizing: border-box;
 }
 
-/* Logout & register — same dark backdrop + overlay nav as login (no video) */
+/* Logout — gradient backdrop + overlay nav (no video) */
 .logout-page,
 .register-page {
   position: relative;
@@ -3165,16 +3165,14 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   padding-top: 5.75rem;
   box-sizing: border-box;
 }
-.logout-page__bg,
-.register-page__bg {
+.logout-page__bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background: linear-gradient(160deg, #141f18 0%, #1f3328 45%, #16261c 100%);
 }
-.logout-page__bg::after,
-.register-page__bg::after {
+.logout-page__bg::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -3191,14 +3189,16 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   position: relative;
   z-index: 1;
 }
-.login-page__bg {
+
+/* Login / register — shared full-bleed video */
+.auth-hero-video {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background: linear-gradient(160deg, #141f18 0%, #1f3328 45%, #16261c 100%);
 }
-.login-page__video {
+.auth-hero-video__media {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -3206,7 +3206,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   object-fit: cover;
   object-position: center;
 }
-.login-page__overlay {
+.auth-hero-video__overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -3222,7 +3222,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login-page__video {
+  .auth-hero-video__media {
     display: none;
   }
 }
@@ -3495,22 +3495,36 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 /* Contact page */
 .contact-page {
   background: linear-gradient(180deg, #f6f8f4 0%, #edf2ec 100%);
-  min-height: calc(100vh - 80px);
+  min-height: 100dvh;
 }
 .contact-page__hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(0.9rem, 2.2vw, 1.4rem) 0 1rem;
+  min-height: clamp(300px, 52vh, 520px);
+  display: flex;
+  align-items: flex-end;
+  padding: 5.75rem 0 clamp(1.25rem, 3vw, 2rem);
+  box-sizing: border-box;
+  background-color: #141f18;
 }
 .contact-page__hero-bg {
   position: absolute;
-  inset: 0;
-  background: url("/land.jpg") center/cover no-repeat;
+  inset: -12%;
+  background: url("/land.jpg") center 38% / cover no-repeat;
   filter: brightness(0.62) saturate(0.92);
+  z-index: 0;
+}
+.contact-page__hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(19, 31, 26, 0.7) 0%, rgba(19, 31, 26, 0.22) 100%);
 }
 .contact-page__hero .container {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 .contact-page__hero .landing-section__eyebrow,
 .contact-page__hero .landing-section__heading,
@@ -3666,17 +3680,19 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   position: relative;
   overflow: hidden;
   /* Taller band + oversized bg layer (inset) = less “telephoto” crop on wide viewports */
-  min-height: clamp(268px, 42vh, 400px);
+  min-height: clamp(320px, 54vh, 520px);
   display: flex;
   align-items: flex-end;
   background-color: #141f18;
+  padding-top: 5.75rem;
+  box-sizing: border-box;
 }
 .impact-page__hero::before {
   content: "";
   position: absolute;
-  inset: -11%;
+  inset: -14%;
   z-index: 0;
-  background: url("/little_girl_and_baby.jpg") center 40% / cover no-repeat;
+  background: url("/little_girl_and_baby.jpg") center 38% / cover no-repeat;
 }
 .impact-page__hero-overlay {
   position: absolute;
@@ -3798,19 +3814,30 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 }
 .about-page__hero {
   position: relative;
-  background: url("/HoldingHandsAtBeach.jpg") center/cover no-repeat;
-  min-height: clamp(240px, 36vh, 320px);
+  overflow: hidden;
+  min-height: clamp(320px, 54vh, 520px);
   display: flex;
   align-items: flex-end;
+  background-color: #141f18;
+  padding-top: 5.75rem;
+  box-sizing: border-box;
+}
+.about-page__hero::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  background: url("/HoldingHandsAtBeach.jpg") center 40% / cover no-repeat;
 }
 .about-page__hero-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(0deg, rgba(19, 31, 26, 0.72) 0%, rgba(19, 31, 26, 0.18) 100%);
 }
 .about-page__hero-inner {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding-bottom: clamp(1rem, 2.4vw, 1.4rem);
 }
 .about-page__title {

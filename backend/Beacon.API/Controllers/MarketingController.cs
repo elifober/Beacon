@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Beacon.Api.Models.PostPlanner;
 using Beacon.Api.Services.PostPlanner;
+using Beacon.API.Data;
 
 namespace Beacon.Api.Controllers;
 
 [ApiController]
 [Route("api/marketing")]
-//[Authorize(Roles = "Admin,Marketing")]
+[Authorize(Policy = AuthPolicies.AdminOnly)]
 public class MarketingController : ControllerBase
 {
     private readonly PostSuccessPredictor _predictor;

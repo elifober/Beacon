@@ -2724,6 +2724,14 @@ main#main-content.main-below-fixed-nav {
   padding-top: 0.15rem;
 }
 
+.post-planner__form-card {
+  padding: 1.25rem;
+  background: var(--beacon-bg-card);
+  border: 1px solid var(--beacon-border);
+  border-radius: var(--beacon-radius);
+  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+}
+
 .post-planner__aside {
   padding: 1.25rem;
   background: var(--beacon-bg-card);

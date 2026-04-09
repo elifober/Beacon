@@ -29,6 +29,8 @@ import ContactPage from './pages/ContactPage.tsx'
 import ImpactPage from './pages/ImpactPage.tsx'
 import AboutPage from './pages/AboutPage.tsx'
 import RiskManagementCenter from './pages/RiskManagementCenter.tsx'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import CookieBanner from './components/CookieBanner';
 
 function RoutedMain({ children }: { children: ReactNode }) {
   return (
@@ -54,6 +56,7 @@ function App() {
           <RoutedMain>
           <AdminSearchProvider>
           <Routes>
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/donate" element={<DonatePage />} />
@@ -183,6 +186,7 @@ function App() {
               }
             />
           </Routes>
+          <CookieBanner />
           </AdminSearchProvider>
           </RoutedMain>
         </Router>

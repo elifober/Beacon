@@ -536,8 +536,10 @@ public class BeaconController : ControllerBase
         var attendanceRounded = Math.Round(body.AttendanceRate!.Value, 3, MidpointRounding.AwayFromZero);
         var progressRounded = Math.Round(body.ProgressPercent!.Value, 1, MidpointRounding.AwayFromZero);
 
+        var educationRecordId = await _beaconContext.AllocateNextEducationRecordIdAsync();
         var entity = new EducationRecord
         {
+            EducationRecordId = educationRecordId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             SchoolName = body.SchoolName.Trim(),
@@ -580,8 +582,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var healthRecordId = await _beaconContext.AllocateNextHealthRecordIdAsync();
         var entity = new HealthWellbeingRecord
         {
+            HealthRecordId = healthRecordId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             GeneralHealthScore = body.GeneralHealthScore,
@@ -624,8 +628,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var recordingId = await _beaconContext.AllocateNextProcessRecordingIdAsync();
         var entity = new ProcessRecording
         {
+            RecordingId = recordingId,
             ResidentId = body.ResidentId,
             SessionDate = body.SessionDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -666,8 +672,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var visitationId = await _beaconContext.AllocateNextHomeVisitationIdAsync();
         var entity = new HomeVisitation
         {
+            VisitationId = visitationId,
             ResidentId = body.ResidentId,
             VisitDate = body.VisitDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -712,8 +720,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var incidentId = await _beaconContext.AllocateNextIncidentReportIdAsync();
         var entity = new IncidentReport
         {
+            IncidentId = incidentId,
             ResidentId = body.ResidentId,
             SafehouseId = body.SafehouseId,
             IncidentDate = body.IncidentDate,

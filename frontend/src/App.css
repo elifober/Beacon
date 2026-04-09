@@ -1268,6 +1268,20 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .landing-footer a:hover {
   color: var(--beacon-oat-light);
 }
+
+.landing-footer__cookie-btn {
+  font-size: inherit;
+  color: var(--beacon-oat);
+  text-decoration: underline;
+  border: 0;
+  background: none;
+  vertical-align: baseline;
+}
+
+.landing-footer__cookie-btn:hover {
+  color: var(--beacon-oat-light);
+}
+
 .landing-footer__socials {
   display: flex;
   align-items: center;

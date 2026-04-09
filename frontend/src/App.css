@@ -127,9 +127,16 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 /* Landing only: overlay hero and stay visible while scrolling */
 .beacon-navbar--fixed {
   position: fixed;
-  top: 40px;
   left: 0;
   right: 0;
+}
+/* Below global announcement strip on home */
+.beacon-navbar--fixed:not(.beacon-navbar--auth-overlay) {
+  top: 40px;
+}
+/* Login / logout: no announcement bar — flush to top */
+.beacon-navbar--fixed.beacon-navbar--auth-overlay {
+  top: 0;
 }
 
 /* App routes: in document flow at top; scrolls away with the page */
@@ -282,6 +289,39 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   background: #fff !important;
   color: var(--beacon-primary) !important;
 }
+/* Login / logout overlay: solid white CTA, dark label (matches marketing mock) */
+.beacon-navbar--auth-overlay .beacon-navbar__cta {
+  background: #fff !important;
+  color: #1a231c !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.12);
+}
+.beacon-navbar--auth-overlay .beacon-navbar__cta:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16) !important;
+}
+/* Slightly stronger glass pill over video / dark bg */
+.beacon-navbar--auth-overlay .beacon-navbar__center {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 0.38rem 0.55rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+.beacon-navbar--auth-overlay .beacon-navbar__center a {
+  color: rgba(255, 255, 255, 0.92);
+}
+.beacon-navbar--auth-overlay .beacon-navbar__center a:hover,
+.beacon-navbar--auth-overlay .beacon-navbar__center a.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+}
+.beacon-navbar--auth-overlay .beacon-navbar__right > a {
+  color: rgba(255, 255, 255, 0.92);
+}
+.beacon-navbar--auth-overlay .beacon-navbar__right > a:hover {
+  color: #fff;
+}
 .beacon-navbar--scrolled .beacon-navbar__cta,
 .beacon-navbar--solid .beacon-navbar__cta {
   background: var(--beacon-primary) !important;
@@ -355,6 +395,20 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   .beacon-navbar__mobile .beacon-navbar__cta {
     margin-top: 0.5rem;
     text-align: center;
+    border-bottom: none !important;
+  }
+  .beacon-navbar--auth-overlay .beacon-navbar__mobile {
+    background: rgba(18, 26, 21, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .beacon-navbar--auth-overlay .beacon-navbar__mobile a {
+    color: rgba(255, 255, 255, 0.92);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  .beacon-navbar--auth-overlay .beacon-navbar__mobile .beacon-navbar__cta {
+    color: #1a231c !important;
     border-bottom: none !important;
   }
 }
@@ -3089,6 +3143,48 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+}
+.login-page.beacon-page--auth {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 5.75rem;
+  box-sizing: border-box;
+}
+
+/* Logout — same dark backdrop + overlay nav as login (no video) */
+.logout-page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.logout-page.beacon-page--auth {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 5.75rem;
+  box-sizing: border-box;
+}
+.logout-page__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(160deg, #141f18 0%, #1f3328 45%, #16261c 100%);
+}
+.logout-page__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 18, 14, 0.45) 0%,
+    rgba(20, 31, 24, 0.25) 45%,
+    rgba(12, 18, 14, 0.5) 100%
+  );
+  pointer-events: none;
+}
+.logout-page__content {
+  position: relative;
+  z-index: 1;
 }
 .login-page__bg {
   position: absolute;

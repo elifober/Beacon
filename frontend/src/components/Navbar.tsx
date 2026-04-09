@@ -12,6 +12,8 @@ function Navbar() {
     : "/login";
   const location = useLocation();
   const isLanding = location.pathname === "/";
+  const isAuthOverlay =
+    location.pathname === "/login" || location.pathname === "/logout";
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,10 +30,11 @@ function Navbar() {
 
   const navClass = [
     "beacon-navbar",
-    isLanding ? "beacon-navbar--fixed" : "beacon-navbar--static",
-    isLanding && !scrolled ? "beacon-navbar--glass" : "",
-    !isLanding ? "beacon-navbar--solid" : "",
-    scrolled ? "beacon-navbar--scrolled" : "",
+    isLanding || isAuthOverlay ? "beacon-navbar--fixed" : "beacon-navbar--static",
+    isAuthOverlay ? "beacon-navbar--auth-overlay" : "",
+    (isLanding && !scrolled) || isAuthOverlay ? "beacon-navbar--glass" : "",
+    !isLanding && !isAuthOverlay ? "beacon-navbar--solid" : "",
+    scrolled && isLanding ? "beacon-navbar--scrolled" : "",
   ]
     .filter(Boolean)
     .join(" ");

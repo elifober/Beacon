@@ -17,6 +17,7 @@ import AdminAllDonorsPage from './pages/AdminAllDonorsPage.tsx'
 import AdminAllDonationsPage from './pages/AdminAllDonationsPage.tsx'
 import AdminAllSafehousesPage from './pages/AdminAllSafehousesPage.tsx'
 import { AdminSearchProvider } from './context/AdminSearchContext.tsx'
+import Navbar from './components/Navbar.tsx'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
     <>
     <AuthProvider>
     <Router>
+      <Navbar />
       <AdminSearchProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />

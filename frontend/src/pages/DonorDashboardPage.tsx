@@ -5,7 +5,6 @@ import type { DonorDashboard } from "../types/DonorDashboard";
 import DonorInfo from "../components/DonorInfo";
 import MonetaryDonationHistory from "../components/MonetaryDonationHistory";
 import NonMonetaryDonationHistory from "../components/NonMonetaryDonationHistory";
-import heroForestImage from "../assets/forrest.jpg";
 
 function formatCurrency(value: number): string {
   return `PHP ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -86,7 +85,7 @@ function DonorDashboardPage() {
       <header className="admin-dashboard__hero" aria-label="Donor dashboard header">
         <img
           className="admin-dashboard__hero-img"
-          src={heroForestImage}
+          src="/houses.jpg"
           alt=""
           decoding="async"
         />

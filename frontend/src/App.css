@@ -1350,16 +1350,47 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   outline-offset: 2px;
 }
 
+.donor-dashboard .admin-dashboard__hero {
+  margin-top: calc(-2rem - env(safe-area-inset-top, 0px));
+}
 .donor-dashboard .beacon-stat-value {
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: clamp(1.35rem, 2.1vw, 1.95rem);
+  font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 .donor-dashboard .donor-pie--clean {
-  border: 1px solid var(--beacon-border);
-  box-shadow: inset 0 0 0 16px var(--beacon-bg-card);
+  width: min(66vw, 216px);
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: conic-gradient(
+    #4f8a83 0 var(--donor-monetary-share),
+    #c98562 var(--donor-monetary-share) 100%
+  );
+  box-shadow:
+    0 12px 24px rgba(27, 38, 29, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  transform: rotate(-90deg);
+}
+.donor-dashboard .donor-pie--clean::after {
+  content: "";
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f8f6 100%);
+  box-shadow:
+    inset 0 0 0 1px var(--beacon-border),
+    0 1px 4px rgba(27, 38, 29, 0.08);
+}
+.donor-dashboard .donor-pie__legend {
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .donor-dashboard .donor-pie__legend p {
   color: var(--beacon-text);
+  font-weight: 600;
 }
 .donor-dashboard .donor-mini-grid--clean .donor-mini-grid__item {
   border: 1px solid var(--beacon-border);
@@ -1371,6 +1402,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .donor-dashboard .donor-mini-grid--clean .donor-mini-grid__value {
   color: var(--beacon-primary);
+}
+.donor-dashboard .donor-dot--monetary {
+  background: #4f8a83;
+}
+.donor-dashboard .donor-dot--nonmonetary {
+  background: #c98562;
 }
 
 /* ═══════════════════════════════════════════════

@@ -40,10 +40,14 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    // Development often uses http://localhost; Always would drop cookies on HTTP. Production must stay HTTPS.
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+    options.Cookie.IsEssential = true;
     // Cross-site cookie needed for Vercel (frontend) -> API (different host) with fetch(..., credentials).
     // SameSite=Lax is NOT sent on those requests, so login "works" but /api/auth/me looks anonymous.
-    // Use None for Production/Staging or any Railway deploy; keep Lax only for local Development.
+    // Set Auth:UseCrossSiteCookies=false only for same-site setups (e.g. reverse proxy on one origin).
     var useCrossSiteCookies = builder.Configuration.GetValue<bool?>("Auth:UseCrossSiteCookies")
         ?? (!builder.Environment.IsDevelopment()
             || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")));
@@ -123,8 +127,11 @@ builder.Services.AddDataProtection()
 builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme, options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.IsEssential = true;
 });
 
 builder.Services.AddSingleton<PostSuccessPredictor>();
@@ -146,7 +153,9 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.CallbackPath = "/signin-google";
         options.CorrelationCookie.SameSite = SameSiteMode.None;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.CorrelationCookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
         options.CorrelationCookie.IsEssential = true;
     });
 }

@@ -1,6 +1,12 @@
 import type { AuthSession } from '../types/AuthSession';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
+const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
+
+function normalizeApiBaseUrl(url: string): string {
+  return url.trim().replace(/\/+$/, '');
+}
+
+const apiBaseUrl = normalizeApiBaseUrl(rawApiBaseUrl);
 
 export type ExternalAuthProvider = {
     name: string;
@@ -8,7 +14,7 @@ export type ExternalAuthProvider = {
 };
 
 function requireApiBaseUrl(): string {
-    const value = apiBaseUrl.trim();
+    const value = apiBaseUrl;
     if (!value) {
         throw new Error(
             'Missing VITE_API_BASE_URL. Set it in Vercel (Production) and redeploy so the frontend can call the backend.'

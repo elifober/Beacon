@@ -301,8 +301,6 @@ public class BeaconController : ControllerBase
                         i.IncidentDate,
                         i.IncidentType,
                         i.Severity,
-                        i.Description,
-                        i.ResponseTaken,
                         i.Resolved,
                         i.ResolutionDate,
                         i.ReportedBy,
@@ -311,22 +309,20 @@ public class BeaconController : ControllerBase
                     })
                     .ToList();
                 var shIds = incidents.Select(i => i.SafehouseId).Distinct().ToList();
-                var safehouseNames = _beaconContext.Safehouses.AsNoTracking()
+                var safehouseCities = _beaconContext.Safehouses.AsNoTracking()
                     .Where(sh => shIds.Contains(sh.SafehouseId))
-                    .ToDictionary(sh => sh.SafehouseId, sh => sh.Name);
+                    .ToDictionary(sh => sh.SafehouseId, sh => sh.City);
                 return incidents.ConvertAll(i => new ResidentIncidentReportRow
                 {
                     IncidentId = i.IncidentId,
                     IncidentDate = i.IncidentDate,
                     IncidentType = i.IncidentType,
                     Severity = i.Severity,
-                    Description = i.Description,
-                    ResponseTaken = i.ResponseTaken,
                     Resolved = i.Resolved,
                     ResolutionDate = i.ResolutionDate,
                     ReportedBy = i.ReportedBy,
                     FollowUpRequired = i.FollowUpRequired,
-                    SafehouseName = safehouseNames.TryGetValue(i.SafehouseId, out var n) ? n : null,
+                    SafehouseCity = safehouseCities.TryGetValue(i.SafehouseId, out var c) ? c : null,
                 });
             },
             "incident_reports",

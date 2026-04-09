@@ -1,13 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { IncidentReportRow } from "../../types/residentRecords";
+import Pagination from "../Pagination";
 import { ResidentRecordModal } from "./ResidentRecordModal";
-import { clip, dashIfEmpty, fmtBool, formatDate } from "./residentRecordFormat";
+import { dashIfEmpty, fmtBool, formatDate } from "./residentRecordFormat";
+
+const MODAL_PAGE_SIZE = 10;
 
 type Props = { records: IncidentReportRow[] };
 
 export function IncidentReportsSection({ records }: Props) {
   const [open, setOpen] = useState(false);
+  const [modalPage, setModalPage] = useState(1);
   const count = records.length;
+
+  useEffect(() => {
+    if (open) setModalPage(1);
+  }, [open]);
+
+  const totalPages = Math.max(1, Math.ceil(count / MODAL_PAGE_SIZE));
+  const currentPage = Math.min(Math.max(modalPage, 1), totalPages);
+  const startIndex = (currentPage - 1) * MODAL_PAGE_SIZE;
+  const pagedRecords = records.slice(startIndex, startIndex + MODAL_PAGE_SIZE);
 
   return (
     <>
@@ -43,38 +56,43 @@ export function IncidentReportsSection({ records }: Props) {
           {count === 0 ? (
             <p className="text-muted small mb-0">No incident reports.</p>
           ) : (
-            <table className="table table-sm table-striped table-hover mb-0 align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Date</th>
-                  <th>Safehouse</th>
-                  <th>Type</th>
-                  <th>Severity</th>
-                  <th>Description</th>
-                  <th>Response</th>
-                  <th>Resolved</th>
-                  <th>Resolution date</th>
-                  <th>Reported by</th>
-                  <th>Follow-up req.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((i) => (
-                  <tr key={i.incidentId}>
-                    <td>{formatDate(i.incidentDate)}</td>
-                    <td>{dashIfEmpty(i.safehouseName)}</td>
-                    <td>{dashIfEmpty(i.incidentType)}</td>
-                    <td>{dashIfEmpty(i.severity)}</td>
-                    <td title={i.description ?? ""}>{clip(i.description)}</td>
-                    <td title={i.responseTaken ?? ""}>{clip(i.responseTaken)}</td>
-                    <td>{fmtBool(i.resolved)}</td>
-                    <td>{formatDate(i.resolutionDate)}</td>
-                    <td>{dashIfEmpty(i.reportedBy)}</td>
-                    <td>{fmtBool(i.followUpRequired)}</td>
+            <>
+              <table className="table table-sm table-striped table-hover mb-0 align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Safehouse</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Resolved</th>
+                    <th>Resolution date</th>
+                    <th>Reported by</th>
+                    <th>Follow-up req.</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {pagedRecords.map((i) => (
+                    <tr key={i.incidentId}>
+                      <td>{formatDate(i.incidentDate)}</td>
+                      <td>{dashIfEmpty(i.safehouseCity)}</td>
+                      <td>{dashIfEmpty(i.incidentType)}</td>
+                      <td>{dashIfEmpty(i.severity)}</td>
+                      <td>{fmtBool(i.resolved)}</td>
+                      <td>{formatDate(i.resolutionDate)}</td>
+                      <td>{dashIfEmpty(i.reportedBy)}</td>
+                      <td>{fmtBool(i.followUpRequired)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Pagination
+                className="mt-3 d-flex justify-content-center pb-2"
+                page={currentPage}
+                pageSize={MODAL_PAGE_SIZE}
+                totalCount={count}
+                onPageChange={setModalPage}
+              />
+            </>
           )}
         </div>
       </ResidentRecordModal>

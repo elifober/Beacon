@@ -53,7 +53,7 @@ function LogoutPage() {
                 <Link className="btn btn-primary" to="/">
                   Return to Main Page
                 </Link>
-                <Link className="btn btn-outline-secondary" to="/">
+                <Link className="btn btn-outline-secondary" to="/login">
                   Go to login
                 </Link>
               </div>

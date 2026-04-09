@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
 import { useAdminSearch } from "../context/AdminSearchContext";
+import { BASE_URL } from "../config/api";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -35,7 +35,7 @@ function AdminAllPartnersPage() {
   const { query } = useAdminSearch();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/AllPartners`, { credentials: "include" })
+    fetch(`${BASE_URL}/AllPartners`, { credentials: 'include' })
       .then((res) => res.json())
       .then(setPartners)
       .catch((err) => setError((err as Error).message))

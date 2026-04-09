@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDonorDashboard } from "../api/Donors";
 import type { DonorDashboard } from "../types/DonorDashboard";
-import DonorInfo from "../components/DonorInfo";
-import MonetaryDonationHistory from "../components/MonetaryDonationHistory";
-import NonMonetaryDonationHistory from "../components/NonMonetaryDonationHistory";
 
 function formatCurrency(value: number): string {
   return `PHP ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -70,6 +67,12 @@ function DonorDashboardPage() {
     return acc;
   }, {});
   const topProgramArea = Object.entries(byProgramArea).sort((a, b) => b[1] - a[1])[0];
+  const profileRows = [
+    { label: "Name", value: fullName },
+    { label: "Email", value: data.supporter.email ?? "N/A" },
+    { label: "Status", value: data.supporter.status ?? "N/A" },
+    { label: "Organization", value: data.supporter.organizationName ?? "N/A" },
+  ] as const;
 
   const latestDonationDate = data.donationHistory[0]?.donationDate;
   const latestDonationLabel = latestDonationDate
@@ -126,6 +129,14 @@ function DonorDashboardPage() {
                   Track your monetary and non-monetary contributions, review your impact,
                   and continue supporting Beacon&apos;s mission.
                 </p>
+                <div className="donor-overview-meta mt-4">
+                  {profileRows.map((row) => (
+                    <div key={row.label} className="donor-overview-meta__row">
+                      <p className="donor-overview-meta__label mb-0">{row.label}</p>
+                      <p className="donor-overview-meta__value mb-0">{row.value}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -136,11 +147,14 @@ function DonorDashboardPage() {
                   <Link to="/donate" className="admin-dashboard__nav-link">
                     Donate now
                   </Link>
-                  <a href="#donor-history" className="admin-dashboard__nav-link">
-                    View donation history
+                  <a href="/#impact" className="admin-dashboard__nav-link">
+                    View impact stories
                   </a>
                   <a href="#donor-analytics" className="admin-dashboard__nav-link">
                     View analytics
+                  </a>
+                  <a href="#donor-community" className="admin-dashboard__nav-link">
+                    Community updates
                   </a>
                 </nav>
               </div>
@@ -248,17 +262,7 @@ function DonorDashboardPage() {
             </div>
           </div>
 
-          <div id="donor-history" className="row g-4">
-            <div className="col-lg-5">
-              <DonorInfo supporter={data.supporter} />
-            </div>
-            <div className="col-lg-7 d-flex flex-column gap-4">
-              <MonetaryDonationHistory history={data.donationHistory} />
-              <NonMonetaryDonationHistory history={data.donationHistory} />
-            </div>
-          </div>
-
-          <div className="row g-4 mt-1">
+          <div id="donor-community" className="row g-4 mt-1">
             <div className="col-lg-5">
               <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
                 <p className="landing-section__eyebrow mb-2">Community</p>
@@ -267,6 +271,17 @@ function DonorDashboardPage() {
                   Join upcoming Beacon events, meet other supporters, and see how your
                   contributions directly power safe shelter, health, and rehabilitation.
                 </p>
+                <div className="donor-community-actions mt-4">
+                  <a href="/#impact" className="donor-community-actions__btn">
+                    Explore impact
+                  </a>
+                  <a
+                    href="mailto:info@beaconsanctuary.org?subject=Beacon%20Email%20Updates"
+                    className="donor-community-actions__btn donor-community-actions__btn--accent"
+                  >
+                    Join email updates
+                  </a>
+                </div>
               </div>
             </div>
             <div className="col-lg-7">

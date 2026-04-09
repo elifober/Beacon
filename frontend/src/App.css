@@ -1391,6 +1391,30 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
+.donor-dashboard .donor-overview-meta {
+  display: grid;
+  gap: 0.55rem;
+}
+.donor-dashboard .donor-overview-meta__row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem;
+  border: 1px solid rgba(59, 82, 69, 0.15);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  background: rgba(255, 255, 255, 0.48);
+}
+.donor-dashboard .donor-overview-meta__label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--beacon-text-muted);
+}
+.donor-dashboard .donor-overview-meta__value {
+  font-weight: 600;
+  color: var(--beacon-text);
+}
 .donor-dashboard .donor-mix-chart {
   position: relative;
   max-width: 420px;
@@ -1523,6 +1547,34 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border-color: rgba(59, 82, 69, 0.35);
   background: rgba(255, 255, 255, 0.85);
 }
+.donor-dashboard .donor-community-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.donor-dashboard .donor-community-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.75), rgba(241, 246, 241, 0.6));
+  color: var(--beacon-primary);
+  font-weight: 700;
+  font-size: 0.86rem;
+  box-shadow: 0 8px 20px rgba(39, 58, 46, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.donor-dashboard .donor-community-actions__btn:hover {
+  border-color: rgba(59, 82, 69, 0.34);
+  color: var(--beacon-primary-dark);
+}
+.donor-dashboard .donor-community-actions__btn--accent {
+  background: linear-gradient(145deg, rgba(106, 154, 140, 0.21), rgba(210, 139, 99, 0.24));
+}
 
 @media (max-width: 992px) {
   .donor-dashboard {
@@ -1540,6 +1592,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 @media (max-width: 768px) {
+  .donor-dashboard .donor-overview-meta__row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
   .donor-dashboard .donor-events__item {
     flex-direction: column;
     align-items: flex-start;

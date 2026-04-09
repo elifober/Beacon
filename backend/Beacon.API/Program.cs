@@ -4,6 +4,7 @@ using Beacon.API.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Beacon.API.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -123,7 +124,11 @@ builder.Services.AddDbContext<AuthIdentityDbContext>(options =>
     options.UseNpgsql(
             builder.Configuration.GetConnectionString("BeaconConnection"),
             npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null))
-        .UseSnakeCaseNamingConvention());
+        .UseSnakeCaseNamingConvention()
+        // EF Core 9+ treats pending model drift as an error during Migrate; that crashes the container
+        // if the deployed build is missing the latest migration files or snapshot. Prefer deploying
+        // migrations (see SyncRecordPrimaryKeyMetadataWithFluentApi); this avoids boot loops on Railway.
+        .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // Persist DP keys in Postgres so OAuth correlation survives multiple Railway instances / cold starts.
 builder.Services.AddDataProtection()

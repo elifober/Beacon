@@ -1650,3 +1650,49 @@ main#main-content.main-below-fixed-nav {
     animation: none;
   }
 }
+
+/* Mental wellbeing table — inline narrative disclosure (no extra modal) */
+.mental-wellbeing-narrative-details {
+  max-width: min(28rem, 72vw);
+}
+
+.mental-wellbeing-narrative-summary {
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--beacon-primary);
+  list-style: none;
+}
+
+.mental-wellbeing-narrative-summary::-webkit-details-marker {
+  display: none;
+}
+
+.mental-wellbeing-narrative-summary::marker {
+  content: "";
+}
+
+.mental-wellbeing-narrative-summary:hover {
+  color: var(--beacon-primary-dark);
+  text-decoration: underline;
+}
+
+.mental-wellbeing-narrative-summary:focus-visible {
+  outline: 2px solid var(--beacon-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.mental-wellbeing-narrative-body {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--beacon-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(45, 79, 53, 0.06);
+  border-radius: calc(var(--beacon-radius, 8px) - 2px);
+  border: 1px solid var(--beacon-border);
+}

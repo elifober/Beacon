@@ -13,10 +13,14 @@ type Tab = "residents-incident" | "residents-reintegration" | "supporters";
 
 function tierTone(band: string | null | undefined): "high" | "medium" | "low" {
   const b = (band ?? "").toLowerCase();
-  if (b.includes("high") || b.includes("not ready")) return "high";
+  // NOTE: post-planner classes use high=green, low=red. For risk language we
+  // invert so "High risk / Not Ready / High churn" render red, and the
+  // positive states render green.
+  if (b.includes("high") || b.includes("not ready")) return "low";
   if (b.includes("medium") || b.includes("developing")) return "medium";
-  return "low";
+  return "high";
 }
+
 
 function pct(v: number | null): string {
   if (v == null) return "—";
@@ -114,29 +118,34 @@ export default function RiskManagementCenter() {
             the Beacon ML pipelines.
           </p>
         </div>
+        <div className="text-center mb-4">
+        <Link to="/admin/post-planner" className="btn btn-outline-primary btn-sm">
+          Open Post Planner →
+        </Link>
+      </div>
       </div>
 
       {/* Summary cards */}
       <div className="row g-3 mb-4">
         <SummaryCard
-          label="High incident risk residents"
-          value={countFor(summary?.residentIncidentBands, "High")}
-          tone="high"
+            label="High incident risk residents"
+            value={countFor(summary?.residentIncidentBands, "High")}
+            tone="low"
         />
         <SummaryCard
-          label="Residents ready for reintegration"
-          value={countFor(summary?.residentReintegrationBands, "Ready")}
-          tone="low"
+            label="Residents ready for reintegration"
+            value={countFor(summary?.residentReintegrationBands, "Ready")}
+            tone="high"
         />
         <SummaryCard
-          label="High churn risk supporters"
-          value={countFor(summary?.supporterChurnTiers, "High")}
-          tone="high"
+            label="High churn risk supporters"
+            value={countFor(summary?.supporterChurnTiers, "High")}
+            tone="low"
         />
         <SummaryCard
-          label="Low churn risk supporters"
-          value={countFor(summary?.supporterChurnTiers, "Low")}
-          tone="low"
+            label="Low churn risk supporters"
+            value={countFor(summary?.supporterChurnTiers, "Low")}
+            tone="high"
         />
       </div>
 
@@ -241,7 +250,9 @@ export default function RiskManagementCenter() {
               <tbody>
                 {supportersByChurn.map((s) => (
                   <tr key={s.supporterId}>
-                    <td>{s.name}</td>
+                    <td>
+                       <Link to={`/donor/${s.supporterId}`}>{s.name}</Link>
+                    </td>
                     <td>{s.supporterType ?? "—"}</td>
                     <td>{s.status ?? "—"}</td>
                     <td className="text-end">{pct(s.churnProbability)}</td>

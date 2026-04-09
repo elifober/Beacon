@@ -191,7 +191,7 @@ function ResidentPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`${BASE_URL}/Resident/${id}`)
+    fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Resident not found");
         return res.json();

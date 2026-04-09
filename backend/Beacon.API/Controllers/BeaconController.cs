@@ -23,8 +23,9 @@ public class BeaconController : ControllerBase
 
     /// <summary>
     /// Loads a related collection; returns an empty list if the query fails (e.g. table not migrated on prod).
+    /// Uses a typed list so System.Text.Json can serialize the response (boxed <c>object</c> + anonymous types often breaks JSON).
     /// </summary>
-    private object TryLoadResidentRelated(Func<object> load, string datasetName, int residentId)
+    private List<T> TryLoadResidentRelated<T>(Func<List<T>> load, string datasetName, int residentId)
     {
         try
         {
@@ -36,7 +37,7 @@ public class BeaconController : ControllerBase
                 "GetResident: could not load {Dataset} for resident {ResidentId}. Run EF migrations against production if this table should exist.",
                 datasetName,
                 residentId);
-            return new List<object>();
+            return new List<T>();
         }
     }
 
@@ -172,34 +173,28 @@ public class BeaconController : ControllerBase
     [HttpGet("Resident/{id}")]
     public IActionResult GetResident(int id)
     {
-        var row = _beaconContext.Residents
-            .Where(r => r.ResidentId == id)
-            .Join(_beaconContext.Safehouses,
-                r => r.SafehouseId,
-                s => s.SafehouseId,
-                (r, s) => new { r, s })
-            .FirstOrDefault();
+        // Do not inner-join Safehouses here: a bad/missing FK would yield 404 even though the resident exists.
+        var r = _beaconContext.Residents.AsNoTracking().FirstOrDefault(x => x.ResidentId == id);
+        if (r == null) return NotFound();
 
-        if (row == null) return NotFound();
-
-        var r = row.r;
-        var s = row.s;
+        var safehouse = _beaconContext.Safehouses.AsNoTracking()
+            .FirstOrDefault(s => s.SafehouseId == r.SafehouseId);
 
         var educationRecords = TryLoadResidentRelated(
             () => _beaconContext.Set<EducationRecord>()
                 .Where(e => e.ResidentId == id)
                 .OrderByDescending(e => e.RecordDate)
-                .Select(e => new
+                .Select(e => new ResidentEducationRecordRow
                 {
-                    e.EducationRecordId,
-                    e.RecordDate,
-                    e.EducationLevel,
-                    e.SchoolName,
-                    e.EnrollmentStatus,
-                    e.AttendanceRate,
-                    e.ProgressPercent,
-                    e.CompletionStatus,
-                    e.Notes,
+                    EducationRecordId = e.EducationRecordId,
+                    RecordDate = e.RecordDate,
+                    EducationLevel = e.EducationLevel,
+                    SchoolName = e.SchoolName,
+                    EnrollmentStatus = e.EnrollmentStatus,
+                    AttendanceRate = e.AttendanceRate,
+                    ProgressPercent = e.ProgressPercent,
+                    CompletionStatus = e.CompletionStatus,
+                    Notes = e.Notes,
                 })
                 .ToList(),
             "education_records",
@@ -209,21 +204,21 @@ public class BeaconController : ControllerBase
             () => _beaconContext.Set<HealthWellbeingRecord>()
                 .Where(h => h.ResidentId == id)
                 .OrderByDescending(h => h.RecordDate)
-                .Select(h => new
+                .Select(h => new ResidentHealthWellbeingRecordRow
                 {
-                    h.HealthRecordId,
-                    h.RecordDate,
-                    h.GeneralHealthScore,
-                    h.NutritionScore,
-                    h.SleepQualityScore,
-                    h.EnergyLevelScore,
-                    h.HeightCm,
-                    h.WeightKg,
-                    h.Bmi,
-                    h.MedicalCheckupDone,
-                    h.DentalCheckupDone,
-                    h.PsychologicalCheckupDone,
-                    h.Notes,
+                    HealthRecordId = h.HealthRecordId,
+                    RecordDate = h.RecordDate,
+                    GeneralHealthScore = h.GeneralHealthScore,
+                    NutritionScore = h.NutritionScore,
+                    SleepQualityScore = h.SleepQualityScore,
+                    EnergyLevelScore = h.EnergyLevelScore,
+                    HeightCm = h.HeightCm,
+                    WeightKg = h.WeightKg,
+                    Bmi = h.Bmi,
+                    MedicalCheckupDone = h.MedicalCheckupDone,
+                    DentalCheckupDone = h.DentalCheckupDone,
+                    PsychologicalCheckupDone = h.PsychologicalCheckupDone,
+                    Notes = h.Notes,
                 })
                 .ToList(),
             "health_wellbeing_records",
@@ -233,22 +228,22 @@ public class BeaconController : ControllerBase
             () => _beaconContext.Set<ProcessRecording>()
                 .Where(p => p.ResidentId == id)
                 .OrderByDescending(p => p.SessionDate)
-                .Select(p => new
+                .Select(p => new ResidentProcessRecordingRow
                 {
-                    p.RecordingId,
-                    p.SessionDate,
-                    p.SocialWorker,
-                    p.SessionType,
-                    p.SessionDurationMinutes,
-                    p.EmotionalStateObserved,
-                    p.EmotionalStateEnd,
-                    p.InterventionsApplied,
-                    p.FollowUpActions,
-                    p.ProgressNoted,
-                    p.ConcernsFlagged,
-                    p.ReferralMade,
-                    p.SessionNarrative,
-                    p.NotesRestricted,
+                    RecordingId = p.RecordingId,
+                    SessionDate = p.SessionDate,
+                    SocialWorker = p.SocialWorker,
+                    SessionType = p.SessionType,
+                    SessionDurationMinutes = p.SessionDurationMinutes,
+                    EmotionalStateObserved = p.EmotionalStateObserved,
+                    EmotionalStateEnd = p.EmotionalStateEnd,
+                    InterventionsApplied = p.InterventionsApplied,
+                    FollowUpActions = p.FollowUpActions,
+                    ProgressNoted = p.ProgressNoted,
+                    ConcernsFlagged = p.ConcernsFlagged,
+                    ReferralMade = p.ReferralMade,
+                    SessionNarrative = p.SessionNarrative,
+                    NotesRestricted = p.NotesRestricted,
                 })
                 .ToList(),
             "process_recordings",
@@ -258,20 +253,20 @@ public class BeaconController : ControllerBase
             () => _beaconContext.Set<HomeVisitation>()
                 .Where(v => v.ResidentId == id)
                 .OrderByDescending(v => v.VisitDate)
-                .Select(v => new
+                .Select(v => new ResidentHomeVisitationRow
                 {
-                    v.VisitationId,
-                    v.VisitDate,
-                    v.SocialWorker,
-                    v.VisitType,
-                    v.LocationVisited,
-                    v.Purpose,
-                    v.Observations,
-                    v.FamilyCooperationLevel,
-                    v.SafetyConcernsNoted,
-                    v.FollowUpNeeded,
-                    v.FollowUpNotes,
-                    v.VisitOutcome,
+                    VisitationId = v.VisitationId,
+                    VisitDate = v.VisitDate,
+                    SocialWorker = v.SocialWorker,
+                    VisitType = v.VisitType,
+                    LocationVisited = v.LocationVisited,
+                    Purpose = v.Purpose,
+                    Observations = v.Observations,
+                    FamilyCooperationLevel = v.FamilyCooperationLevel,
+                    SafetyConcernsNoted = v.SafetyConcernsNoted,
+                    FollowUpNeeded = v.FollowUpNeeded,
+                    FollowUpNotes = v.FollowUpNotes,
+                    VisitOutcome = v.VisitOutcome,
                 })
                 .ToList(),
             "home_visitations",
@@ -284,18 +279,18 @@ public class BeaconController : ControllerBase
                 .Join(_beaconContext.Safehouses,
                     i => i.SafehouseId,
                     sh => sh.SafehouseId,
-                    (i, sh) => new
+                    (i, sh) => new ResidentIncidentReportRow
                     {
-                        i.IncidentId,
-                        i.IncidentDate,
-                        i.IncidentType,
-                        i.Severity,
-                        i.Description,
-                        i.ResponseTaken,
-                        i.Resolved,
-                        i.ResolutionDate,
-                        i.ReportedBy,
-                        i.FollowUpRequired,
+                        IncidentId = i.IncidentId,
+                        IncidentDate = i.IncidentDate,
+                        IncidentType = i.IncidentType,
+                        Severity = i.Severity,
+                        Description = i.Description,
+                        ResponseTaken = i.ResponseTaken,
+                        Resolved = i.Resolved,
+                        ResolutionDate = i.ResolutionDate,
+                        ReportedBy = i.ReportedBy,
+                        FollowUpRequired = i.FollowUpRequired,
                         SafehouseName = sh.Name,
                     })
                 .ToList(),
@@ -308,7 +303,7 @@ public class BeaconController : ControllerBase
             r.DateOfBirth,
             r.Sex,
             r.CaseStatus,
-            SafehouseCity = s.City,
+            SafehouseCity = safehouse?.City,
             r.LengthOfStay,
             r.CurrentRiskLevel,
             educationRecords,

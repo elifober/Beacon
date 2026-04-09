@@ -325,7 +325,7 @@ export function AddEducationRecordModal({
             type="text"
             inputMode="numeric"
             autoComplete="off"
-            placeholder="Resident ID"
+            placeholder="Example: 101"
             className={`form-control form-control-sm${fieldErrors.resident_id ? " is-invalid" : ""}`}
             value={residentIdInput}
             onChange={(e) => setResidentIdInput(e.target.value)}
@@ -429,7 +429,6 @@ export function AddEducationRecordModal({
             value={attendanceRate}
             onChange={(e) => setAttendanceRate(e.target.value)}
           />
-          <p className="form-text small mb-0">Stored Rounded To Three Decimal Places.</p>
           {fieldErrors.attendance_rate ? (
             <div className="invalid-feedback d-block">{fieldErrors.attendance_rate}</div>
           ) : null}
@@ -449,7 +448,6 @@ export function AddEducationRecordModal({
             value={progressPercent}
             onChange={(e) => setProgressPercent(e.target.value)}
           />
-          <p className="form-text small mb-0">Stored Rounded To One Decimal Place.</p>
           {fieldErrors.progress_percent ? (
             <div className="invalid-feedback d-block">{fieldErrors.progress_percent}</div>
           ) : null}
@@ -503,7 +501,7 @@ export function AddEducationRecordModal({
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional"
+            placeholder="Example: Brief note (optional)"
           />
         </div>
 

@@ -287,13 +287,11 @@ export function AddHealthRecordModal({
         id={id}
         type="text"
         inputMode="decimal"
+        placeholder="Example: 3.5"
         className={`form-control form-control-sm${fieldErrors[key] ? " is-invalid" : ""}`}
         value={value}
         onChange={(e) => set(e.target.value)}
       />
-      <p className="form-text small mb-0">
-        Optional. Number From 0 Through 5 (Decimals Allowed If Needed).
-      </p>
       {fieldErrors[key] ? (
         <div className="invalid-feedback d-block">{fieldErrors[key]}</div>
       ) : null}
@@ -306,6 +304,7 @@ export function AddHealthRecordModal({
     value: string,
     set: (v: string) => void,
     key: FieldKey,
+    placeholder: string,
   ) => (
     <div className="mb-3">
       <label className="form-label small fw-semibold" htmlFor={id}>
@@ -315,6 +314,7 @@ export function AddHealthRecordModal({
         id={id}
         type="text"
         inputMode="decimal"
+        placeholder={placeholder}
         className={`form-control form-control-sm${fieldErrors[key] ? " is-invalid" : ""}`}
         value={value}
         onChange={(e) => set(e.target.value)}
@@ -348,6 +348,7 @@ export function AddHealthRecordModal({
             id="h-resident-id"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 101"
             className={`form-control form-control-sm${fieldErrors.resident_id ? " is-invalid" : ""}`}
             value={residentIdInput}
             onChange={(e) => setResidentIdInput(e.target.value)}
@@ -397,9 +398,9 @@ export function AddHealthRecordModal({
           setEnergyLevelScore,
           "energy_level_score",
         )}
-        {decInput("h-ht", "Height (cm)", heightCm, setHeightCm, "height_cm")}
-        {decInput("h-wt", "Weight (kg)", weightKg, setWeightKg, "weight_kg")}
-        {decInput("h-bmi", "BMI", bmi, setBmi, "bmi")}
+        {decInput("h-ht", "Height (cm)", heightCm, setHeightCm, "height_cm", "Example: 172")}
+        {decInput("h-wt", "Weight (kg)", weightKg, setWeightKg, "weight_kg", "Example: 64.2")}
+        {decInput("h-bmi", "BMI", bmi, setBmi, "bmi", "Example: 21.7")}
 
         <div className="form-check mb-2">
           <input
@@ -448,7 +449,7 @@ export function AddHealthRecordModal({
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional"
+            placeholder="Example: Brief note (optional)"
           />
         </div>
 

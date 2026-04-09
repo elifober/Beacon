@@ -315,6 +315,7 @@ export function AddIncidentReportModal({
             id="i-resident-id"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 101"
             className={`form-control form-control-sm${fieldErrors.resident_id ? " is-invalid" : ""}`}
             value={residentIdInput}
             onChange={(e) => setResidentIdInput(e.target.value)}
@@ -334,6 +335,7 @@ export function AddIncidentReportModal({
             id="i-safehouse-id"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 12 (or pick from list)"
             className={`form-control form-control-sm${fieldErrors.safehouse_id ? " is-invalid" : ""}`}
             value={safehouseIdInput}
             onChange={(e) => setSafehouseIdInput(e.target.value)}
@@ -348,9 +350,6 @@ export function AddIncidentReportModal({
               />
             ))}
           </datalist>
-          <p className="form-text small mb-0">
-            Use The List As A Reference Or Type An ID Manually.
-          </p>
           {fieldErrors.safehouse_id ? (
             <div className="invalid-feedback d-block">{fieldErrors.safehouse_id}</div>
           ) : null}
@@ -421,6 +420,7 @@ export function AddIncidentReportModal({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder="Example: What happened, who was involved…"
           />
         </div>
 
@@ -434,6 +434,7 @@ export function AddIncidentReportModal({
             rows={2}
             value={responseTaken}
             onChange={(e) => setResponseTaken(e.target.value)}
+            placeholder="Example: Staff intervention, documentation…"
           />
         </div>
 
@@ -471,6 +472,7 @@ export function AddIncidentReportModal({
             id="i-by"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: A. Martinez"
             value={reportedBy}
             onChange={(e) => setReportedBy(e.target.value)}
           />

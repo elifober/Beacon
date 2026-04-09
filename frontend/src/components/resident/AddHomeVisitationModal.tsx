@@ -279,6 +279,7 @@ export function AddHomeVisitationModal({
             id="v-resident-id"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 101"
             className={`form-control form-control-sm${fieldErrors.resident_id ? " is-invalid" : ""}`}
             value={residentIdInput}
             onChange={(e) => setResidentIdInput(e.target.value)}
@@ -314,6 +315,7 @@ export function AddHomeVisitationModal({
             id="v-sw"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: J. Smith"
             value={socialWorker}
             onChange={(e) => setSocialWorker(e.target.value)}
           />
@@ -346,6 +348,7 @@ export function AddHomeVisitationModal({
             id="v-loc"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: Family home, 123 Oak St."
             value={locationVisited}
             onChange={(e) => setLocationVisited(e.target.value)}
           />
@@ -359,6 +362,7 @@ export function AddHomeVisitationModal({
             id="v-fam"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: Mother, two siblings"
             value={familyMembersPresent}
             onChange={(e) => setFamilyMembersPresent(e.target.value)}
           />
@@ -372,6 +376,7 @@ export function AddHomeVisitationModal({
             id="v-purpose"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: Wellness check-in"
             value={purpose}
             onChange={(e) => setPurpose(e.target.value)}
           />
@@ -387,6 +392,7 @@ export function AddHomeVisitationModal({
             rows={3}
             value={observations}
             onChange={(e) => setObservations(e.target.value)}
+            placeholder="Example: Home environment, interactions observed…"
           />
         </div>
 
@@ -444,6 +450,7 @@ export function AddHomeVisitationModal({
             rows={2}
             value={followUpNotes}
             onChange={(e) => setFollowUpNotes(e.target.value)}
+            placeholder="Example: Follow-up plan (optional)"
           />
         </div>
 

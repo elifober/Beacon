@@ -303,6 +303,7 @@ export function AddProcessRecordingModal({
             id="p-resident-id"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 101"
             className={`form-control form-control-sm${fieldErrors.resident_id ? " is-invalid" : ""}`}
             value={residentIdInput}
             onChange={(e) => setResidentIdInput(e.target.value)}
@@ -338,6 +339,7 @@ export function AddProcessRecordingModal({
             id="p-sw"
             type="text"
             className="form-control form-control-sm"
+            placeholder="Example: J. Smith"
             value={socialWorker}
             onChange={(e) => setSocialWorker(e.target.value)}
           />
@@ -371,6 +373,7 @@ export function AddProcessRecordingModal({
             id="p-dur"
             type="text"
             inputMode="numeric"
+            placeholder="Example: 45"
             className={`form-control form-control-sm${fieldErrors.session_duration_minutes ? " is-invalid" : ""}`}
             value={sessionDurationMinutes}
             onChange={(e) => setSessionDurationMinutes(e.target.value)}
@@ -428,6 +431,7 @@ export function AddProcessRecordingModal({
             rows={2}
             value={interventionsApplied}
             onChange={(e) => setInterventionsApplied(e.target.value)}
+            placeholder="Example: CBT techniques, safety planning…"
           />
         </div>
 
@@ -441,6 +445,7 @@ export function AddProcessRecordingModal({
             rows={2}
             value={followUpActions}
             onChange={(e) => setFollowUpActions(e.target.value)}
+            placeholder="Example: Schedule follow-up next week…"
           />
         </div>
 
@@ -491,6 +496,7 @@ export function AddProcessRecordingModal({
             rows={3}
             value={sessionNarrative}
             onChange={(e) => setSessionNarrative(e.target.value)}
+            placeholder="Example: Session summary and resident engagement…"
           />
         </div>
 
@@ -504,6 +510,7 @@ export function AddProcessRecordingModal({
             rows={2}
             value={notesRestricted}
             onChange={(e) => setNotesRestricted(e.target.value)}
+            placeholder="Example: Restricted note (optional)"
           />
         </div>
 

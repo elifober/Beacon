@@ -190,15 +190,55 @@ function ResidentPage() {
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      setError("Missing resident id.");
+      setResident(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
     fetch(`${BASE_URL}/Resident/${id}`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Resident not found");
-        return res.json();
+      .then(async (res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            throw new Error(
+              "You must be signed in as an admin to view this resident."
+            );
+          }
+          if (res.status === 404) {
+            throw new Error("Resident not found.");
+          }
+          throw new Error(`Could not load resident (HTTP ${res.status}).`);
+        }
+        const text = await res.text();
+        if (!text?.trim()) {
+          throw new Error("Empty response from server.");
+        }
+        try {
+          return JSON.parse(text) as ResidentDetail;
+        } catch {
+          throw new Error(
+            "Invalid response from server (expected JSON). Check API URL and network."
+          );
+        }
       })
-      .then(setResident)
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!cancelled) setResident(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError((err as Error).message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) {

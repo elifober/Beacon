@@ -60,6 +60,59 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
     }
 
     /// <summary>
+    /// Next <c>education_record_id</c> for inserts (legacy DBs often have no PostgreSQL IDENTITY on this column).
+    /// </summary>
+    public async Task<int> AllocateNextEducationRecordIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await EducationRecords
+            .AsNoTracking()
+            .OrderByDescending(e => e.EducationRecordId)
+            .Select(e => e.EducationRecordId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextHealthRecordIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await HealthWellbeingRecords
+            .AsNoTracking()
+            .OrderByDescending(h => h.HealthRecordId)
+            .Select(h => h.HealthRecordId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextProcessRecordingIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await ProcessRecordings
+            .AsNoTracking()
+            .OrderByDescending(p => p.RecordingId)
+            .Select(p => p.RecordingId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextHomeVisitationIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await HomeVisitations
+            .AsNoTracking()
+            .OrderByDescending(v => v.VisitationId)
+            .Select(v => v.VisitationId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    public async Task<int> AllocateNextIncidentReportIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await IncidentReports
+            .AsNoTracking()
+            .OrderByDescending(i => i.IncidentId)
+            .Select(i => i.IncidentId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    /// <summary>
     /// Inserts a supporter row with an explicit <c>supporter_id</c>. Uses SQL so the key is never omitted
     /// (some legacy DBs have NOT NULL <c>supporter_id</c> without IDENTITY; EF can still omit the column).
     /// </summary>
@@ -118,6 +171,26 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
 
         modelBuilder.Entity<Resident>()
             .Property(r => r.ResidentId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<EducationRecord>()
+            .Property(e => e.EducationRecordId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<HealthWellbeingRecord>()
+            .Property(h => h.HealthRecordId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<ProcessRecording>()
+            .Property(p => p.RecordingId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<HomeVisitation>()
+            .Property(v => v.VisitationId)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<IncidentReport>()
+            .Property(i => i.IncidentId)
             .ValueGeneratedNever();
 
         // Partner (Admin/Staff) Foreign Key Mapping

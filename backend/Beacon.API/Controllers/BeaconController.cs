@@ -536,8 +536,10 @@ public class BeaconController : ControllerBase
         var attendanceRounded = Math.Round(body.AttendanceRate!.Value, 3, MidpointRounding.AwayFromZero);
         var progressRounded = Math.Round(body.ProgressPercent!.Value, 1, MidpointRounding.AwayFromZero);
 
+        var nextId = await _beaconContext.AllocateNextEducationRecordIdAsync();
         var entity = new EducationRecord
         {
+            EducationRecordId = nextId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             SchoolName = body.SchoolName.Trim(),
@@ -549,8 +551,21 @@ public class BeaconController : ControllerBase
             EducationLevel = null,
         };
 
-        _beaconContext.Set<EducationRecord>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        _beaconContext.EducationRecords.Add(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex,
+                "CreateEducationRecord: SaveChanges failed for resident {ResidentId}. If this is a duplicate key, another request may have allocated the same id; retry. Inner: {Message}",
+                body.ResidentId,
+                ex.InnerException?.Message);
+            return Problem(
+                detail: "Could not save the education record. Check server logs for details.",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
 
         return StatusCode(StatusCodes.Status201Created,
             new CreateEducationRecordResult { EducationRecordId = entity.EducationRecordId });
@@ -580,8 +595,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var nextId = await _beaconContext.AllocateNextHealthRecordIdAsync();
         var entity = new HealthWellbeingRecord
         {
+            HealthRecordId = nextId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             GeneralHealthScore = body.GeneralHealthScore,
@@ -596,8 +613,22 @@ public class BeaconController : ControllerBase
             PsychologicalCheckupDone = body.PsychologicalCheckupDone,
             Notes = NullIfWhiteSpace(body.Notes),
         };
-        _beaconContext.Set<HealthWellbeingRecord>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        _beaconContext.HealthWellbeingRecords.Add(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex,
+                "CreateHealthWellbeingRecord: SaveChanges failed for resident {ResidentId}. Inner: {Message}",
+                body.ResidentId,
+                ex.InnerException?.Message);
+            return Problem(
+                detail: "Could not save the health record. Check server logs for details.",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+
         return StatusCode(StatusCodes.Status201Created,
             new CreateHealthWellbeingRecordResult { HealthRecordId = entity.HealthRecordId });
     }
@@ -624,8 +655,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var nextId = await _beaconContext.AllocateNextProcessRecordingIdAsync();
         var entity = new ProcessRecording
         {
+            RecordingId = nextId,
             ResidentId = body.ResidentId,
             SessionDate = body.SessionDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -641,8 +674,22 @@ public class BeaconController : ControllerBase
             ReferralMade = body.ReferralMade,
             NotesRestricted = NullIfWhiteSpace(body.NotesRestricted),
         };
-        _beaconContext.Set<ProcessRecording>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        _beaconContext.ProcessRecordings.Add(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex,
+                "CreateProcessRecording: SaveChanges failed for resident {ResidentId}. Inner: {Message}",
+                body.ResidentId,
+                ex.InnerException?.Message);
+            return Problem(
+                detail: "Could not save the mental wellbeing record. Check server logs for details.",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+
         return StatusCode(StatusCodes.Status201Created,
             new CreateProcessRecordingResult { RecordingId = entity.RecordingId });
     }
@@ -666,8 +713,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var nextId = await _beaconContext.AllocateNextHomeVisitationIdAsync();
         var entity = new HomeVisitation
         {
+            VisitationId = nextId,
             ResidentId = body.ResidentId,
             VisitDate = body.VisitDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -682,8 +731,22 @@ public class BeaconController : ControllerBase
             FollowUpNotes = NullIfWhiteSpace(body.FollowUpNotes),
             VisitOutcome = NullIfWhiteSpace(body.VisitOutcome),
         };
-        _beaconContext.Set<HomeVisitation>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        _beaconContext.HomeVisitations.Add(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex,
+                "CreateHomeVisitation: SaveChanges failed for resident {ResidentId}. Inner: {Message}",
+                body.ResidentId,
+                ex.InnerException?.Message);
+            return Problem(
+                detail: "Could not save the home visit. Check server logs for details.",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+
         return StatusCode(StatusCodes.Status201Created,
             new CreateHomeVisitationResult { VisitationId = entity.VisitationId });
     }
@@ -712,8 +775,10 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
+        var nextId = await _beaconContext.AllocateNextIncidentReportIdAsync();
         var entity = new IncidentReport
         {
+            IncidentId = nextId,
             ResidentId = body.ResidentId,
             SafehouseId = body.SafehouseId,
             IncidentDate = body.IncidentDate,
@@ -726,8 +791,22 @@ public class BeaconController : ControllerBase
             ReportedBy = NullIfWhiteSpace(body.ReportedBy),
             FollowUpRequired = body.FollowUpRequired,
         };
-        _beaconContext.Set<IncidentReport>().Add(entity);
-        await _beaconContext.SaveChangesAsync();
+        _beaconContext.IncidentReports.Add(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex,
+                "CreateIncidentReport: SaveChanges failed for resident {ResidentId}. Inner: {Message}",
+                body.ResidentId,
+                ex.InnerException?.Message);
+            return Problem(
+                detail: "Could not save the incident report. Check server logs for details.",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+
         return StatusCode(StatusCodes.Status201Created,
             new CreateIncidentReportResult { IncidentId = entity.IncidentId });
     }

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
 using Beacon.Api.Services.PostPlanner;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -166,11 +165,11 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         options.ClientSecret = googleClientSecret;
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.CallbackPath = "/signin-google";
-        options.CorrelationCookie.SameSite = SameSiteMode.None;
+        // Google -> your API is a top-level GET; Lax is sent on that navigation and avoids brittle SameSite=None + CHIPS rules in Chrome.
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.CorrelationCookie.HttpOnly = true;
         options.CorrelationCookie.IsEssential = true;
-        options.CorrelationCookie.Path = "/signin-google";
         // Avoid edge caches holding a 302 challenge response without the correlation cookie being honored on return.
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
         {
@@ -217,6 +216,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Must run before HSTS / HTTPS redirect / auth so OAuth redirect_uri and cookies use the public Railway host and https.
+app.UseForwardedHeaders();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -231,8 +233,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
-
-app.UseForwardedHeaders();
 
 app.UseRouting();
 // CORS must run after routing and before auth/endpoints so preflight + error paths get headers.

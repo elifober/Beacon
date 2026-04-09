@@ -1,48 +1,4 @@
-import { BASE_URL } from "../../config/api";
-
 export const requiredFieldMsg = "This field is required.";
-
-/** POST JSON to Beacon API with headers that avoid cookie-auth HTML redirects and clarify JSON errors. */
-export function postBeaconJson(pathUnderBeacon: string, body: unknown): Promise<Response> {
-  const path = pathUnderBeacon.startsWith("/") ? pathUnderBeacon : `/${pathUnderBeacon}`;
-  return fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-/** Read body once; parse JSON when possible (Response bodies are single-use). */
-export async function readBeaconResponseBody(res: Response): Promise<{ payload: unknown; raw: string }> {
-  const raw = await res.text();
-  let payload: unknown = null;
-  if (raw.trim()) {
-    try {
-      payload = JSON.parse(raw) as unknown;
-    } catch {
-      payload = null;
-    }
-  }
-  return { payload, raw };
-}
-
-/** Extract a user-visible message from parsed JSON (ProblemDetails or { message }). */
-export function messageFromJsonPayload(payload: unknown, fallback: string): string {
-  if (payload && typeof payload === "object") {
-    const o = payload as Record<string, unknown>;
-    const detail = o.detail;
-    if (typeof detail === "string" && detail.length > 0) return detail;
-    const message = o.message;
-    if (typeof message === "string" && message.length > 0) return message;
-    const title = o.title;
-    if (typeof title === "string" && title.length > 0) return title;
-  }
-  return fallback;
-}
 
 export function validateResidentIdInput(raw: string): string | undefined {
   const t = raw.trim();

@@ -219,8 +219,11 @@ namespace Beacon.API.Migrations
             modelBuilder.Entity("Beacon.API.Models.EducationRecord", b =>
                 {
                     b.Property<int>("EducationRecordId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("education_record_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EducationRecordId"));
 
                     b.Property<decimal?>("AttendanceRate")
                         .HasColumnType("numeric")
@@ -270,8 +273,11 @@ namespace Beacon.API.Migrations
             modelBuilder.Entity("Beacon.API.Models.HealthWellbeingRecord", b =>
                 {
                     b.Property<int>("HealthRecordId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("health_record_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("HealthRecordId"));
 
                     b.Property<decimal?>("Bmi")
                         .HasColumnType("numeric")
@@ -337,8 +343,11 @@ namespace Beacon.API.Migrations
             modelBuilder.Entity("Beacon.API.Models.HomeVisitation", b =>
                 {
                     b.Property<int>("VisitationId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("visitation_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VisitationId"));
 
                     b.Property<string>("FamilyCooperationLevel")
                         .HasColumnType("text")
@@ -454,8 +463,11 @@ namespace Beacon.API.Migrations
             modelBuilder.Entity("Beacon.API.Models.IncidentReport", b =>
                 {
                     b.Property<int>("IncidentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("incident_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IncidentId"));
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -694,8 +706,11 @@ namespace Beacon.API.Migrations
             modelBuilder.Entity("Beacon.API.Models.ProcessRecording", b =>
                 {
                     b.Property<int>("RecordingId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("recording_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RecordingId"));
 
                     b.Property<bool?>("ConcernsFlagged")
                         .HasColumnType("boolean")

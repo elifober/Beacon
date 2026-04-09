@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
+import { BASE_URL } from "../../config/api";
 import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   optionalDecimal,
   parseServerErrors,
-  messageFromJsonPayload,
-  postBeaconJson,
-  readBeaconResponseBody,
   requiredFieldMsg,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
@@ -120,13 +118,8 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
     return e;
   }
 
-  function onFormSubmit(ev: React.FormEvent) {
+  async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
-    ev.stopPropagation();
-    void submitRecord();
-  }
-
-  async function submitRecord() {
     setFormError(null);
     const local = validate();
     setFieldErrors(local);
@@ -138,28 +131,38 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
     const residentId = Math.trunc(Number(residentIdInput.trim()));
     setSubmitting(true);
     try {
-      const res = await postBeaconJson("/HealthWellbeingRecord", {
-        resident_id: residentId,
-        record_date: recordDate,
-        general_health_score: optionalDecimal(generalHealthScore),
-        nutrition_score: optionalDecimal(nutritionScore),
-        sleep_quality_score: optionalDecimal(sleepQualityScore),
-        energy_level_score: optionalDecimal(energyLevelScore),
-        height_cm: optionalDecimal(heightCm),
-        weight_kg: optionalDecimal(weightKg),
-        bmi: optionalDecimal(bmi),
-        medical_checkup_done: medicalDone,
-        dental_checkup_done: dentalDone,
-        psychological_checkup_done: psychDone,
-        notes: notes.trim() || null,
+      const res = await fetch(`${BASE_URL}/HealthWellbeingRecord`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resident_id: residentId,
+          record_date: recordDate,
+          general_health_score: optionalDecimal(generalHealthScore),
+          nutrition_score: optionalDecimal(nutritionScore),
+          sleep_quality_score: optionalDecimal(sleepQualityScore),
+          energy_level_score: optionalDecimal(energyLevelScore),
+          height_cm: optionalDecimal(heightCm),
+          weight_kg: optionalDecimal(weightKg),
+          bmi: optionalDecimal(bmi),
+          medical_checkup_done: medicalDone,
+          dental_checkup_done: dentalDone,
+          psychological_checkup_done: psychDone,
+          notes: notes.trim() || null,
+        }),
       });
-
-      const { payload, raw } = await readBeaconResponseBody(res);
 
       if (res.status === 201) {
         onCreated();
         onClose();
         return;
+      }
+
+      let payload: unknown;
+      try {
+        payload = await res.json();
+      } catch {
+        payload = null;
       }
 
       if (res.status === 400 && payload) {
@@ -172,13 +175,7 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
         return;
       }
 
-      setFormError(
-        res.status === 401
-          ? "You must be signed in."
-          : res.status === 403
-            ? "You do not have permission to add records."
-            : messageFromJsonPayload(payload, raw.trim() ? raw.slice(0, 400) : "Could not save."),
-      );
+      setFormError(res.status === 401 ? "You must be signed in." : "Could not save.");
     } catch {
       setFormError("Network error. Try again.");
     } finally {
@@ -242,7 +239,7 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
 
   return (
     <ResidentRecordModal title="Add Health Record" open={open} onClose={onClose} narrow>
-      <form className="p-4" onSubmit={onFormSubmit} noValidate>
+      <form className="p-4" onSubmit={handleSubmit} noValidate>
         {formError ? (
           <div className="alert alert-warning small" role="alert">
             {formError}
@@ -370,12 +367,7 @@ export function AddHealthRecordModal({ open, onClose, initialResidentId, onCreat
           >
             Cancel
           </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-primary"
-            disabled={submitting}
-            onClick={() => void submitRecord()}
-          >
+          <button type="submit" className="btn btn-sm btn-primary" disabled={submitting}>
             {submitting ? "Saving…" : "Save Record"}
           </button>
         </div>

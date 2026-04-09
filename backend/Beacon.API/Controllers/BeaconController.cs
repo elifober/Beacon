@@ -536,10 +536,8 @@ public class BeaconController : ControllerBase
         var attendanceRounded = Math.Round(body.AttendanceRate!.Value, 3, MidpointRounding.AwayFromZero);
         var progressRounded = Math.Round(body.ProgressPercent!.Value, 1, MidpointRounding.AwayFromZero);
 
-        var educationRecordId = await _beaconContext.AllocateNextEducationRecordIdAsync();
         var entity = new EducationRecord
         {
-            EducationRecordId = educationRecordId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             SchoolName = body.SchoolName.Trim(),
@@ -552,8 +550,7 @@ public class BeaconController : ControllerBase
         };
 
         _beaconContext.Set<EducationRecord>().Add(entity);
-        var eduSave = await TrySaveNewResidentRecordAsync(nameof(CreateEducationRecord));
-        if (eduSave != null) return eduSave;
+        await _beaconContext.SaveChangesAsync();
 
         return StatusCode(StatusCodes.Status201Created,
             new CreateEducationRecordResult { EducationRecordId = entity.EducationRecordId });
@@ -583,10 +580,8 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
-        var healthRecordId = await _beaconContext.AllocateNextHealthRecordIdAsync();
         var entity = new HealthWellbeingRecord
         {
-            HealthRecordId = healthRecordId,
             ResidentId = body.ResidentId,
             RecordDate = body.RecordDate,
             GeneralHealthScore = body.GeneralHealthScore,
@@ -602,8 +597,7 @@ public class BeaconController : ControllerBase
             Notes = NullIfWhiteSpace(body.Notes),
         };
         _beaconContext.Set<HealthWellbeingRecord>().Add(entity);
-        var healthSave = await TrySaveNewResidentRecordAsync(nameof(CreateHealthWellbeingRecord));
-        if (healthSave != null) return healthSave;
+        await _beaconContext.SaveChangesAsync();
         return StatusCode(StatusCodes.Status201Created,
             new CreateHealthWellbeingRecordResult { HealthRecordId = entity.HealthRecordId });
     }
@@ -630,10 +624,8 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
-        var recordingId = await _beaconContext.AllocateNextProcessRecordingIdAsync();
         var entity = new ProcessRecording
         {
-            RecordingId = recordingId,
             ResidentId = body.ResidentId,
             SessionDate = body.SessionDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -650,8 +642,7 @@ public class BeaconController : ControllerBase
             NotesRestricted = NullIfWhiteSpace(body.NotesRestricted),
         };
         _beaconContext.Set<ProcessRecording>().Add(entity);
-        var procSave = await TrySaveNewResidentRecordAsync(nameof(CreateProcessRecording));
-        if (procSave != null) return procSave;
+        await _beaconContext.SaveChangesAsync();
         return StatusCode(StatusCodes.Status201Created,
             new CreateProcessRecordingResult { RecordingId = entity.RecordingId });
     }
@@ -675,10 +666,8 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
-        var visitationId = await _beaconContext.AllocateNextHomeVisitationIdAsync();
         var entity = new HomeVisitation
         {
-            VisitationId = visitationId,
             ResidentId = body.ResidentId,
             VisitDate = body.VisitDate,
             SocialWorker = NullIfWhiteSpace(body.SocialWorker),
@@ -694,8 +683,7 @@ public class BeaconController : ControllerBase
             VisitOutcome = NullIfWhiteSpace(body.VisitOutcome),
         };
         _beaconContext.Set<HomeVisitation>().Add(entity);
-        var homeSave = await TrySaveNewResidentRecordAsync(nameof(CreateHomeVisitation));
-        if (homeSave != null) return homeSave;
+        await _beaconContext.SaveChangesAsync();
         return StatusCode(StatusCodes.Status201Created,
             new CreateHomeVisitationResult { VisitationId = entity.VisitationId });
     }
@@ -724,10 +712,8 @@ public class BeaconController : ControllerBase
         if (errors.Count > 0)
             return BadRequest(new { message = "Please complete all required fields.", errors });
 
-        var incidentId = await _beaconContext.AllocateNextIncidentReportIdAsync();
         var entity = new IncidentReport
         {
-            IncidentId = incidentId,
             ResidentId = body.ResidentId,
             SafehouseId = body.SafehouseId,
             IncidentDate = body.IncidentDate,
@@ -741,28 +727,9 @@ public class BeaconController : ControllerBase
             FollowUpRequired = body.FollowUpRequired,
         };
         _beaconContext.Set<IncidentReport>().Add(entity);
-        var incidentSave = await TrySaveNewResidentRecordAsync(nameof(CreateIncidentReport));
-        if (incidentSave != null) return incidentSave;
+        await _beaconContext.SaveChangesAsync();
         return StatusCode(StatusCodes.Status201Created,
             new CreateIncidentReportResult { IncidentId = entity.IncidentId });
-    }
-
-    private async Task<IActionResult?> TrySaveNewResidentRecordAsync(string operationLabel)
-    {
-        try
-        {
-            await _beaconContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "{Operation}: database save failed", operationLabel);
-            return Problem(
-                title: "Could not save the record",
-                detail: "The database rejected this insert. Run EF migrations against production if tables are missing or out of date.",
-                statusCode: StatusCodes.Status409Conflict);
-        }
-
-        return null;
     }
 
     private static string? NullIfWhiteSpace(string? s) =>

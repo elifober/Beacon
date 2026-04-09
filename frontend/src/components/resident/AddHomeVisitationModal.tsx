@@ -4,9 +4,6 @@ import { ResidentRecordModal } from "./ResidentRecordModal";
 import {
   parseServerErrors,
   picklistStrings,
-  messageFromJsonPayload,
-  postBeaconJson,
-  readBeaconResponseBody,
   requiredFieldMsg,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
@@ -102,13 +99,8 @@ export function AddHomeVisitationModal({
     return e;
   }
 
-  function onFormSubmit(ev: React.FormEvent) {
+  async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
-    ev.stopPropagation();
-    void submitRecord();
-  }
-
-  async function submitRecord() {
     setFormError(null);
     const local = validate();
     setFieldErrors(local);
@@ -120,28 +112,38 @@ export function AddHomeVisitationModal({
     const residentId = Math.trunc(Number(residentIdInput.trim()));
     setSubmitting(true);
     try {
-      const res = await postBeaconJson("/HomeVisitation", {
-        resident_id: residentId,
-        visit_date: visitDate,
-        social_worker: socialWorker.trim() || null,
-        visit_type: visitType.trim() || null,
-        location_visited: locationVisited.trim() || null,
-        family_members_present: familyMembersPresent.trim() || null,
-        purpose: purpose.trim() || null,
-        observations: observations.trim() || null,
-        family_cooperation_level: familyCooperationLevel.trim() || null,
-        safety_concerns_noted: safetyConcernsNoted,
-        follow_up_needed: followUpNeeded,
-        follow_up_notes: followUpNotes.trim() || null,
-        visit_outcome: visitOutcome.trim() || null,
+      const res = await fetch(`${BASE_URL}/HomeVisitation`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resident_id: residentId,
+          visit_date: visitDate,
+          social_worker: socialWorker.trim() || null,
+          visit_type: visitType.trim() || null,
+          location_visited: locationVisited.trim() || null,
+          family_members_present: familyMembersPresent.trim() || null,
+          purpose: purpose.trim() || null,
+          observations: observations.trim() || null,
+          family_cooperation_level: familyCooperationLevel.trim() || null,
+          safety_concerns_noted: safetyConcernsNoted,
+          follow_up_needed: followUpNeeded,
+          follow_up_notes: followUpNotes.trim() || null,
+          visit_outcome: visitOutcome.trim() || null,
+        }),
       });
-
-      const { payload, raw } = await readBeaconResponseBody(res);
 
       if (res.status === 201) {
         onCreated();
         onClose();
         return;
+      }
+
+      let payload: unknown;
+      try {
+        payload = await res.json();
+      } catch {
+        payload = null;
       }
 
       if (res.status === 400 && payload) {
@@ -154,13 +156,7 @@ export function AddHomeVisitationModal({
         return;
       }
 
-      setFormError(
-        res.status === 401
-          ? "You must be signed in."
-          : res.status === 403
-            ? "You do not have permission to add records."
-            : messageFromJsonPayload(payload, raw.trim() ? raw.slice(0, 400) : "Could not save."),
-      );
+      setFormError(res.status === 401 ? "You must be signed in." : "Could not save.");
     } catch {
       setFormError("Network error. Try again.");
     } finally {
@@ -170,7 +166,7 @@ export function AddHomeVisitationModal({
 
   return (
     <ResidentRecordModal title="Add Home Visit" open={open} onClose={onClose} narrow>
-      <form className="p-4" onSubmit={onFormSubmit} noValidate>
+      <form className="p-4" onSubmit={handleSubmit} noValidate>
         {formError ? (
           <div className="alert alert-warning small" role="alert">
             {formError}
@@ -381,12 +377,7 @@ export function AddHomeVisitationModal({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-primary"
-            disabled={submitting}
-            onClick={() => void submitRecord()}
-          >
+          <button type="submit" className="btn btn-sm btn-primary" disabled={submitting}>
             {submitting ? "Saving…" : "Save Record"}
           </button>
         </div>

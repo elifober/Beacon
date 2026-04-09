@@ -5,9 +5,6 @@ import {
   optionalInt,
   parseServerErrors,
   picklistStrings,
-  messageFromJsonPayload,
-  postBeaconJson,
-  readBeaconResponseBody,
   requiredFieldMsg,
   validateResidentIdInput,
 } from "./residentRecordFormUtils";
@@ -116,13 +113,8 @@ export function AddProcessRecordingModal({
     return e;
   }
 
-  function onFormSubmit(ev: React.FormEvent) {
+  async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
-    ev.stopPropagation();
-    void submitRecord();
-  }
-
-  async function submitRecord() {
     setFormError(null);
     const local = validate();
     setFieldErrors(local);
@@ -136,29 +128,39 @@ export function AddProcessRecordingModal({
 
     setSubmitting(true);
     try {
-      const res = await postBeaconJson("/ProcessRecording", {
-        resident_id: residentId,
-        session_date: sessionDate,
-        social_worker: socialWorker.trim() || null,
-        session_type: sessionType.trim() || null,
-        session_duration_minutes: dur,
-        emotional_state_observed: emotionalStateObserved.trim() || null,
-        emotional_state_end: emotionalStateEnd.trim() || null,
-        interventions_applied: interventionsApplied.trim() || null,
-        follow_up_actions: followUpActions.trim() || null,
-        progress_noted: progressNoted,
-        concerns_flagged: concernsFlagged,
-        referral_made: referralMade,
-        session_narrative: sessionNarrative.trim() || null,
-        notes_restricted: notesRestricted.trim() || null,
+      const res = await fetch(`${BASE_URL}/ProcessRecording`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resident_id: residentId,
+          session_date: sessionDate,
+          social_worker: socialWorker.trim() || null,
+          session_type: sessionType.trim() || null,
+          session_duration_minutes: dur,
+          emotional_state_observed: emotionalStateObserved.trim() || null,
+          emotional_state_end: emotionalStateEnd.trim() || null,
+          interventions_applied: interventionsApplied.trim() || null,
+          follow_up_actions: followUpActions.trim() || null,
+          progress_noted: progressNoted,
+          concerns_flagged: concernsFlagged,
+          referral_made: referralMade,
+          session_narrative: sessionNarrative.trim() || null,
+          notes_restricted: notesRestricted.trim() || null,
+        }),
       });
-
-      const { payload, raw } = await readBeaconResponseBody(res);
 
       if (res.status === 201) {
         onCreated();
         onClose();
         return;
+      }
+
+      let payload: unknown;
+      try {
+        payload = await res.json();
+      } catch {
+        payload = null;
       }
 
       if (res.status === 400 && payload) {
@@ -171,13 +173,7 @@ export function AddProcessRecordingModal({
         return;
       }
 
-      setFormError(
-        res.status === 401
-          ? "You must be signed in."
-          : res.status === 403
-            ? "You do not have permission to add records."
-            : messageFromJsonPayload(payload, raw.trim() ? raw.slice(0, 400) : "Could not save."),
-      );
+      setFormError(res.status === 401 ? "You must be signed in." : "Could not save.");
     } catch {
       setFormError("Network error. Try again.");
     } finally {
@@ -187,7 +183,7 @@ export function AddProcessRecordingModal({
 
   return (
     <ResidentRecordModal title="Add Mental Wellbeing Record" open={open} onClose={onClose} narrow>
-      <form className="p-4" onSubmit={onFormSubmit} noValidate>
+      <form className="p-4" onSubmit={handleSubmit} noValidate>
         {formError ? (
           <div className="alert alert-warning small" role="alert">
             {formError}
@@ -415,12 +411,7 @@ export function AddProcessRecordingModal({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-primary"
-            disabled={submitting}
-            onClick={() => void submitRecord()}
-          >
+          <button type="submit" className="btn btn-sm btn-primary" disabled={submitting}>
             {submitting ? "Saving…" : "Save Record"}
           </button>
         </div>

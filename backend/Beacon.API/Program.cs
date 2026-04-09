@@ -23,7 +23,10 @@ builder.Services.AddControllers();
 // Respect X-Forwarded-Proto so OAuth redirect_uri becomes https://... instead of http://...
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Include Host so OAuth redirect_uri and Set-Cookie use the public Railway hostname, not the internal bind address.
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedProto
+        | ForwardedHeaders.XForwardedHost;
     // Trust proxy headers (common in container/PaaS environments).
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
@@ -149,8 +152,8 @@ builder.Services.AddScoped<UserManager<ApplicationUser>, BeaconUserManager>();
 
 if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
 {
-    builder.Services.AddAuthentication(GoogleDefaults.AuthenticationScheme)
-    .AddGoogle(options =>
+    // Do not use AddAuthentication(GoogleDefaults.AuthenticationScheme): that sets DefaultScheme to Google and can break Identity + OAuth.
+    builder.Services.AddAuthentication().AddGoogle(options =>
     {
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
@@ -158,7 +161,16 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         options.CallbackPath = "/signin-google";
         options.CorrelationCookie.SameSite = SameSiteMode.None;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.CorrelationCookie.HttpOnly = true;
         options.CorrelationCookie.IsEssential = true;
+        options.CorrelationCookie.Path = "/signin-google";
+        // Avoid edge caches holding a 302 challenge response without the correlation cookie being honored on return.
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+            context.Response.Headers.Pragma = "no-cache";
+            return Task.CompletedTask;
+        };
     });
 }
 

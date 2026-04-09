@@ -42,17 +42,17 @@ function donationRecencyBucket(dateStr: string): string {
 }
 
 const DONATION_WHEN_CHOICES: AdminGlassFilterChoice[] = [
-  { value: "30d", title: "Last 30 days", meta: "Gift date on record" },
-  { value: "90d", title: "Last 90 days", meta: "Gift date on record" },
-  { value: "365d", title: "Last 12 months", meta: "Gift date on record" },
-  { value: "older", title: "Older than 1 year", meta: "Gift date on record" },
-  { value: "future", title: "Future-dated", meta: "Unusual date only" },
-  { value: "unknown", title: "Invalid date", meta: "Missing or bad date" },
+  { value: "30d", title: "Last 30 days" },
+  { value: "90d", title: "Last 90 days" },
+  { value: "365d", title: "Last 12 months" },
+  { value: "older", title: "Older than 1 year" },
+  { value: "future", title: "Future-dated" },
+  { value: "unknown", title: "Invalid date" },
 ];
 
 const DONATION_RECURRING_CHOICES: AdminGlassFilterChoice[] = [
-  { value: "yes", title: "Recurring", meta: "Marked as repeating" },
-  { value: "no", title: "One-time", meta: "Single gift" },
+  { value: "yes", title: "Recurring" },
+  { value: "no", title: "One-time" },
 ];
 
 interface AdminDonation {
@@ -126,21 +126,19 @@ function AdminAllDonationsPage() {
       {
         id: "type",
         tabLabel: "Type",
-        allOption: { title: "All types", meta: "Monetary, in-kind, etc." },
+        allOption: { title: "All types" },
         choices: typeOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by gift type",
         })),
       },
       {
         id: "program",
         tabLabel: "Program",
-        allOption: { title: "All program areas", meta: "Any program bucket" },
+        allOption: { title: "All program areas" },
         choices: programOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by program area",
         })),
       },
       {
@@ -148,14 +146,13 @@ function AdminAllDonationsPage() {
         tabLabel: "Recurring",
         allOption: {
           title: "All gifts",
-          meta: "Both one-time and recurring",
         },
         choices: DONATION_RECURRING_CHOICES,
       },
       {
         id: "when",
         tabLabel: "When",
-        allOption: { title: "Any time", meta: "All gift dates" },
+        allOption: { title: "Any time" },
         choices: DONATION_WHEN_CHOICES,
       },
     ],

@@ -3627,13 +3627,22 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 
 /* Stays visibly “on” while this dimension filters the list */
 .admin-residents-filter__tab.has-active-filter {
-  color: var(--beacon-text);
-  background: rgba(27, 38, 29, 0.1);
+  color: var(--beacon-primary-dark);
+  background: rgba(45, 79, 53, 0.16);
   font-weight: 600;
 }
 
+.admin-residents-filter__tab.has-active-filter:hover {
+  color: var(--beacon-primary-dark);
+  background: rgba(45, 79, 53, 0.2);
+}
+
 .admin-residents-filter__tab.has-active-filter.is-open {
-  background: rgba(27, 38, 29, 0.12);
+  background: rgba(45, 79, 53, 0.22);
+}
+
+.admin-residents-filter__tab.has-active-filter.is-open:hover {
+  background: rgba(45, 79, 53, 0.26);
 }
 
 .admin-residents-filter__tab:focus-visible {
@@ -3692,24 +3701,15 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 }
 
 .admin-residents-filter__option-title {
+  display: block;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--beacon-text);
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .admin-residents-filter__option.is-selected .admin-residents-filter__option-title {
   color: #fff;
-}
-
-.admin-residents-filter__option-meta {
-  font-size: 0.72rem;
-  color: var(--beacon-text-muted);
-  line-height: 1.3;
-}
-
-.admin-residents-filter__option.is-selected .admin-residents-filter__option-meta {
-  color: rgba(255, 255, 255, 0.88);
 }
 
 @media (max-width: 575.98px) {

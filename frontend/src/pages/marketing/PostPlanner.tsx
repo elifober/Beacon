@@ -88,9 +88,7 @@ export default function PostPlanner() {
           </p>
         </div>
       </div>
-    
 
-      {}
       <div className="text-center mt-3 mb-4">
         <Link to="/admin/risk" className="btn btn-primary btn-sm">
           Back to Risk Center

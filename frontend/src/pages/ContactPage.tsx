@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const boardMembers = [
   { name: "Julie Hernando", role: "President / Co-Founder", image: "/julie.jpg" },
@@ -147,6 +148,8 @@ function ContactPage() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

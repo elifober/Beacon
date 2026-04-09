@@ -14,12 +14,7 @@ export interface ResidentInput {
 }
 
 export const getResidentList = async (): Promise<ResidentList[]> => {
-  const response = await fetch(`${BASE_URL}/Residents`, {
-    credentials: "include",
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  const response = await fetch(`${BASE_URL}/ResidentList`);
   return await response.json();
 };
 

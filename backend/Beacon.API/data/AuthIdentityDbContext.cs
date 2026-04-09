@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Beacon.API.Models;
 
 namespace Beacon.API.Data;
@@ -11,7 +12,18 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         : base(options)
     {
     }
-    
+
+    /// <summary>
+    /// Ensures <see cref="RelationalEventId.PendingModelChangesWarning"/> is ignored here, not only on
+    /// <c>UseNpgsql</c> in DI. Some startup paths (e.g. <c>MigrateAsync</c>) otherwise still throw when the
+    /// snapshot in the published assembly differs slightly from production expectations.
+    /// </summary>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w =>
+            w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+
     public DbSet<Supporter> Supporters { get; set; }
     public DbSet<Partner> Partners { get; set; }
     public DbSet<Donation> Donations { get; set; }

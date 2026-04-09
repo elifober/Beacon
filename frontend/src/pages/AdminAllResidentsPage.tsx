@@ -61,19 +61,19 @@ interface AdminResident {
 }
 
 const RESIDENT_TIME_CHOICES: AdminGlassFilterChoice[] = [
-  { value: "<90", title: "Under 90 days", meta: "Based on admission date" },
-  { value: "90-365", title: "90 days – 1 year", meta: "Based on admission date" },
-  { value: "365-730", title: "1 – 2 years", meta: "Based on admission date" },
-  { value: "730+", title: "Over 2 years", meta: "Based on admission date" },
-  { value: "unknown", title: "Unknown", meta: "No admission date on file" },
+  { value: "<90", title: "Under 90 days" },
+  { value: "90-365", title: "90 days – 1 year" },
+  { value: "365-730", title: "1 – 2 years" },
+  { value: "730+", title: "Over 2 years" },
+  { value: "unknown", title: "Unknown" },
 ];
 
 const RESIDENT_AGE_CHOICES: AdminGlassFilterChoice[] = [
-  { value: "<18", title: "Under 18", meta: "From date of birth" },
-  { value: "18-25", title: "18 – 24", meta: "From date of birth" },
-  { value: "25-35", title: "25 – 34", meta: "From date of birth" },
-  { value: "35+", title: "35+", meta: "From date of birth" },
-  { value: "unknown", title: "Unknown", meta: "No date of birth on file" },
+  { value: "<18", title: "Under 18" },
+  { value: "18-25", title: "18 – 24" },
+  { value: "25-35", title: "25 – 34" },
+  { value: "35+", title: "35+" },
+  { value: "unknown", title: "Unknown" },
 ];
 
 function AdminAllResidentsPage() {
@@ -124,33 +124,31 @@ function AdminAllResidentsPage() {
       {
         id: "risk",
         tabLabel: "Risk",
-        allOption: { title: "All risk levels", meta: "Show everyone" },
+        allOption: { title: "All risk levels" },
         choices: riskOptions.map((level) => ({
           value: level,
           title: level,
-          meta: "Filter by this risk level",
         })),
       },
       {
         id: "safehouse",
         tabLabel: "Safehouse",
-        allOption: { title: "All safehouses", meta: "Any city" },
+        allOption: { title: "All safehouses" },
         choices: safehouseOptions.map((city) => ({
           value: city,
           title: city,
-          meta: "Safehouse city",
         })),
       },
       {
         id: "time-housed",
         tabLabel: "Time housed",
-        allOption: { title: "All lengths", meta: "Any stay length" },
+        allOption: { title: "All lengths" },
         choices: RESIDENT_TIME_CHOICES,
       },
       {
         id: "age",
         tabLabel: "Age",
-        allOption: { title: "All ages", meta: "Any age" },
+        allOption: { title: "All ages" },
         choices: RESIDENT_AGE_CHOICES,
       },
     ],

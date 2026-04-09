@@ -89,31 +89,28 @@ function AdminAllDonorsPage() {
       {
         id: "status",
         tabLabel: "Status",
-        allOption: { title: "All statuses", meta: "Any donor status" },
+        allOption: { title: "All statuses" },
         choices: statusOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by status",
         })),
       },
       {
         id: "region",
         tabLabel: "Region",
-        allOption: { title: "All regions", meta: "Any region" },
+        allOption: { title: "All regions" },
         choices: regionOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by region",
         })),
       },
       {
         id: "country",
         tabLabel: "Country",
-        allOption: { title: "All countries", meta: "Any country" },
+        allOption: { title: "All countries" },
         choices: countryOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by country",
         })),
       },
       {
@@ -121,12 +118,10 @@ function AdminAllDonorsPage() {
         tabLabel: "Relationship",
         allOption: {
           title: "All relationships",
-          meta: "Any relationship type",
         },
         choices: relationshipOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by relationship to Beacon",
         })),
       },
     ],

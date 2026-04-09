@@ -89,21 +89,19 @@ function AdminAllPartnersPage() {
       {
         id: "status",
         tabLabel: "Status",
-        allOption: { title: "All statuses", meta: "Any partner status" },
+        allOption: { title: "All statuses" },
         choices: statusOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by status",
         })),
       },
       {
         id: "region",
         tabLabel: "Region",
-        allOption: { title: "All regions", meta: "Any region" },
+        allOption: { title: "All regions" },
         choices: regionOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by region",
         })),
       },
       {
@@ -111,22 +109,19 @@ function AdminAllPartnersPage() {
         tabLabel: "Org type",
         allOption: {
           title: "All organization types",
-          meta: "Any org category",
         },
         choices: orgOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by organization type",
         })),
       },
       {
         id: "role",
         tabLabel: "Role",
-        allOption: { title: "All roles", meta: "Any partnership role" },
+        allOption: { title: "All roles" },
         choices: roleOptions.map((v) => ({
           value: v,
           title: v,
-          meta: "Filter by role type",
         })),
       },
     ],

@@ -1,13 +1,12 @@
 export type AdminGlassFilterChoice = {
   value: string;
   title: string;
-  meta: string;
 };
 
 export type AdminGlassFilterSection = {
   id: string;
   tabLabel: string;
-  allOption: { title: string; meta: string };
+  allOption: { title: string };
   choices: AdminGlassFilterChoice[];
 };
 
@@ -77,12 +76,9 @@ function AdminGlassFilterBar({
                         setOpenMenu(null);
                       }}
                     >
-                      <p className="admin-residents-filter__option-title mb-0">
+                      <span className="admin-residents-filter__option-title">
                         {section.allOption.title}
-                      </p>
-                      <p className="admin-residents-filter__option-meta mb-0">
-                        {section.allOption.meta}
-                      </p>
+                      </span>
                     </button>
                     {section.choices.map((choice) => (
                       <button
@@ -94,12 +90,9 @@ function AdminGlassFilterBar({
                           setOpenMenu(null);
                         }}
                       >
-                        <p className="admin-residents-filter__option-title mb-0">
+                        <span className="admin-residents-filter__option-title">
                           {choice.title}
-                        </p>
-                        <p className="admin-residents-filter__option-meta mb-0">
-                          {choice.meta}
-                        </p>
+                        </span>
                       </button>
                     ))}
                   </div>

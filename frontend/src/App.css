@@ -1798,6 +1798,343 @@ header a.active {
   border-bottom-color: var(--beacon-border);
 }
 
+/* Donor dashboard: cinematic intro + static glass UI */
+.donor-dashboard-glass {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100vh - 8rem);
+}
+.donor-dashboard-glass__media {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+.donor-dashboard-glass__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.56) saturate(0.92);
+}
+.donor-dashboard-glass__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(241, 205, 127, 0.18), transparent 46%),
+    radial-gradient(circle at 84% 14%, rgba(255, 220, 139, 0.12), transparent 40%),
+    linear-gradient(180deg, rgba(6, 10, 17, 0.32) 0%, rgba(6, 10, 17, 0.74) 100%);
+}
+.donor-dashboard-glass__content {
+  position: relative;
+  z-index: 1;
+}
+.donor-dashboard-glass__welcome {
+  position: fixed;
+  top: calc(92px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  width: min(92vw, 640px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.42);
+  text-align: center;
+  padding: 0.9rem 1rem;
+  z-index: 4;
+  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0.55s ease;
+  overflow: hidden;
+}
+.donor-dashboard-glass__welcome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 18%,
+    rgba(255, 255, 255, 0.14) 44%,
+    transparent 64%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.donor-dashboard-glass__welcome.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  animation: donorWelcomePanelIn 420ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+.donor-dashboard-glass__welcome.is-visible::after {
+  animation: donorWelcomeSweep 1000ms ease 260ms forwards;
+}
+.donor-dashboard-glass__welcome.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-8px);
+  pointer-events: none;
+}
+.donor-dashboard-glass__welcome-kicker {
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(6px);
+}
+.donor-dashboard-glass__welcome-name {
+  color: #f8fafc;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+.donor-dashboard-glass__welcome-name-text {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid rgba(248, 250, 252, 0.72);
+  filter: drop-shadow(0 0 14px rgba(125, 211, 252, 0.26));
+}
+.donor-dashboard-glass__welcome.is-visible .donor-dashboard-glass__welcome-kicker {
+  animation: donorWelcomeKickerIn 460ms ease 120ms forwards;
+}
+.donor-dashboard-glass__welcome.is-visible .donor-dashboard-glass__welcome-name-text {
+  animation:
+    donorWelcomeType 1100ms steps(var(--welcome-chars, 12)) 320ms forwards,
+    donorWelcomeCaret 620ms steps(1) 320ms 3,
+    donorWelcomeGlow 1600ms ease 320ms forwards;
+}
+.donor-dashboard-glass__welcome.is-hidden .donor-dashboard-glass__welcome-name-text {
+  border-right-color: transparent;
+}
+.donor-dashboard-glass__donate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.26), rgba(168, 85, 247, 0.3));
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.donor-dashboard-glass__donate-btn:hover {
+  color: #f8fafc;
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.55);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.34), rgba(168, 85, 247, 0.36));
+}
+.donor-analytics-card {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.26);
+  padding: 1rem 1.1rem;
+}
+.donor-analytics-card__label {
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.donor-analytics-card__value {
+  color: #f8fafc;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.donor-analytics-card--chart {
+  display: flex;
+  flex-direction: column;
+}
+.donor-pie {
+  --donor-monetary-share: 50%;
+  margin: 0 auto;
+  width: min(62vw, 190px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    #38bdf8 0 var(--donor-monetary-share),
+    #a855f7 var(--donor-monetary-share) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: inset 0 0 0 16px rgba(15, 23, 42, 0.74);
+}
+.donor-pie__legend p {
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 0.95rem;
+}
+.donor-dot {
+  display: inline-block;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  margin-right: 0.45rem;
+  vertical-align: middle;
+}
+.donor-dot--monetary {
+  background: #38bdf8;
+}
+.donor-dot--nonmonetary {
+  background: #a855f7;
+}
+.donor-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.donor-mini-grid__item {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 0.8rem 0.9rem;
+}
+.donor-mini-grid__label {
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.8rem;
+}
+.donor-mini-grid__value {
+  color: #f8fafc;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.donor-dashboard-glass .landing-section__eyebrow {
+  color: rgba(248, 250, 252, 0.82);
+}
+.donor-dashboard-glass h1,
+.donor-dashboard-glass h2,
+.donor-dashboard-glass .card-title {
+  color: #f8fafc;
+}
+.donor-dashboard-glass .beacon-detail-card,
+.donor-dashboard-glass .alert-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.46);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.donor-dashboard-glass .beacon-detail-card .card-body {
+  padding: 1.25rem;
+}
+.donor-dashboard-glass .table {
+  color: rgba(248, 250, 252, 0.9);
+}
+.donor-dashboard-glass .table th {
+  color: rgba(241, 245, 249, 0.76);
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+.donor-dashboard-glass .table td {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+.donor-dashboard-glass .table-striped > tbody > tr:nth-of-type(odd) > * {
+  color: rgba(248, 250, 252, 0.9);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+@keyframes donorWelcomePanelIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes donorWelcomeSweep {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes donorWelcomeKickerIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes donorWelcomeType {
+  from {
+    width: 0;
+  }
+  to {
+    width: calc(var(--welcome-chars, 12) * 1ch);
+  }
+}
+
+@keyframes donorWelcomeCaret {
+  0%,
+  49% {
+    border-right-color: rgba(248, 250, 252, 0.72);
+  }
+  50%,
+  100% {
+    border-right-color: transparent;
+  }
+}
+
+@keyframes donorWelcomeGlow {
+  from {
+    filter: drop-shadow(0 0 0 rgba(125, 211, 252, 0));
+  }
+  to {
+    filter: drop-shadow(0 0 10px rgba(125, 211, 252, 0.22));
+  }
+}
+
+@media (max-width: 768px) {
+  .donor-dashboard-glass {
+    min-height: calc(100vh - 6.5rem);
+  }
+  .donor-dashboard-glass__welcome {
+    top: calc(82px + env(safe-area-inset-top, 0px));
+    border-radius: 12px;
+    padding: 0.7rem 0.85rem;
+  }
+  .donor-mini-grid {
+    grid-template-columns: 1fr;
+  }
+  .donor-dashboard-glass .beacon-detail-card,
+  .donor-dashboard-glass .alert-secondary,
+  .donor-analytics-card {
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donor-dashboard-glass__welcome,
+  .donor-dashboard-glass__welcome::after,
+  .donor-dashboard-glass__welcome-kicker,
+  .donor-dashboard-glass__welcome-name-text {
+    animation: none !important;
+  }
+  .donor-dashboard-glass__welcome-kicker {
+    opacity: 1;
+    transform: none;
+  }
+  .donor-dashboard-glass__welcome-name-text {
+    width: auto;
+    border-right-color: transparent;
+  }
+  .donor-dashboard-glass__video {
+    animation: none;
+  }
+}
+
 .list-group {
   border-radius: var(--beacon-radius);
   box-shadow: 0 8px 24px rgba(27, 38, 29, 0.1);

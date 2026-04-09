@@ -58,7 +58,7 @@ function Footer() {
         </div>
         <hr className="landing-footer__rule" />
         <p className="landing-footer__copy">
-          &copy; {new Date().getFullYear()} Beacon Sanctuary. All rights reserved.
+          &copy; {new Date().getFullYear()} Beacon Sanctuary. All rights reserved. | <Link to="/privacy-policy">Privacy Policy</Link>
         </p>
       </div>
     </footer>

@@ -248,20 +248,47 @@ public class BeaconController : ControllerBase
     public async Task<ActionResult<ImpactPublicStatsDto>> GetImpactPublicStats(
         CancellationToken cancellationToken = default)
     {
+        // Compute each metric independently so one failing query does not zero the whole payload.
+        // Shelter "active" filter runs in-memory — EF/Npgsql often fails to translate
+        // string.IsNullOrWhiteSpace + Trim + StringComparison on nullable columns.
+        var dto = new ImpactPublicStatsDto();
+
         try
         {
-            var totalResidents = await _beaconContext.Residents.AsNoTracking()
+            dto.TotalResidentsServed = await _beaconContext.Residents.AsNoTracking()
                 .CountAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Impact/PublicStats: total residents count failed.");
+        }
 
-            var residentialShelters = await _beaconContext.Safehouses.AsNoTracking()
-                .CountAsync(
-                    s => string.IsNullOrWhiteSpace(s.Status)
-                         || !string.Equals(s.Status.Trim(), "Closed", StringComparison.OrdinalIgnoreCase),
-                    cancellationToken);
+        try
+        {
+            var statuses = await _beaconContext.Safehouses.AsNoTracking()
+                .Select(s => s.Status)
+                .ToListAsync(cancellationToken);
+            dto.ResidentialShelters = statuses.Count(s =>
+                string.IsNullOrWhiteSpace(s)
+                || !string.Equals(s.Trim(), "Closed", StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Impact/PublicStats: residential shelters count failed.");
+        }
 
-            var currentResidents = await _beaconContext.Residents.AsNoTracking()
+        try
+        {
+            dto.CurrentResidents = await _beaconContext.Residents.AsNoTracking()
                 .CountAsync(r => r.DateClosed == null, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Impact/PublicStats: current residents count failed.");
+        }
 
+        try
+        {
             var openDates = await _beaconContext.Safehouses.AsNoTracking()
                 .Where(s => s.OpenDate.HasValue)
                 .Select(s => s.OpenDate!.Value)
@@ -281,29 +308,21 @@ public class BeaconController : ControllerBase
                 anchor = anchor.HasValue ? (minAdm < anchor.Value ? minAdm : anchor) : minAdm;
             }
 
-            var yearsOfOperation = 0;
             if (anchor.HasValue)
             {
                 var today = DateOnly.FromDateTime(DateTime.UtcNow);
-                yearsOfOperation = today.Year - anchor.Value.Year;
-                if (today < anchor.Value.AddYears(yearsOfOperation))
-                    yearsOfOperation--;
-                yearsOfOperation = Math.Max(0, yearsOfOperation);
+                var y = today.Year - anchor.Value.Year;
+                if (today < anchor.Value.AddYears(y))
+                    y--;
+                dto.YearsOfOperation = Math.Max(0, y);
             }
-
-            return Ok(new ImpactPublicStatsDto
-            {
-                TotalResidentsServed = totalResidents,
-                ResidentialShelters = residentialShelters,
-                CurrentResidents = currentResidents,
-                YearsOfOperation = yearsOfOperation,
-            });
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Impact/PublicStats: failed to read aggregates.");
-            return Ok(ImpactPublicStatsDto.Empty);
+            _logger.LogWarning(ex, "Impact/PublicStats: years of operation failed.");
         }
+
+        return Ok(dto);
     }
 
     //GET SINGLE RESIDENT WITH SAFEHOUSE CITY AND RELATED RECORDS

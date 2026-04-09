@@ -3859,17 +3859,14 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   flex-direction: column;
   justify-content: flex-start;
 }
+/* Inherit body / --bs-body-font-family (Plus Jakarta Sans + Inter); avoid custom weights that differ site-wide */
 .impact-page__stat-value {
-  font-family: "Plus Jakarta Sans", sans-serif;
   color: var(--beacon-primary);
   font-size: clamp(1.05rem, 1.35vw + 0.85rem, 1.95rem);
-  font-weight: 750;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   min-height: 2.35em;
-  letter-spacing: -0.02em;
-  word-break: keep-all;
-  overflow-wrap: normal;
 }
 .impact-page__stat-label {
   color: var(--beacon-text-muted);

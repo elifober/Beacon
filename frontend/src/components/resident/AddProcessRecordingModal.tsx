@@ -9,7 +9,7 @@ import {
   optionalInt,
   parseServerErrors,
   picklistStrings,
-  putBeaconJson,
+  postBeaconJson,
   readResponseJson,
   requiredFieldMsg,
   validateResidentIdInput,
@@ -186,7 +186,7 @@ export function AddProcessRecordingModal({
         notes_restricted: notesRestricted.trim() || null,
       };
       const res = isEdit
-        ? await putBeaconJson(`/ProcessRecording/${existingRecord!.recordingId}`, body)
+        ? await postBeaconJson(`/ProcessRecording/${existingRecord!.recordingId}/Update`, body)
         : await fetch(`${BASE_URL}/ProcessRecording`, {
             method: "POST",
             credentials: "include",

@@ -2255,13 +2255,30 @@ main#main-content.main-below-fixed-nav {
   }
 }
 
-.resident-record-modal-dialog {
+.resident-record-modal-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   width: min(1100px, 100%);
-  max-height: min(88vh, 900px);
+  max-height: min(92vh, 940px);
+  pointer-events: auto;
+}
+
+.resident-record-modal-dialog {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(78vh, 820px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: residentModalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.resident-record-modal-below {
+  flex-shrink: 0;
+  pointer-events: auto;
 }
 
 @keyframes residentModalPop {
@@ -2289,4 +2306,69 @@ main#main-content.main-below-fixed-nav {
   .resident-record-modal-dialog {
     animation: none;
   }
+}
+
+/* Resident record modals — expandable narrative / observations */
+.resident-inline-disclosure {
+  max-width: min(28rem, 72vw);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.resident-inline-disclosure--collapsed {
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resident-inline-disclosure__trigger {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--beacon-primary) !important;
+  text-decoration: none !important;
+}
+
+.resident-inline-disclosure__trigger:hover {
+  color: var(--beacon-primary-dark) !important;
+  text-decoration: underline !important;
+}
+
+.resident-inline-disclosure__trigger:focus-visible {
+  outline: 2px solid var(--beacon-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.resident-inline-disclosure--expanded .resident-inline-disclosure__body {
+  padding: 0.65rem 1.75rem 0.65rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--beacon-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(45, 79, 53, 0.06);
+  border-radius: calc(var(--beacon-radius, 8px) - 2px);
+  border: 1px solid var(--beacon-border);
+}
+
+.resident-inline-disclosure__close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 1;
+  line-height: 1;
+  padding: 0.1rem 0.45rem !important;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--beacon-text-muted);
+  background: rgba(242, 244, 240, 0.95) !important;
+  border: 1px solid var(--beacon-border) !important;
+  border-radius: 6px;
+}
+
+.resident-inline-disclosure__close:hover {
+  color: var(--beacon-text);
+  background: var(--beacon-bg-card) !important;
 }

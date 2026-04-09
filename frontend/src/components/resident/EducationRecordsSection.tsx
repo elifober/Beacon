@@ -1,13 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { EducationRecordRow } from "../../types/residentRecords";
+import Pagination from "../Pagination";
 import { ResidentRecordModal } from "./ResidentRecordModal";
-import { clip, dashIfEmpty, fmtNum, formatDate } from "./residentRecordFormat";
+import {
+  dashIfEmpty,
+  fmtNum,
+  formatCompletionStatus,
+  formatDate,
+  RESIDENT_RECORD_MODAL_PAGE_SIZE,
+} from "./residentRecordFormat";
 
 type Props = { records: EducationRecordRow[] };
 
 export function EducationRecordsSection({ records }: Props) {
   const [open, setOpen] = useState(false);
+  const [modalPage, setModalPage] = useState(1);
   const count = records.length;
+  const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
+
+  useEffect(() => {
+    if (open) setModalPage(1);
+  }, [open]);
+
+  const currentPage = Math.min(
+    Math.max(modalPage, 1),
+    Math.max(1, Math.ceil(count / pageSize)),
+  );
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedRecords = records.slice(startIndex, startIndex + pageSize);
+  const showPagination = count > pageSize;
+
+  const belowCard = showPagination ? (
+    <Pagination
+      className="d-flex justify-content-center"
+      page={currentPage}
+      pageSize={pageSize}
+      totalCount={count}
+      onPageChange={setModalPage}
+    />
+  ) : undefined;
 
   return (
     <>
@@ -38,6 +69,7 @@ export function EducationRecordsSection({ records }: Props) {
         title="Education"
         open={open}
         onClose={() => setOpen(false)}
+        belowCard={belowCard}
       >
         <div className="table-responsive p-3">
           {count === 0 ? (
@@ -53,11 +85,10 @@ export function EducationRecordsSection({ records }: Props) {
                   <th>Attendance %</th>
                   <th>Progress %</th>
                   <th>Completion</th>
-                  <th>Notes</th>
                 </tr>
               </thead>
               <tbody>
-                {records.map((e) => (
+                {pagedRecords.map((e) => (
                   <tr key={e.educationRecordId}>
                     <td>{formatDate(e.recordDate)}</td>
                     <td>{dashIfEmpty(e.educationLevel)}</td>
@@ -65,8 +96,7 @@ export function EducationRecordsSection({ records }: Props) {
                     <td>{dashIfEmpty(e.enrollmentStatus)}</td>
                     <td>{fmtNum(e.attendanceRate)}</td>
                     <td>{fmtNum(e.progressPercent)}</td>
-                    <td>{dashIfEmpty(e.completionStatus)}</td>
-                    <td title={e.notes ?? ""}>{clip(e.notes)}</td>
+                    <td>{formatCompletionStatus(e.completionStatus)}</td>
                   </tr>
                 ))}
               </tbody>

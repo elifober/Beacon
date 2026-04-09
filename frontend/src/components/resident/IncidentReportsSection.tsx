@@ -1,13 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { IncidentReportRow } from "../../types/residentRecords";
+import Pagination from "../Pagination";
 import { ResidentRecordModal } from "./ResidentRecordModal";
-import { clip, dashIfEmpty, fmtBool, formatDate } from "./residentRecordFormat";
+import {
+  dashIfEmpty,
+  fmtBool,
+  formatDate,
+  RESIDENT_RECORD_MODAL_PAGE_SIZE,
+} from "./residentRecordFormat";
 
 type Props = { records: IncidentReportRow[] };
 
 export function IncidentReportsSection({ records }: Props) {
   const [open, setOpen] = useState(false);
+  const [modalPage, setModalPage] = useState(1);
   const count = records.length;
+  const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
+
+  useEffect(() => {
+    if (open) setModalPage(1);
+  }, [open]);
+
+  const currentPage = Math.min(
+    Math.max(modalPage, 1),
+    Math.max(1, Math.ceil(count / pageSize)),
+  );
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedRecords = records.slice(startIndex, startIndex + pageSize);
+  const showPagination = count > pageSize;
+
+  const belowCard = showPagination ? (
+    <Pagination
+      className="d-flex justify-content-center"
+      page={currentPage}
+      pageSize={pageSize}
+      totalCount={count}
+      onPageChange={setModalPage}
+    />
+  ) : undefined;
 
   return (
     <>
@@ -38,6 +68,7 @@ export function IncidentReportsSection({ records }: Props) {
         title="Incident Reports"
         open={open}
         onClose={() => setOpen(false)}
+        belowCard={belowCard}
       >
         <div className="table-responsive p-3">
           {count === 0 ? (
@@ -50,8 +81,6 @@ export function IncidentReportsSection({ records }: Props) {
                   <th>Safehouse</th>
                   <th>Type</th>
                   <th>Severity</th>
-                  <th>Description</th>
-                  <th>Response</th>
                   <th>Resolved</th>
                   <th>Resolution date</th>
                   <th>Reported by</th>
@@ -59,14 +88,12 @@ export function IncidentReportsSection({ records }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {records.map((i) => (
+                {pagedRecords.map((i) => (
                   <tr key={i.incidentId}>
                     <td>{formatDate(i.incidentDate)}</td>
-                    <td>{dashIfEmpty(i.safehouseName)}</td>
+                    <td>{dashIfEmpty(i.safehouseCity)}</td>
                     <td>{dashIfEmpty(i.incidentType)}</td>
                     <td>{dashIfEmpty(i.severity)}</td>
-                    <td title={i.description ?? ""}>{clip(i.description)}</td>
-                    <td title={i.responseTaken ?? ""}>{clip(i.responseTaken)}</td>
                     <td>{fmtBool(i.resolved)}</td>
                     <td>{formatDate(i.resolutionDate)}</td>
                     <td>{dashIfEmpty(i.reportedBy)}</td>

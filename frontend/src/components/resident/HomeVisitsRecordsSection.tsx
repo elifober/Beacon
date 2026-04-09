@@ -1,13 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { HomeVisitationRow } from "../../types/residentRecords";
+import Pagination from "../Pagination";
+import { InlineDetailsCell } from "./InlineDetailsCell";
 import { ResidentRecordModal } from "./ResidentRecordModal";
-import { clip, dashIfEmpty, fmtBool, formatDate } from "./residentRecordFormat";
+import {
+  clip,
+  dashIfEmpty,
+  fmtBool,
+  formatDate,
+  RESIDENT_RECORD_MODAL_PAGE_SIZE,
+} from "./residentRecordFormat";
 
 type Props = { records: HomeVisitationRow[] };
 
 export function HomeVisitsRecordsSection({ records }: Props) {
   const [open, setOpen] = useState(false);
+  const [modalPage, setModalPage] = useState(1);
   const count = records.length;
+  const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
+
+  useEffect(() => {
+    if (open) setModalPage(1);
+  }, [open]);
+
+  const currentPage = Math.min(
+    Math.max(modalPage, 1),
+    Math.max(1, Math.ceil(count / pageSize)),
+  );
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedRecords = records.slice(startIndex, startIndex + pageSize);
+  const showPagination = count > pageSize;
+
+  const belowCard = showPagination ? (
+    <Pagination
+      className="d-flex justify-content-center"
+      page={currentPage}
+      pageSize={pageSize}
+      totalCount={count}
+      onPageChange={setModalPage}
+    />
+  ) : undefined;
 
   return (
     <>
@@ -38,6 +70,7 @@ export function HomeVisitsRecordsSection({ records }: Props) {
         title="Home Visits"
         open={open}
         onClose={() => setOpen(false)}
+        belowCard={belowCard}
       >
         <div className="table-responsive p-3">
           {count === 0 ? (
@@ -50,29 +83,32 @@ export function HomeVisitsRecordsSection({ records }: Props) {
                   <th>Social worker</th>
                   <th>Type</th>
                   <th>Location</th>
-                  <th>Purpose</th>
-                  <th>Observations</th>
                   <th>Family cooperation</th>
                   <th>Safety concern</th>
                   <th>Follow-up</th>
                   <th>Outcome</th>
                   <th>Follow-up notes</th>
+                  <th>Observations</th>
                 </tr>
               </thead>
               <tbody>
-                {records.map((v) => (
+                {pagedRecords.map((v) => (
                   <tr key={v.visitationId}>
                     <td>{formatDate(v.visitDate)}</td>
                     <td>{dashIfEmpty(v.socialWorker)}</td>
                     <td>{dashIfEmpty(v.visitType)}</td>
                     <td>{clip(v.locationVisited, 60)}</td>
-                    <td title={v.purpose ?? ""}>{clip(v.purpose)}</td>
-                    <td title={v.observations ?? ""}>{clip(v.observations)}</td>
                     <td>{dashIfEmpty(v.familyCooperationLevel)}</td>
                     <td>{fmtBool(v.safetyConcernsNoted)}</td>
                     <td>{fmtBool(v.followUpNeeded)}</td>
                     <td>{clip(v.visitOutcome)}</td>
                     <td title={v.followUpNotes ?? ""}>{clip(v.followUpNotes)}</td>
+                    <td className="align-middle text-center">
+                      <InlineDetailsCell
+                        text={v.observations}
+                        ariaLabel="Show or hide full visit observations"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

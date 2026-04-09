@@ -63,13 +63,11 @@ export interface IncidentReportRow {
   incidentDate: string;
   incidentType?: string;
   severity?: string;
-  description?: string;
-  responseTaken?: string;
   resolved?: boolean;
   resolutionDate?: string;
   reportedBy?: string;
   followUpRequired?: boolean;
-  safehouseName?: string;
+  safehouseCity?: string;
 }
 
 export interface ResidentDetail {

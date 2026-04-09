@@ -1,13 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProcessRecordingRow } from "../../types/residentRecords";
+import Pagination from "../Pagination";
+import { InlineDetailsCell } from "./InlineDetailsCell";
 import { ResidentRecordModal } from "./ResidentRecordModal";
-import { clip, dashIfEmpty, fmtBool, formatDate } from "./residentRecordFormat";
+import {
+  clip,
+  dashIfEmpty,
+  fmtBool,
+  formatDate,
+  RESIDENT_RECORD_MODAL_PAGE_SIZE,
+} from "./residentRecordFormat";
 
 type Props = { records: ProcessRecordingRow[] };
 
 export function MentalWellbeingRecordsSection({ records }: Props) {
   const [open, setOpen] = useState(false);
+  const [modalPage, setModalPage] = useState(1);
   const count = records.length;
+  const pageSize = RESIDENT_RECORD_MODAL_PAGE_SIZE;
+
+  useEffect(() => {
+    if (open) setModalPage(1);
+  }, [open]);
+
+  const currentPage = Math.min(
+    Math.max(modalPage, 1),
+    Math.max(1, Math.ceil(count / pageSize)),
+  );
+  const startIndex = (currentPage - 1) * pageSize;
+  const pagedRecords = records.slice(startIndex, startIndex + pageSize);
+  const showPagination = count > pageSize;
+
+  const belowCard = showPagination ? (
+    <Pagination
+      className="d-flex justify-content-center"
+      page={currentPage}
+      pageSize={pageSize}
+      totalCount={count}
+      onPageChange={setModalPage}
+    />
+  ) : undefined;
 
   return (
     <>
@@ -38,6 +70,7 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
         title="Mental Wellbeing"
         open={open}
         onClose={() => setOpen(false)}
+        belowCard={belowCard}
       >
         <div className="table-responsive p-3">
           {count === 0 ? (
@@ -58,11 +91,10 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
                   <th>Interventions</th>
                   <th>Follow-up</th>
                   <th>Narrative</th>
-                  <th>Restricted notes</th>
                 </tr>
               </thead>
               <tbody>
-                {records.map((p) => (
+                {pagedRecords.map((p) => (
                   <tr key={p.recordingId}>
                     <td>{formatDate(p.sessionDate)}</td>
                     <td>{dashIfEmpty(p.socialWorker)}</td>
@@ -77,8 +109,12 @@ export function MentalWellbeingRecordsSection({ records }: Props) {
                       {clip(p.interventionsApplied)}
                     </td>
                     <td title={p.followUpActions ?? ""}>{clip(p.followUpActions)}</td>
-                    <td title={p.sessionNarrative ?? ""}>{clip(p.sessionNarrative)}</td>
-                    <td title={p.notesRestricted ?? ""}>{clip(p.notesRestricted)}</td>
+                    <td className="align-middle text-center">
+                      <InlineDetailsCell
+                        text={p.sessionNarrative}
+                        ariaLabel="Show or hide full session narrative"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

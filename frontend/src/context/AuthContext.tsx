@@ -3,11 +3,12 @@ import type { ReactNode } from 'react';
 import {getAuthSession} from '../lib/authAPI';
 import type { AuthSession } from '../types/AuthSession';
 
-interface AuthContextValue{
+interface AuthContextValue {
     authSession: AuthSession | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    refreshAuthSession:() => Promise<void>;
+    /** Loads /api/auth/me into context; returns the session (possibly anonymous if the request fails). */
+    refreshAuthSession: () => Promise<AuthSession>;
 }
 
 const anonymousAuthSession: AuthSession = {
@@ -25,12 +26,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [authSession, setAuthSession] = useState<AuthSession | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const refreshAuthSession = useCallback(async () => {
+    const refreshAuthSession = useCallback(async (): Promise<AuthSession> => {
         try {
             const session = await getAuthSession();
             setAuthSession(session);
+            return session;
         } catch {
             setAuthSession(anonymousAuthSession);
+            return anonymousAuthSession;
         } finally {
             setIsLoading(false);
         }

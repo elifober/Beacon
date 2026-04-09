@@ -2,7 +2,6 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   buildExternalLoginUrl,
-  getAuthSession,
   getExternalAuthProviders,
   loginUser,
 } from '../lib/authAPI';
@@ -65,15 +64,23 @@ function LoginPage() {
 
     try {
       await loginUser(email, password, rememberMe);
-      await refreshAuthSession();
-      const session = await getAuthSession();
+      let session = await refreshAuthSession();
+      if (!session.isAuthenticated) {
+        await new Promise((r) => setTimeout(r, 250));
+        session = await refreshAuthSession();
+      }
+      if (!session.isAuthenticated) {
+        setErrorMessage(
+          'Sign-in succeeded but your session was not saved. Try Chrome, or allow cross-site cookies for this app (Vercel + API on another domain).'
+        );
+        return;
+      }
       const intended = getSafeNextFromSearch(location.search);
       if (intended) {
         navigate(intended, { replace: true });
       } else {
         navigate(getPostLoginPath(session), { replace: true });
       }
-
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to log in.'

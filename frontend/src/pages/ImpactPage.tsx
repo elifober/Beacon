@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { DonateInlineBanner } from "../components/DonateInlineBanner";
 import Footer from "../components/Footer";
 
 const impactPosts = [
@@ -100,6 +101,7 @@ function ImpactPage() {
         </div>
       </section>
 
+      <DonateInlineBanner />
       <Footer />
     </div>
   );

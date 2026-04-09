@@ -156,21 +156,20 @@ function ResidentPage() {
           <span>All residents</span>
         </Link>
       </div>
-      <p className="landing-section__eyebrow mb-2">Resident</p>
       <div className="row g-4 align-items-start">
-        <div className="col-lg-4 d-flex flex-column gap-3">
+        <aside className="col-lg-4 d-flex flex-column gap-3 resident-profile-sidebar">
           <div className="card shadow-sm beacon-detail-card">
             <div className="card-body">
+              <p className="landing-section__eyebrow mb-2">Resident</p>
+              <h1 className="h4 mb-3 resident-profile-page__name">{dashIfEmpty(resident.name)}</h1>
               <dl className="row small mb-0">
-                <dt className="col-5 text-muted fw-normal">Name</dt>
-                <dd className="col-7 mb-2">{dashIfEmpty(resident.name)}</dd>
                 <dt className="col-5 text-muted fw-normal">Date of birth</dt>
                 <dd className="col-7 mb-2">{dobDisplay}</dd>
                 <dt className="col-5 text-muted fw-normal">Age</dt>
                 <dd className="col-7 mb-2">{ageDisplay}</dd>
                 <dt className="col-5 text-muted fw-normal">Sex</dt>
                 <dd className="col-7 mb-2">{dashIfEmpty(resident.sex)}</dd>
-                <dt className="col-5 text-muted fw-normal">Status</dt>
+                <dt className="col-5 text-muted fw-normal">Case status</dt>
                 <dd className="col-7 mb-0">{dashIfEmpty(resident.caseStatus)}</dd>
               </dl>
             </div>
@@ -178,58 +177,60 @@ function ResidentPage() {
 
           <div className="card shadow-sm beacon-detail-card">
             <div className="card-body">
-              <p className="landing-section__eyebrow mb-2">Safehouse</p>
-              <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty(resident.safehouseCity)}</p>
+              <p className="landing-section__eyebrow mb-3">Placement</p>
+              <dl className="row small mb-0">
+                <dt className="col-5 text-muted fw-normal">Safehouse</dt>
+                <dd className="col-7 mb-2">{dashIfEmpty(resident.safehouseCity)}</dd>
+                <dt className="col-5 text-muted fw-normal">Time housed</dt>
+                <dd className="col-7 mb-0">{dashIfEmpty(resident.lengthOfStay)}</dd>
+              </dl>
             </div>
           </div>
+
           <div className="card shadow-sm beacon-detail-card">
             <div className="card-body">
-              <p className="landing-section__eyebrow mb-2">Time Housed</p>
-              <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty(resident.lengthOfStay)}</p>
+              <p className="landing-section__eyebrow mb-3">Transition &amp; risk</p>
+              <div className="resident-profile-page__planning-block">
+                <p className="small fw-semibold text-muted mb-2">Days until 18</p>
+                {transition.kind === "no-dob" ? (
+                  <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty("")}</p>
+                ) : transition.kind === "past" ? (
+                  <>
+                    <p className="mb-1 fs-5 fw-semibold">Past transition age</p>
+                    <p className="mb-0 small text-muted">
+                      18th birthday was {formatLocalDateMdY(transition.eighteenth)}
+                    </p>
+                  </>
+                ) : transition.kind === "today" ? (
+                  <>
+                    <p className="mb-1 fs-5 fw-semibold">Today</p>
+                    <p className="mb-0 small text-muted">18th birthday — coordinate transition planning.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-1 fs-5 fw-semibold">
+                      {transition.days.toLocaleString()} day{transition.days === 1 ? "" : "s"}
+                    </p>
+                    <p className="mb-0 small text-muted">
+                      Until {formatLocalDateMdY(transition.eighteenth)}
+                    </p>
+                  </>
+                )}
+              </div>
+              <div
+                className={`resident-risk-card resident-risk-card--nested resident-risk-card--${riskAccent}`}
+              >
+                <p className="landing-section__eyebrow mb-2">Risk level</p>
+                <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty(resident.currentRiskLevel)}</p>
+              </div>
             </div>
           </div>
-          <div className="card shadow-sm beacon-detail-card">
-            <div className="card-body">
-              <p className="landing-section__eyebrow mb-2">Days Till 18</p>
-              {transition.kind === "no-dob" ? (
-                <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty("")}</p>
-              ) : transition.kind === "past" ? (
-                <>
-                  <p className="mb-1 fs-5 fw-semibold">Past transition age</p>
-                  <p className="mb-0 small text-muted">
-                    18th birthday was {formatLocalDateMdY(transition.eighteenth)}
-                  </p>
-                </>
-              ) : transition.kind === "today" ? (
-                <>
-                  <p className="mb-1 fs-5 fw-semibold">Today</p>
-                  <p className="mb-0 small text-muted">18th birthday — coordinate transition planning.</p>
-                </>
-              ) : (
-                <>
-                  <p className="mb-1 fs-5 fw-semibold">
-                    {transition.days.toLocaleString()} day{transition.days === 1 ? "" : "s"}
-                  </p>
-                  <p className="mb-0 small text-muted">
-                    Until {formatLocalDateMdY(transition.eighteenth)}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-          <div
-            className={`card shadow-sm beacon-detail-card resident-risk-card resident-risk-card--${riskAccent}`}
-          >
-            <div className="card-body">
-              <p className="landing-section__eyebrow mb-2">Risk Level</p>
-              <p className="mb-0 fs-5 fw-semibold">{dashIfEmpty(resident.currentRiskLevel)}</p>
-            </div>
-          </div>
+
           <div className="card shadow-sm beacon-detail-card">
             <div className="card-body">
               <p className="landing-section__eyebrow mb-2">Partner contacts</p>
               <p className="small text-muted mb-3">
-                Active partners assigned to this safehouse — reach out for day-to-day coordination.
+                Active partners for this safehouse — use for coordination.
               </p>
               {partners.length === 0 ? (
                 <p className="mb-0 small text-muted">No active partner assignments for this safehouse.</p>
@@ -263,9 +264,10 @@ function ResidentPage() {
               )}
             </div>
           </div>
-        </div>
+        </aside>
 
         <div className="col-lg-8">
+          <p className="landing-section__eyebrow mb-3">Case records</p>
           <div className="row row-cols-1 row-cols-md-2 g-3 resident-record-sections-grid">
             <div className="col">
               <EducationRecordsSection

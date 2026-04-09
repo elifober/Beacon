@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Link, useParams } from "react-router-dom";
+import { DonateInlineBanner } from "../components/DonateInlineBanner";
 import { getDonorDashboard } from "../api/Donors";
 import type { DonorDashboard } from "../types/DonorDashboard";
 
@@ -452,6 +453,8 @@ function DonorDashboardPage() {
           </div>
         </div>
       </section>
+
+      <DonateInlineBanner />
     </div>
   );
 }

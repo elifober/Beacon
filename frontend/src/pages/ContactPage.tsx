@@ -1,3 +1,4 @@
+import { DonateInlineBanner } from "../components/DonateInlineBanner";
 import Footer from "../components/Footer";
 
 const boardMembers = [
@@ -127,6 +128,7 @@ function ContactPage() {
         </div>
       </section>
 
+      <DonateInlineBanner />
       <Footer />
     </div>
   );

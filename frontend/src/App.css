@@ -1645,6 +1645,33 @@ button.admin-dashboard__nav-link {
   border-color: rgba(45, 79, 53, 0.2);
 }
 
+.resident-profile-page__name {
+  word-break: break-word;
+}
+.resident-profile-page__planning-block {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(27, 38, 29, 0.08);
+}
+
+@media (min-width: 992px) {
+  .resident-profile-sidebar {
+    position: sticky;
+    top: calc(5.25rem + 0.75rem);
+    align-self: flex-start;
+    max-height: calc(100dvh - 6.5rem);
+    overflow-y: auto;
+    padding-right: 0.15rem;
+  }
+}
+
+.resident-profile-page .resident-risk-card--nested {
+  border-style: solid;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  background: rgba(248, 250, 249, 0.95);
+}
+
 .resident-safehouse-partners__item {
   margin-bottom: 0.85rem;
   padding-bottom: 0.85rem;
@@ -3057,6 +3084,48 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   width: 100%;
 }
 
+/* Login — full-bleed muted video + overlay (register uses auth shell without this block) */
+.login-page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.login-page__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(160deg, #141f18 0%, #1f3328 45%, #16261c 100%);
+}
+.login-page__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.login-page__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 18, 14, 0.55) 0%,
+    rgba(20, 31, 24, 0.72) 50%,
+    rgba(12, 18, 14, 0.68) 100%
+  );
+}
+.login-page__content {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page__video {
+    display: none;
+  }
+}
+
 .donate-external {
   position: relative;
   isolation: isolate;
@@ -3433,6 +3502,59 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   background: rgba(15, 23, 42, 0.34);
   backdrop-filter: blur(9px);
   -webkit-backdrop-filter: blur(9px);
+}
+
+/* Donate strip — Impact, Contact, dashboards */
+.donate-inline-banner {
+  background: #ffffff;
+  border-top: 1px solid rgba(27, 38, 29, 0.08);
+}
+.donate-inline-banner__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.25rem;
+}
+.donate-inline-banner__btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  background: var(--beacon-primary);
+  color: #fff !important;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+.donate-inline-banner__btn:hover,
+.donate-inline-banner__btn:focus-visible {
+  color: #fff !important;
+  filter: brightness(1.06);
+  box-shadow: 0 4px 14px rgba(45, 79, 53, 0.28);
+}
+.donate-inline-banner__text {
+  flex: 1 1 280px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(27, 38, 29, 0.82);
+  max-width: 52rem;
+}
+.donate-inline-banner__text-link {
+  color: var(--beacon-primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+.donate-inline-banner__text-link:hover,
+.donate-inline-banner__text-link:focus-visible {
+  text-decoration: underline;
 }
 
 /* Impact page */

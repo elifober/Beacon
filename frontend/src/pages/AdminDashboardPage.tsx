@@ -7,6 +7,7 @@ import { AddHealthRecordModal } from "../components/resident/AddHealthRecordModa
 import { AddProcessRecordingModal } from "../components/resident/AddProcessRecordingModal";
 import { AddHomeVisitationModal } from "../components/resident/AddHomeVisitationModal";
 import { AddIncidentReportModal } from "../components/resident/AddIncidentReportModal";
+import { DonateInlineBanner } from "../components/DonateInlineBanner";
 
 const navLinks = [
   { to: "/admin/all-residents", label: "Residents" },
@@ -111,6 +112,8 @@ function AdminDashboardPage() {
           </div>
         </div>
       </section>
+
+      <DonateInlineBanner />
 
       <AddEducationRecordModal
         open={residentRecordModal === "education"}

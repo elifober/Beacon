@@ -8,6 +8,7 @@ import {
 import { getPostLoginPath } from '../lib/postLoginRedirect';
 import { getSafeNextFromSearch } from '../lib/safeInternalPath';
 import { useAuth } from '../context/AuthContext.tsx';
+import heroForestImage from '../assets/forrest.jpg';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -91,8 +92,20 @@ function LoginPage() {
   }
 
   return (
-    <div className="beacon-page beacon-page--auth">
-      <div className="container">
+    <div className="beacon-page beacon-page--auth login-page">
+      <div className="login-page__bg" aria-hidden="true">
+        <video
+          className="login-page__video"
+          src="/donor_dash_background.mp4"
+          poster={heroForestImage}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <div className="login-page__overlay" />
+      </div>
+      <div className="container login-page__content">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card shadow-sm">

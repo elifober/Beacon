@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Beacon.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Beacon.API.Controllers;
 
@@ -11,9 +12,33 @@ namespace Beacon.API.Controllers;
 
 public class BeaconController : ControllerBase
 {
-    private AuthIdentityDbContext _beaconContext;
+    private readonly AuthIdentityDbContext _beaconContext;
+    private readonly ILogger<BeaconController> _logger;
 
-    public BeaconController(AuthIdentityDbContext temp) => _beaconContext = temp;
+    public BeaconController(AuthIdentityDbContext temp, ILogger<BeaconController> logger)
+    {
+        _beaconContext = temp;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Loads a related collection; returns an empty list if the query fails (e.g. table not migrated on prod).
+    /// </summary>
+    private object TryLoadResidentRelated(Func<object> load, string datasetName, int residentId)
+    {
+        try
+        {
+            return load();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "GetResident: could not load {Dataset} for resident {ResidentId}. Run EF migrations against production if this table should exist.",
+                datasetName,
+                residentId);
+            return new List<object>();
+        }
+    }
 
     //GET LIST OF ALL RESIDENTS
     [Authorize(Policy = AuthPolicies.AdminOnly)]
@@ -160,107 +185,122 @@ public class BeaconController : ControllerBase
         var r = row.r;
         var s = row.s;
 
-        var educationRecords = _beaconContext.Set<EducationRecord>()
-            .Where(e => e.ResidentId == id)
-            .OrderByDescending(e => e.RecordDate)
-            .Select(e => new
-            {
-                e.EducationRecordId,
-                e.RecordDate,
-                e.EducationLevel,
-                e.SchoolName,
-                e.EnrollmentStatus,
-                e.AttendanceRate,
-                e.ProgressPercent,
-                e.CompletionStatus,
-                e.Notes,
-            })
-            .ToList();
-
-        var healthWellbeingRecords = _beaconContext.Set<HealthWellbeingRecord>()
-            .Where(h => h.ResidentId == id)
-            .OrderByDescending(h => h.RecordDate)
-            .Select(h => new
-            {
-                h.HealthRecordId,
-                h.RecordDate,
-                h.GeneralHealthScore,
-                h.NutritionScore,
-                h.SleepQualityScore,
-                h.EnergyLevelScore,
-                h.HeightCm,
-                h.WeightKg,
-                h.Bmi,
-                h.MedicalCheckupDone,
-                h.DentalCheckupDone,
-                h.PsychologicalCheckupDone,
-                h.Notes,
-            })
-            .ToList();
-
-        var processRecordings = _beaconContext.Set<ProcessRecording>()
-            .Where(p => p.ResidentId == id)
-            .OrderByDescending(p => p.SessionDate)
-            .Select(p => new
-            {
-                p.RecordingId,
-                p.SessionDate,
-                p.SocialWorker,
-                p.SessionType,
-                p.SessionDurationMinutes,
-                p.EmotionalStateObserved,
-                p.EmotionalStateEnd,
-                p.InterventionsApplied,
-                p.FollowUpActions,
-                p.ProgressNoted,
-                p.ConcernsFlagged,
-                p.ReferralMade,
-                p.SessionNarrative,
-                p.NotesRestricted,
-            })
-            .ToList();
-
-        var homeVisitations = _beaconContext.Set<HomeVisitation>()
-            .Where(v => v.ResidentId == id)
-            .OrderByDescending(v => v.VisitDate)
-            .Select(v => new
-            {
-                v.VisitationId,
-                v.VisitDate,
-                v.SocialWorker,
-                v.VisitType,
-                v.LocationVisited,
-                v.Purpose,
-                v.Observations,
-                v.FamilyCooperationLevel,
-                v.SafetyConcernsNoted,
-                v.FollowUpNeeded,
-                v.FollowUpNotes,
-                v.VisitOutcome,
-            })
-            .ToList();
-
-        var incidentReports = _beaconContext.Set<IncidentReport>()
-            .Where(i => i.ResidentId == id)
-            .OrderByDescending(i => i.IncidentDate)
-            .Join(_beaconContext.Safehouses,
-                i => i.SafehouseId,
-                sh => sh.SafehouseId,
-                (i, sh) => new
+        var educationRecords = TryLoadResidentRelated(
+            () => _beaconContext.Set<EducationRecord>()
+                .Where(e => e.ResidentId == id)
+                .OrderByDescending(e => e.RecordDate)
+                .Select(e => new
                 {
-                    i.IncidentId,
-                    i.IncidentDate,
-                    i.IncidentType,
-                    i.Severity,
-                    i.Description,
-                    i.ResponseTaken,
-                    i.Resolved,
-                    i.ResolutionDate,
-                    i.ReportedBy,
-                    i.FollowUpRequired,
-                    SafehouseName = sh.Name,
+                    e.EducationRecordId,
+                    e.RecordDate,
+                    e.EducationLevel,
+                    e.SchoolName,
+                    e.EnrollmentStatus,
+                    e.AttendanceRate,
+                    e.ProgressPercent,
+                    e.CompletionStatus,
+                    e.Notes,
                 })
-            .ToList();
+                .ToList(),
+            "education_records",
+            id);
+
+        var healthWellbeingRecords = TryLoadResidentRelated(
+            () => _beaconContext.Set<HealthWellbeingRecord>()
+                .Where(h => h.ResidentId == id)
+                .OrderByDescending(h => h.RecordDate)
+                .Select(h => new
+                {
+                    h.HealthRecordId,
+                    h.RecordDate,
+                    h.GeneralHealthScore,
+                    h.NutritionScore,
+                    h.SleepQualityScore,
+                    h.EnergyLevelScore,
+                    h.HeightCm,
+                    h.WeightKg,
+                    h.Bmi,
+                    h.MedicalCheckupDone,
+                    h.DentalCheckupDone,
+                    h.PsychologicalCheckupDone,
+                    h.Notes,
+                })
+                .ToList(),
+            "health_wellbeing_records",
+            id);
+
+        var processRecordings = TryLoadResidentRelated(
+            () => _beaconContext.Set<ProcessRecording>()
+                .Where(p => p.ResidentId == id)
+                .OrderByDescending(p => p.SessionDate)
+                .Select(p => new
+                {
+                    p.RecordingId,
+                    p.SessionDate,
+                    p.SocialWorker,
+                    p.SessionType,
+                    p.SessionDurationMinutes,
+                    p.EmotionalStateObserved,
+                    p.EmotionalStateEnd,
+                    p.InterventionsApplied,
+                    p.FollowUpActions,
+                    p.ProgressNoted,
+                    p.ConcernsFlagged,
+                    p.ReferralMade,
+                    p.SessionNarrative,
+                    p.NotesRestricted,
+                })
+                .ToList(),
+            "process_recordings",
+            id);
+
+        var homeVisitations = TryLoadResidentRelated(
+            () => _beaconContext.Set<HomeVisitation>()
+                .Where(v => v.ResidentId == id)
+                .OrderByDescending(v => v.VisitDate)
+                .Select(v => new
+                {
+                    v.VisitationId,
+                    v.VisitDate,
+                    v.SocialWorker,
+                    v.VisitType,
+                    v.LocationVisited,
+                    v.Purpose,
+                    v.Observations,
+                    v.FamilyCooperationLevel,
+                    v.SafetyConcernsNoted,
+                    v.FollowUpNeeded,
+                    v.FollowUpNotes,
+                    v.VisitOutcome,
+                })
+                .ToList(),
+            "home_visitations",
+            id);
+
+        var incidentReports = TryLoadResidentRelated(
+            () => _beaconContext.Set<IncidentReport>()
+                .Where(i => i.ResidentId == id)
+                .OrderByDescending(i => i.IncidentDate)
+                .Join(_beaconContext.Safehouses,
+                    i => i.SafehouseId,
+                    sh => sh.SafehouseId,
+                    (i, sh) => new
+                    {
+                        i.IncidentId,
+                        i.IncidentDate,
+                        i.IncidentType,
+                        i.Severity,
+                        i.Description,
+                        i.ResponseTaken,
+                        i.Resolved,
+                        i.ResolutionDate,
+                        i.ReportedBy,
+                        i.FollowUpRequired,
+                        SafehouseName = sh.Name,
+                    })
+                .ToList(),
+            "incident_reports",
+            id);
 
         return Ok(new
         {

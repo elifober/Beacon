@@ -53,7 +53,7 @@ function DonorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="beacon-page beacon-page--loading text-center">
+      <div className="beacon-page beacon-page--loading text-center glass-nav-offset">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -63,7 +63,7 @@ function DonorDashboardPage() {
 
   if (error || !data) {
     return (
-      <div className="beacon-page container py-4">
+      <div className="beacon-page container py-4 glass-nav-offset">
         <div className="alert alert-danger">
           {error ?? "Donor not found."}
         </div>

@@ -16,9 +16,13 @@ function Navbar() {
     location.pathname === "/login" ||
     location.pathname === "/logout" ||
     location.pathname === "/register" ||
+    location.pathname === "/donate" ||
     location.pathname === "/about" ||
     location.pathname === "/impact" ||
-    location.pathname === "/contact";
+    location.pathname === "/contact" ||
+    location.pathname === "/admin" ||
+    location.pathname.startsWith("/admin/") ||
+    location.pathname.startsWith("/donor-dashboard/");
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

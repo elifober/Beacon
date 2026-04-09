@@ -47,7 +47,7 @@ function AdminAllSafehousesPage() {
 
   if (loading) {
     return (
-      <div className="beacon-page beacon-page--loading text-center">
+      <div className="beacon-page beacon-page--loading text-center admin-list-page">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -57,7 +57,7 @@ function AdminAllSafehousesPage() {
 
   if (error) {
     return (
-      <div className="beacon-page container py-4">
+      <div className="beacon-page container py-4 admin-list-page">
         <div className="alert alert-danger">{error}</div>
       </div>
     );

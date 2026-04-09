@@ -1452,7 +1452,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   width: 100vw;
   margin-left: -50vw;
   margin-right: -50vw;
-  height: clamp(200px, 32vh, 300px);
+  min-height: clamp(280px, 42vh, 400px);
+  height: auto;
+  padding-top: 5.75rem;
+  box-sizing: border-box;
   overflow: hidden;
 }
 
@@ -1462,7 +1465,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  /* Vertical center = middle third of a tall portrait when cropped to wide hero */
+  object-position: center 50%;
+}
+
+.donor-dashboard .admin-dashboard__hero-img {
+  object-position: center 38%;
 }
 
 .admin-dashboard__hero-overlay {
@@ -1510,6 +1518,18 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 
 .admin-dashboard__main {
   padding: 3rem 0 4.5rem;
+}
+
+/* Admin tool pages (lists, post planner, risk): clear fixed glass navbar */
+.admin-list-page {
+  padding-top: 5.75rem;
+  box-sizing: border-box;
+}
+
+/* Donor dashboard loading / error shells (not using admin-list-page) */
+.glass-nav-offset {
+  padding-top: 5.75rem;
+  box-sizing: border-box;
 }
 
 .admin-dashboard__search-wrap {
@@ -3230,9 +3250,11 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 .donate-external {
   position: relative;
   isolation: isolate;
-  min-height: calc(100vh - 8rem);
-  padding: 1rem;
-  background: #eef0f3;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 5.75rem 1rem 1.5rem;
+  background: #141f18;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   display: flex;
   align-items: center;
@@ -3241,7 +3263,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 .donate-external__bg {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
 }
 .donate-external__bg-video {
@@ -3261,6 +3283,8 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
   font-family: inherit;
 }
 .donate-external__wrap {
+  position: relative;
+  z-index: 1;
   max-width: 350px;
   margin: 0 auto;
   width: 100%;
@@ -3483,7 +3507,7 @@ main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
 @media (max-width: 768px) {
   .donate-external {
     align-items: flex-start;
-    padding-top: 1.25rem;
+    padding-top: 5.75rem;
     padding-bottom: 2rem;
   }
   .donate-external__bg-video {

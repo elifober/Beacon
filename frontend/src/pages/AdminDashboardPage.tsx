@@ -38,15 +38,17 @@ function AdminDashboardPage() {
   const [residentRecordModal, setResidentRecordModal] = useState<ResidentRecordModalKey | null>(
     null,
   );
+  const [adminHeroFallback, setAdminHeroFallback] = useState(false);
 
   return (
     <div className="admin-dashboard beacon-page">
       <header className="admin-dashboard__hero" aria-label="Admin dashboard header">
         <img
           className="admin-dashboard__hero-img"
-          src={heroForestImage}
+          src={adminHeroFallback ? heroForestImage : "/admin_dashboard.jpg"}
           alt=""
           decoding="async"
+          onError={() => setAdminHeroFallback(true)}
         />
         <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
         <div className="container admin-dashboard__hero-content">

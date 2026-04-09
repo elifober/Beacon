@@ -1326,3 +1326,31 @@ header a.active {
   color: var(--beacon-text-muted);
   line-height: 1.55;
 }
+
+/* Resident detail — record accordions */
+.resident-record-accordion {
+  background: var(--beacon-bg-card);
+  border-color: var(--beacon-border) !important;
+}
+
+.resident-record-accordion .accordion-button {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.95rem;
+  box-shadow: none !important;
+  background-color: var(--beacon-bg-card);
+  color: var(--beacon-text);
+}
+
+.resident-record-accordion .accordion-button:not(.collapsed) {
+  background-color: var(--beacon-sage-light);
+  color: var(--beacon-text);
+}
+
+.resident-record-accordion .accordion-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(45, 79, 53, 0.2);
+  border-color: var(--beacon-border);
+}
+
+.resident-records-accordion .accordion-item:last-of-type {
+  margin-bottom: 0 !important;
+}

@@ -142,30 +142,141 @@ public class BeaconController : ControllerBase
             .ToList();
     }
 
-    //GET SINGLE RESIDENT WITH SAFEHOUSE CITY
+    //GET SINGLE RESIDENT WITH SAFEHOUSE CITY AND RELATED RECORDS
     [Authorize(Policy = AuthPolicies.AdminOnly)]
     [HttpGet("Resident/{id}")]
     public IActionResult GetResident(int id)
     {
-        var result = _beaconContext.Residents
+        var row = _beaconContext.Residents
             .Where(r => r.ResidentId == id)
             .Join(_beaconContext.Safehouses,
                 r => r.SafehouseId,
                 s => s.SafehouseId,
-                (r, s) => new
-                {
-                    Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
-                    r.DateOfBirth,
-                    r.Sex,
-                    r.CaseStatus,
-                    SafehouseCity = s.City,
-                    r.LengthOfStay,
-                    r.CurrentRiskLevel,
-                })
+                (r, s) => new { r, s })
             .FirstOrDefault();
 
-        if (result == null) return NotFound();
-        return Ok(result);
+        if (row == null) return NotFound();
+
+        var r = row.r;
+        var s = row.s;
+
+        var educationRecords = _beaconContext.Set<EducationRecord>()
+            .Where(e => e.ResidentId == id)
+            .OrderByDescending(e => e.RecordDate)
+            .Select(e => new
+            {
+                e.EducationRecordId,
+                e.RecordDate,
+                e.EducationLevel,
+                e.SchoolName,
+                e.EnrollmentStatus,
+                e.AttendanceRate,
+                e.ProgressPercent,
+                e.CompletionStatus,
+                e.Notes,
+            })
+            .ToList();
+
+        var healthWellbeingRecords = _beaconContext.Set<HealthWellbeingRecord>()
+            .Where(h => h.ResidentId == id)
+            .OrderByDescending(h => h.RecordDate)
+            .Select(h => new
+            {
+                h.HealthRecordId,
+                h.RecordDate,
+                h.GeneralHealthScore,
+                h.NutritionScore,
+                h.SleepQualityScore,
+                h.EnergyLevelScore,
+                h.HeightCm,
+                h.WeightKg,
+                h.Bmi,
+                h.MedicalCheckupDone,
+                h.DentalCheckupDone,
+                h.PsychologicalCheckupDone,
+                h.Notes,
+            })
+            .ToList();
+
+        var processRecordings = _beaconContext.Set<ProcessRecording>()
+            .Where(p => p.ResidentId == id)
+            .OrderByDescending(p => p.SessionDate)
+            .Select(p => new
+            {
+                p.RecordingId,
+                p.SessionDate,
+                p.SocialWorker,
+                p.SessionType,
+                p.SessionDurationMinutes,
+                p.EmotionalStateObserved,
+                p.EmotionalStateEnd,
+                p.InterventionsApplied,
+                p.FollowUpActions,
+                p.ProgressNoted,
+                p.ConcernsFlagged,
+                p.ReferralMade,
+                p.SessionNarrative,
+                p.NotesRestricted,
+            })
+            .ToList();
+
+        var homeVisitations = _beaconContext.Set<HomeVisitation>()
+            .Where(v => v.ResidentId == id)
+            .OrderByDescending(v => v.VisitDate)
+            .Select(v => new
+            {
+                v.VisitationId,
+                v.VisitDate,
+                v.SocialWorker,
+                v.VisitType,
+                v.LocationVisited,
+                v.Purpose,
+                v.Observations,
+                v.FamilyCooperationLevel,
+                v.SafetyConcernsNoted,
+                v.FollowUpNeeded,
+                v.FollowUpNotes,
+                v.VisitOutcome,
+            })
+            .ToList();
+
+        var incidentReports = _beaconContext.Set<IncidentReport>()
+            .Where(i => i.ResidentId == id)
+            .OrderByDescending(i => i.IncidentDate)
+            .Join(_beaconContext.Safehouses,
+                i => i.SafehouseId,
+                sh => sh.SafehouseId,
+                (i, sh) => new
+                {
+                    i.IncidentId,
+                    i.IncidentDate,
+                    i.IncidentType,
+                    i.Severity,
+                    i.Description,
+                    i.ResponseTaken,
+                    i.Resolved,
+                    i.ResolutionDate,
+                    i.ReportedBy,
+                    i.FollowUpRequired,
+                    SafehouseName = sh.Name,
+                })
+            .ToList();
+
+        return Ok(new
+        {
+            Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
+            r.DateOfBirth,
+            r.Sex,
+            r.CaseStatus,
+            SafehouseCity = s.City,
+            r.LengthOfStay,
+            r.CurrentRiskLevel,
+            educationRecords,
+            healthWellbeingRecords,
+            processRecordings,
+            homeVisitations,
+            incidentReports,
+        });
     }
 
     //GET SINGLE DONOR WITH FULL DONATION HISTORY

@@ -2281,29 +2281,30 @@ button.admin-dashboard__nav-link {
   position: relative;
 }
 
-/* Admin donor page: back links in hero, directly under fixed nav */
-.donor-dashboard__admin-hero-toolbar {
-  position: absolute;
-  top: var(--beacon-fixed-nav-clearance);
-  left: 0;
-  right: 0;
-  z-index: 3;
-  padding: 0.35rem 0 0;
-  box-sizing: border-box;
+/* Admin donor page: back links below hero (standard text links) */
+.donor-dashboard__admin-below-hero .admin-dashboard-back {
+  color: var(--beacon-text-muted);
 }
 
-.donor-dashboard__admin-hero-toolbar .admin-dashboard-back {
-  color: rgba(255, 255, 255, 0.94);
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+.donor-dashboard__admin-below-hero .admin-dashboard-back:hover {
+  color: var(--beacon-primary);
 }
 
-.donor-dashboard__admin-hero-toolbar .admin-dashboard-back:hover {
-  color: #fff;
+.donor-dashboard .donor-dashboard__stat-card--drilldown {
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.donor-dashboard__admin-footer {
-  border-top: 1px solid rgba(27, 38, 29, 0.1);
-  background: rgba(248, 250, 249, 0.65);
+.donor-dashboard .donor-dashboard__stat-card--drilldown:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(39, 58, 46, 0.14) !important;
+}
+
+.donor-dashboard .donor-dashboard__stat-card--drilldown:focus {
+  outline: 2px solid var(--beacon-primary);
+  outline-offset: 2px;
 }
 .donor-dashboard .admin-dashboard__hero-overlay {
   background: linear-gradient(

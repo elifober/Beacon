@@ -280,30 +280,30 @@ function AdminAllResidentsPage() {
           />
 
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div className="d-flex flex-wrap gap-2 align-items-center">
+            <div>
               <button
                 type="button"
-                className="btn btn-success"
+                className="btn admin-residents-new-btn"
                 onClick={() => setCreateOpen(true)}
               >
                 New resident
               </button>
-              <div className="btn-group">
-                <button
-                  type="button"
-                  className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setView("table")}
-                >
-                  Table
-                </button>
-                <button
-                  type="button"
-                  className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setView("card")}
-                >
-                  Cards
-                </button>
-              </div>
+            </div>
+            <div className="btn-group">
+              <button
+                type="button"
+                className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setView("table")}
+              >
+                Table
+              </button>
+              <button
+                type="button"
+                className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setView("card")}
+              >
+                Cards
+              </button>
             </div>
           </div>
 
@@ -354,7 +354,7 @@ function AdminAllResidentsPage() {
           </div>
         </div>
       ) : (
-        <div className="row g-4">
+        <div className="row g-4 admin-residents-grid">
           {visibleResidents.map((r) => (
             <div key={r.residentId} className="col-sm-6 col-lg-4">
               <Link
@@ -362,24 +362,24 @@ function AdminAllResidentsPage() {
                 className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
                 aria-label={`Open resident profile for ${r.name}`}
               >
-                <div className="admin-all-residents-card card h-100 shadow-sm">
+                <div className="admin-all-residents-card admin-resident-card--enhanced card h-100 shadow-sm">
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title mb-3">{r.name}</h5>
+                    <h5 className="card-title admin-resident-card__name mb-3">{r.name}</h5>
                     <dl className="row small mb-0 flex-grow-1">
-                      <dt className="col-5 text-muted fw-normal">Safehouse</dt>
+                      <dt className="col-5 text-muted fw-normal admin-resident-card__dt">Safehouse</dt>
                       <dd className="col-7 mb-2">
                         {r.safehouseCity ?? "\u2014"}
                       </dd>
-                      <dt className="col-5 text-muted fw-normal">Sex</dt>
+                      <dt className="col-5 text-muted fw-normal admin-resident-card__dt">Sex</dt>
                       <dd className="col-7 mb-2">{r.sex ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">Age</dt>
+                      <dt className="col-5 text-muted fw-normal admin-resident-card__dt">Age</dt>
                       <dd className="col-7 mb-2">
                         {r.dateOfBirth
                           ? calculateAge(r.dateOfBirth)
                           : "\u2014"}
                       </dd>
-                      <dt className="col-5 text-muted fw-normal">Status</dt>
-                      <dd className="col-7 mb-0">{r.caseStatus ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal admin-resident-card__dt">Status</dt>
+                      <dd className="col-7 mb-0 admin-resident-card__status">{r.caseStatus ?? "\u2014"}</dd>
                     </dl>
                   </div>
                 </div>

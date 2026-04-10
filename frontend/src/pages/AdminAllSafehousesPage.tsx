@@ -110,6 +110,8 @@ function AdminAllSafehousesPage() {
           <div className="row g-4">
             {visibleSafehouses.map((s) => {
               const title = s.city ?? s.name ?? "Unknown safehouse";
+              const houseNumber = ((Math.abs(s.safehouseId || 1) - 1) % 9) + 1;
+              const houseImage = `/${houseNumber}house.jpg`;
               return (
                 <div key={s.safehouseId} className="col-sm-6 col-lg-4">
                   <Link
@@ -117,8 +119,18 @@ function AdminAllSafehousesPage() {
                     className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
                     aria-label={`Open safehouse details for ${title}`}
                   >
-                    <div className="admin-all-residents-card card h-100 shadow-sm">
+                    <div className="admin-all-residents-card admin-safehouse-card card h-100 shadow-sm">
+                      <div className="admin-safehouse-card__media-wrap">
+                        <img
+                          src={houseImage}
+                          alt={`${title} safehouse`}
+                          className="admin-safehouse-card__media"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
                       <div className="card-body">
+                        <p className="admin-safehouse-card__kicker mb-2">House {houseNumber}</p>
                         <h5 className="card-title mb-3">{title}</h5>
                         <table className="table table-sm mb-0">
                           <tbody>

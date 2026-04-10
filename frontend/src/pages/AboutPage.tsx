@@ -1,13 +1,10 @@
 import Footer from "../components/Footer";
 
 const boardMembers = [
-  { name: "Julie Hernando", role: "President / Co-Founder" },
-  { name: "Lance Platt", role: "Vice President" },
-  { name: "Candace Kunze", role: "Secretary of the Board" },
-  { name: "Kalli Kamauoha-Wilson", role: "Board Member" },
-  { name: "Russell J. Osguthorpe", role: "Board Member" },
-  { name: "Apple Lanman", role: "Board Member" },
-  { name: "Steven Shraedel", role: "Board Member" },
+  { name: "Sione Tuiasoa", image: "/sioneheadshot.jpg" },
+  { name: "Elias Fobert", image: "/eliheadshot.jpeg" },
+  { name: "Cole Evans", image: "/coleheadshot.jpg" },
+  { name: "Brandon Price", image: "/brandonheadshot.PNG" },
 ] as const;
 
 function AboutPage() {
@@ -71,11 +68,19 @@ function AboutPage() {
             </p>
             <div className="row g-4">
               {boardMembers.map((member) => (
-                <div className="col-sm-6 col-lg-4 col-xl-3" key={member.name}>
+                <div className="col-sm-6 col-lg-3" key={member.name}>
                   <div className="about-page__board-member mb-0">
+                    <div className="about-page__board-photo-wrap">
+                      <img
+                        src={member.image}
+                        alt={member.name}
+                        className="about-page__board-photo"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
                     <div className="about-page__board-copy">
-                      <p className="about-page__member-name mb-1">{member.name}</p>
-                      <p className="about-page__member-role mb-0">{member.role}</p>
+                      <p className="about-page__member-name mb-0">{member.name}</p>
                     </div>
                   </div>
                 </div>

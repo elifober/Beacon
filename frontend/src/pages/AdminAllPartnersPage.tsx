@@ -262,30 +262,30 @@ function AdminAllPartnersPage() {
           />
 
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div className="d-flex flex-wrap gap-2 align-items-center">
+            <div>
               <button
                 type="button"
-                className="btn btn-success"
+                className="btn admin-partners-new-btn"
                 onClick={() => setCreateOpen(true)}
               >
                 New partner
               </button>
-              <div className="btn-group">
-                <button
-                  type="button"
-                  className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setView("table")}
-                >
-                  Table
-                </button>
-                <button
-                  type="button"
-                  className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setView("card")}
-                >
-                  Cards
-                </button>
-              </div>
+            </div>
+            <div className="btn-group">
+              <button
+                type="button"
+                className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setView("table")}
+              >
+                Table
+              </button>
+              <button
+                type="button"
+                className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
+                onClick={() => setView("card")}
+              >
+                Cards
+              </button>
             </div>
           </div>
 
@@ -340,7 +340,7 @@ function AdminAllPartnersPage() {
           </div>
         </div>
       ) : (
-        <div className="row g-4">
+        <div className="row g-4 admin-partners-grid">
           {visiblePartners.map((p, i) => (
             <div key={`${p.partnerId}-${i}`} className="col-sm-6 col-lg-4">
               <Link
@@ -348,25 +348,25 @@ function AdminAllPartnersPage() {
                 className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
                 aria-label={`Open partner profile for ${p.partnerName}`}
               >
-              <div className="admin-all-residents-card card h-100 shadow-sm">
+              <div className="admin-all-residents-card admin-partner-card--enhanced card h-100 shadow-sm">
                 <div className="card-body d-flex flex-column">
-                  <h5 className="card-title mb-3">{p.partnerName}</h5>
+                  <h5 className="card-title admin-partner-card__name mb-3">{p.partnerName}</h5>
                   <dl className="row small mb-0 flex-grow-1">
-                    <dt className="col-5 text-muted fw-normal">Org type</dt>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Org type</dt>
                     <dd className="col-7 mb-2">
                       {p.organizationType ?? "\u2014"}
                     </dd>
-                    <dt className="col-5 text-muted fw-normal">Role</dt>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Role</dt>
                     <dd className="col-7 mb-2">{p.roleType ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal">Region</dt>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Region</dt>
                     <dd className="col-7 mb-2">{p.region ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal">Status</dt>
-                    <dd className="col-7 mb-2">{p.status ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal">Safehouse</dt>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Status</dt>
+                    <dd className="col-7 mb-2 admin-partner-card__status">{p.status ?? "\u2014"}</dd>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Safehouse</dt>
                     <dd className="col-7 mb-2">
                       {p.assignedSafehouse ?? "\u2014"}
                     </dd>
-                    <dt className="col-5 text-muted fw-normal">Start</dt>
+                    <dt className="col-5 text-muted fw-normal admin-partner-card__dt">Start</dt>
                     <dd className="col-7 mb-0">
                       {p.startDate ? formatDate(p.startDate) : "\u2014"}
                     </dd>

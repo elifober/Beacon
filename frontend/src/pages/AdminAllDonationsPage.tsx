@@ -277,7 +277,7 @@ function AdminAllDonationsPage() {
             sections={donationsGlassSections}
           />
 
-          <div className="card beacon-detail-card">
+          <div className="card beacon-detail-card donations-table-card">
             <div className="card-body table-responsive">
               <table className="table table-striped table-hover mb-0">
                 <thead>
@@ -314,7 +314,7 @@ function AdminAllDonationsPage() {
             pageSize={pageSize}
             totalCount={totalCount}
             onPageChange={setPage}
-            className="mt-4"
+            className="mt-3 d-flex justify-content-center"
           />
         </div>
       </section>

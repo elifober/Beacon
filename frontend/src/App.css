@@ -1966,40 +1966,6 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-weight: 600;
 }
 
-/* Admin dashboard global search — larger mark + high-contrast “bubble” */
-.search-bar__logo {
-  box-sizing: border-box;
-  width: 4.25rem;
-  height: 4.25rem;
-  min-width: 4.25rem;
-  min-height: 4.25rem;
-  object-fit: contain;
-  padding: 0.5rem;
-  background: #fff;
-  border: 3px solid var(--beacon-primary);
-  border-radius: 50%;
-  box-shadow:
-    0 4px 14px rgba(45, 79, 53, 0.22),
-    0 0 0 1px rgba(45, 79, 53, 0.08);
-}
-
-/* Hub list pages — slightly smaller but same treatment */
-.admin-hub-search__logo {
-  box-sizing: border-box;
-  width: 3.75rem;
-  height: 3.75rem;
-  min-width: 3.75rem;
-  min-height: 3.75rem;
-  object-fit: contain;
-  padding: 0.45rem;
-  background: #fff;
-  border: 3px solid var(--beacon-primary);
-  border-radius: 50%;
-  box-shadow:
-    0 4px 14px rgba(45, 79, 53, 0.22),
-    0 0 0 1px rgba(45, 79, 53, 0.08);
-}
-
 .admin-dashboard__panel {
   background: var(--beacon-bg-card);
   border: 1px solid var(--beacon-border);
@@ -2175,6 +2141,160 @@ button.admin-dashboard__nav-link {
 
 .admin-list-page .admin-dashboard-back:hover {
   transform: translateX(-3px);
+}
+
+/* Residents list page polish */
+.admin-residents-new-btn {
+  background: #1f4a34;
+  border-color: #1f4a34;
+  color: #fff;
+  font-weight: 600;
+}
+.admin-residents-new-btn:hover,
+.admin-residents-new-btn:focus-visible {
+  background: #173a29;
+  border-color: #173a29;
+  color: #fff;
+}
+
+.admin-residents-grid .admin-resident-card--enhanced {
+  border: 1px solid rgba(45, 79, 53, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(27, 38, 29, 0.08);
+}
+.admin-residents-grid .admin-resident-card--enhanced .card-body {
+  padding: 1rem 1rem 0.95rem;
+}
+.admin-resident-card__name {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1.28rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.admin-resident-card__dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.admin-resident-card__status {
+  font-weight: 600;
+}
+
+/* Safehouse cards with house photo */
+.admin-safehouse-card {
+  overflow: hidden;
+  border: 1px solid rgba(45, 79, 53, 0.15);
+  border-radius: 14px;
+}
+.admin-safehouse-card__media-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(45, 79, 53, 0.12);
+}
+.admin-safehouse-card__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 220ms ease;
+}
+.admin-safehouse-card:hover .admin-safehouse-card__media,
+a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
+  transform: scale(1.04);
+}
+.admin-safehouse-card__kicker {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--beacon-text-muted);
+  font-weight: 700;
+}
+
+/* Partners list page polish */
+.admin-partners-new-btn {
+  background: #1f4a34;
+  border-color: #1f4a34;
+  color: #fff;
+  font-weight: 600;
+}
+.admin-partners-new-btn:hover,
+.admin-partners-new-btn:focus-visible {
+  background: #173a29;
+  border-color: #173a29;
+  color: #fff;
+}
+.admin-partners-grid .admin-partner-card--enhanced {
+  border: 1px solid rgba(45, 79, 53, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(27, 38, 29, 0.08);
+}
+.admin-partners-grid .admin-partner-card--enhanced .card-body {
+  padding: 1rem 1rem 0.95rem;
+}
+.admin-partner-card__name {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1.24rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.admin-partner-card__dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.admin-partner-card__status {
+  font-weight: 600;
+}
+
+/* Donors list page polish */
+.admin-donors-grid .admin-donor-card--enhanced {
+  border: 1px solid rgba(45, 79, 53, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(27, 38, 29, 0.08);
+}
+.admin-donors-grid .admin-donor-card--enhanced .card-body {
+  padding: 1rem 1rem 0.95rem;
+}
+.admin-donor-card__name {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1.24rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.admin-donor-card__dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.admin-donor-card__status {
+  font-weight: 600;
+}
+
+/* Donations table polish (matches risk-center table treatment) */
+.donations-table-card .card-body {
+  padding: 1rem 1rem 0.25rem;
+}
+.donations-table-card .table {
+  margin-bottom: 0;
+}
+.donations-table-card .table th {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--beacon-text-muted);
+  white-space: nowrap;
+  padding-top: 0.65rem;
+  padding-bottom: 0.55rem;
+}
+.donations-table-card .table td {
+  font-size: 0.95rem;
+  padding-top: 0.62rem;
+  padding-bottom: 0.62rem;
+  vertical-align: top;
 }
 
 /* Resident profile (/resident/:id) — detail + record preview cards */
@@ -4556,6 +4676,21 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 .about-page__board-member {
   text-align: center;
+}
+.about-page__board-photo-wrap {
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 0.65rem;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid rgba(45, 79, 53, 0.2);
+  box-shadow: 0 10px 22px rgba(39, 58, 46, 0.12);
+}
+.about-page__board-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .about-page__board-copy {
   border: 1px solid rgba(59, 82, 69, 0.12);

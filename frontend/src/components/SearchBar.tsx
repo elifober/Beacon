@@ -53,13 +53,7 @@ function SearchBar({ maxWidth = 400, inputClassName = "" }: SearchBarProps) {
       className="search-bar"
       style={{ position: "relative", width: "100%", maxWidth }}
     >
-      <div className="search-bar__row d-flex align-items-center gap-2 gap-md-3 w-100">
-        <img
-          src="/logo.png"
-          alt=""
-          className="search-bar__logo flex-shrink-0"
-          decoding="async"
-        />
+      <div className="search-bar__row d-flex align-items-center w-100">
         <div className="search-bar__field flex-grow-1 position-relative min-w-0">
           <input
             id="beacon-admin-search"

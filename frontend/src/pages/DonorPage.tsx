@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Supporter } from "../types/Supporter";
+import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -83,10 +84,21 @@ function DonorPage() {
 
   return (
     <div className="beacon-page container py-4">
-      <p className="landing-section__eyebrow mb-2">Donor record</p>
+      <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+          <p className="landing-section__eyebrow mb-2">Donor record</p>
+          <h1 className="mb-0">{name}</h1>
+        </div>
+        <AdminDeleteRecordButton
+          entity="Donor"
+          id={id}
+          label="Delete donor record"
+          confirmMessage={`Delete donor "${name}" (ID ${id})? Donation rows linked to this supporter may be removed too. This cannot be undone.`}
+          redirectTo="/admin/all-donors"
+        />
+      </div>
       <div className="row g-4 mb-4">
         <div className="col-lg-6">
-          <h1 className="mb-3">{name}</h1>
           <div className="card beacon-detail-card">
             <div className="card-body">
               <table className="table table-sm mb-0">

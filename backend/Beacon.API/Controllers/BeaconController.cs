@@ -497,6 +497,144 @@ public class BeaconController : ControllerBase
             statusCode: StatusCodes.Status409Conflict);
     }
 
+    /// <summary>Admin: delete a resident and related case records (cascade per EF / DB).</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Resident/{id:int}/Delete")]
+    public Task<IActionResult> PostDeleteResident(int id) => DeleteResidentCoreAsync(id);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpDelete("Resident/{id:int}")]
+    public Task<IActionResult> DeleteResident(int id) => DeleteResidentCoreAsync(id);
+
+    /// <summary>Admin: delete a safehouse. May cascade to residents and related rows depending on DB rules.</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Safehouse/{id:int}/Delete")]
+    public Task<IActionResult> PostDeleteSafehouse(int id) => DeleteSafehouseCoreAsync(id);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpDelete("Safehouse/{id:int}")]
+    public Task<IActionResult> DeleteSafehouse(int id) => DeleteSafehouseCoreAsync(id);
+
+    /// <summary>Admin: delete a partner (assignments cascade; identity link cleared first).</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Partner/{id:int}/Delete")]
+    public Task<IActionResult> PostDeletePartner(int id) => DeletePartnerCoreAsync(id);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpDelete("Partner/{id:int}")]
+    public Task<IActionResult> DeletePartner(int id) => DeletePartnerCoreAsync(id);
+
+    /// <summary>Admin: delete a donor/supporter row (donations cascade per model).</summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Donor/{id:int}/Delete")]
+    public Task<IActionResult> PostDeleteDonor(int id) => DeleteDonorCoreAsync(id);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpDelete("Donor/{id:int}")]
+    public Task<IActionResult> DeleteDonor(int id) => DeleteDonorCoreAsync(id);
+
+    private async Task<IActionResult> DeleteResidentCoreAsync(int id)
+    {
+        var entity = await _beaconContext.Residents
+            .FirstOrDefaultAsync(r => r.ResidentId == id, HttpContext.RequestAborted);
+        if (entity == null)
+            return NotFound();
+
+        _beaconContext.Residents.Remove(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not delete resident", "DeleteResident: failed", ex);
+        }
+
+        return NoContent();
+    }
+
+    private async Task<IActionResult> DeleteSafehouseCoreAsync(int id)
+    {
+        var entity = await _beaconContext.Safehouses
+            .FirstOrDefaultAsync(s => s.SafehouseId == id, HttpContext.RequestAborted);
+        if (entity == null)
+            return NotFound();
+
+        _beaconContext.Safehouses.Remove(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not delete safehouse", "DeleteSafehouse: failed", ex);
+        }
+
+        return NoContent();
+    }
+
+    private async Task<IActionResult> DeletePartnerCoreAsync(int id)
+    {
+        var entity = await _beaconContext.Partners
+            .FirstOrDefaultAsync(p => p.PartnerId == id, HttpContext.RequestAborted);
+        if (entity == null)
+            return NotFound();
+
+        entity.IdentityUserId = null;
+        _beaconContext.Partners.Remove(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not delete partner", "DeletePartner: failed", ex);
+        }
+
+        return NoContent();
+    }
+
+    private async Task<IActionResult> DeleteDonorCoreAsync(int id)
+    {
+        var entity = await _beaconContext.Supporters
+            .FirstOrDefaultAsync(s => s.SupporterId == id, HttpContext.RequestAborted);
+        if (entity == null)
+            return NotFound();
+
+        entity.IdentityUserId = null;
+        _beaconContext.Supporters.Remove(entity);
+        try
+        {
+            await _beaconContext.SaveChangesAsync(HttpContext.RequestAborted);
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not delete donor", "DeleteDonor: failed", ex);
+        }
+
+        return NoContent();
+    }
+
+    private IActionResult DatabaseMutationFailed(string title, string logContext, Exception ex)
+    {
+        if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+        {
+            var detail = !string.IsNullOrWhiteSpace(pg.Detail)
+                ? pg.Detail!
+                : (pg.MessageText ?? "Database rejected the request.");
+            var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
+                ? StatusCodes.Status400BadRequest
+                : StatusCodes.Status409Conflict;
+            return Problem(title: title, detail: detail, statusCode: status);
+        }
+
+        _logger.LogError(ex, "{LogContext}", logContext);
+        return Problem(
+            title: title,
+            detail: "The database rejected this operation. Check logs for details.",
+            statusCode: StatusCodes.Status409Conflict);
+    }
+
     //SEARCH BAR FUNCTIONALITY
     [HttpGet("Search")]
     public OkObjectResult Search([FromQuery] string q)

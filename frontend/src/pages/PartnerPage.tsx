@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Partner } from "../types/Partner";
+import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -73,8 +74,19 @@ function PartnerPage() {
 
   return (
     <div className="beacon-page container py-4">
-      <p className="landing-section__eyebrow mb-2">Partner</p>
-      <h1 className="mb-4">{partner.partnerName}</h1>
+      <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+          <p className="landing-section__eyebrow mb-2">Partner</p>
+          <h1 className="mb-0">{partner.partnerName}</h1>
+        </div>
+        <AdminDeleteRecordButton
+          entity="Partner"
+          id={id}
+          label="Delete partner"
+          confirmMessage={`Delete partner "${partner.partnerName}" (ID ${id})? Safehouse assignments will be removed. This cannot be undone.`}
+          redirectTo="/admin/all-partners"
+        />
+      </div>
 
       <div className="card beacon-detail-card mb-4">
         <div className="card-body">

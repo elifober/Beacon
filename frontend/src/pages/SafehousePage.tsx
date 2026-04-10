@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Safehouse } from "../types/Safehouse";
+import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
 
 interface SafehousePageData {
   safehouse: Safehouse;
@@ -62,8 +63,19 @@ function SafehousePage() {
 
   return (
     <div className="beacon-page container py-4">
-      <p className="landing-section__eyebrow mb-2">Safehouse</p>
-      <h1 className="mb-4">{safehouse.name}</h1>
+      <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+          <p className="landing-section__eyebrow mb-2">Safehouse</p>
+          <h1 className="mb-0">{safehouse.name}</h1>
+        </div>
+        <AdminDeleteRecordButton
+          entity="Safehouse"
+          id={id}
+          label="Delete safehouse"
+          confirmMessage={`Delete safehouse "${safehouse.name}" (ID ${id})? Depending on the database, related residents and other rows may be removed too. This cannot be undone.`}
+          redirectTo="/admin/all-safehouses"
+        />
+      </div>
 
       <div className="card beacon-detail-card mb-4">
         <div className="card-body">

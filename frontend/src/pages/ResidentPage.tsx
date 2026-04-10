@@ -8,6 +8,7 @@ import { HealthRecordsSection } from "../components/resident/HealthRecordsSectio
 import { MentalWellbeingRecordsSection } from "../components/resident/MentalWellbeingRecordsSection";
 import { HomeVisitsRecordsSection } from "../components/resident/HomeVisitsRecordsSection";
 import { IncidentReportsSection } from "../components/resident/IncidentReportsSection";
+import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
 
 function calculateAge(dateStr: string): number {
   const dob = new Date(dateStr);
@@ -150,11 +151,18 @@ function ResidentPage() {
 
   return (
     <div className="beacon-page container py-4 resident-profile-page">
-      <div className="mb-3">
+      <div className="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
         <Link to="/admin/all-residents" className="admin-dashboard-back">
           <i className="bi bi-arrow-left-short" aria-hidden="true" />
           <span>All residents</span>
         </Link>
+        <AdminDeleteRecordButton
+          entity="Resident"
+          id={id}
+          label="Delete resident"
+          confirmMessage={`Permanently delete this resident and related case records (resident ID ${id})? This cannot be undone.`}
+          redirectTo="/admin/all-residents"
+        />
       </div>
       <div className="row g-4 align-items-start">
         <aside className="col-lg-4 d-flex flex-column gap-3 resident-profile-sidebar">

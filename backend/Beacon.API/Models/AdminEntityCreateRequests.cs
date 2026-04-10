@@ -1,5 +1,33 @@
 namespace Beacon.API.Models;
 
+/// <summary>
+/// Admin-only create body for <c>residents</c>. Uses a flat DTO so JSON model binding does not need to
+/// materialize the full <see cref="Resident"/> entity graph (navigation properties / collections).
+/// </summary>
+public sealed class AdminCreateResidentRequest
+{
+    public string? FirstName { get; set; }
+
+    public string? LastInitial { get; set; }
+
+    public string? CaseControlNo { get; set; }
+
+    public string? InternalCode { get; set; }
+
+    public int SafehouseId { get; set; }
+
+    public string? CaseStatus { get; set; }
+
+    public string? Sex { get; set; }
+
+    /// <summary>ISO calendar date (yyyy-MM-dd), empty, or null — not a full DateTime string required.</summary>
+    public string? DateOfBirth { get; set; }
+
+    public string? BirthStatus { get; set; }
+
+    public string? PlaceOfBirth { get; set; }
+}
+
 /// <summary>Admin-only create body for <c>partners</c>; PK is database-generated.</summary>
 public sealed class AdminCreatePartnerRequest
 {

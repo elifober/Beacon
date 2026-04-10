@@ -84,11 +84,62 @@ public class BeaconController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = AuthPolicies.AdminOnly)]
-    public async Task<IActionResult> CreateResident([FromBody] Resident resident)
+    public async Task<IActionResult> CreateResident([FromBody] AdminCreateResidentRequest? body)
     {
-        resident.ResidentId = await _beaconContext.AllocateNextResidentIdAsync();
+        if (body == null)
+            return BadRequest(new { message = "Invalid or empty JSON body." });
+
+        if (body.SafehouseId <= 0)
+        {
+            return BadRequest(new
+            {
+                message = "A valid safehouse is required.",
+                errors = new Dictionary<string, string> { ["safehouseId"] = "Required" },
+            });
+        }
+
+        var safehouseExists = await _beaconContext.Safehouses.AsNoTracking()
+            .AnyAsync(s => s.SafehouseId == body.SafehouseId);
+        if (!safehouseExists)
+        {
+            return BadRequest(new
+            {
+                message = "Safehouse not found for the given id.",
+                errors = new Dictionary<string, string> { ["safehouseId"] = "Not found" },
+            });
+        }
+
+        var dob = ParseOptionalDateOnly(body.DateOfBirth);
+        var residentId = await _beaconContext.AllocateNextResidentIdAsync();
+        var resident = new Resident
+        {
+            ResidentId = residentId,
+            FirstName = NullIfWhiteSpace(body.FirstName),
+            LastInitial = NullIfWhiteSpace(body.LastInitial),
+            CaseControlNo = NullIfWhiteSpace(body.CaseControlNo),
+            InternalCode = NullIfWhiteSpace(body.InternalCode),
+            SafehouseId = body.SafehouseId,
+            CaseStatus = NullIfWhiteSpace(body.CaseStatus),
+            Sex = NullIfWhiteSpace(body.Sex),
+            DateOfBirth = dob,
+            BirthStatus = NullIfWhiteSpace(body.BirthStatus),
+            PlaceOfBirth = NullIfWhiteSpace(body.PlaceOfBirth),
+        };
+
         _beaconContext.Residents.Add(resident);
-        await _beaconContext.SaveChangesAsync();
+        try
+        {
+            await _beaconContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "CreateResident: database insert failed");
+            return Problem(
+                title: "Could not create resident",
+                detail: "The database rejected this insert. Check logs for details.",
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
         return Created($"/residents/{resident.ResidentId}", resident);
     }
 
@@ -1578,6 +1629,16 @@ public class BeaconController : ControllerBase
 
     private static string? NullIfWhiteSpace(string? s) =>
         string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private static DateOnly? ParseOptionalDateOnly(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+        var t = value.Trim();
+        if (t.Length >= 10 && DateOnly.TryParse(t.AsSpan(0, 10), out var fromIsoDate))
+            return fromIsoDate;
+        return DateOnly.TryParse(t, out var parsed) ? parsed : null;
+    }
 
     private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>
         fromDb.Concat(defaults).Distinct(StringComparer.OrdinalIgnoreCase)

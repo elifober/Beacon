@@ -25,10 +25,29 @@ function buildResidentJsonBody(resident: ResidentInput): Record<string, unknown>
     safehouseId: resident.safehouseId,
     caseStatus: resident.caseStatus?.trim() || null,
     sex: resident.sex?.trim() || null,
-    dateOfBirth: dob ? dob : null,
+    // API accepts ISO date string or null (not DateOnly JSON object).
+    dateOfBirth: dob ? dob.slice(0, 10) : null,
     birthStatus: resident.birthStatus?.trim() || null,
     placeOfBirth: resident.placeOfBirth?.trim() || null,
   };
+}
+
+function messageFromBeaconErrorPayload(payload: unknown, fallback: string): string {
+  if (!payload || typeof payload !== "object") return fallback;
+  const o = payload as Record<string, unknown>;
+  const detail = o.detail;
+  if (typeof detail === "string" && detail.length > 0) return detail;
+  const message = o.message;
+  if (typeof message === "string" && message.length > 0) return message;
+  const title = o.title;
+  if (typeof title === "string" && title.length > 0) return title;
+  const errors = o.errors;
+  if (errors && typeof errors === "object") {
+    for (const v of Object.values(errors as Record<string, unknown>)) {
+      if (typeof v === "string" && v.length > 0) return v;
+    }
+  }
+  return fallback;
 }
 
 export const getResidentList = async (): Promise<ResidentList[]> => {
@@ -57,8 +76,18 @@ export async function createResident(resident: ResidentInput): Promise<Resident>
     },
     body: JSON.stringify(buildResidentJsonBody(resident)),
   });
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  const raw = await response.text();
+  let payload: unknown = null;
+  if (raw.trim()) {
+    try {
+      payload = JSON.parse(raw) as unknown;
+    } catch {
+      payload = null;
+    }
   }
-  return response.json();
+  if (!response.ok) {
+    const fallback = `Request failed (${response.status})`;
+    throw new Error(messageFromBeaconErrorPayload(payload, fallback));
+  }
+  return payload as Resident;
 }

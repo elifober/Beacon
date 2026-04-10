@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Safehouse } from "../types/Safehouse";
 import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
+import {
+  CreateSafehouseModal,
+  type SafehouseModalInitial,
+} from "../components/admin/AdminCreateEntityModals";
 
 interface SafehousePageData {
   safehouse: Safehouse;
@@ -14,6 +18,7 @@ function SafehousePage() {
   const [data, setData] = useState<SafehousePageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -30,6 +35,40 @@ function SafehousePage() {
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const reloadSafehouse = async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`${BASE_URL}/Safehouse/${id}`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      if (!res.ok) return;
+      setData(await res.json());
+    } catch {
+      /* keep existing */
+    }
+  };
+
+  const safehouseModalInitial = useMemo((): SafehouseModalInitial | null => {
+    if (!data?.safehouse) return null;
+    const s = data.safehouse;
+    return {
+      name: s.name ?? "",
+      region: s.region ?? "",
+      city: s.city ?? "",
+      province: s.province ?? "",
+      country: s.country ?? "",
+      openDate: s.openDate ?? "",
+      status: s.status ?? "",
+      capacityGirls:
+        s.capacityGirls != null ? String(s.capacityGirls) : "",
+      capacityStaff:
+        s.capacityStaff != null ? String(s.capacityStaff) : "",
+      currentOccupancy:
+        s.currentOccupancy != null ? String(s.currentOccupancy) : "",
+    };
+  }, [data]);
 
   if (loading) {
     return (
@@ -63,18 +102,36 @@ function SafehousePage() {
 
   return (
     <div className="beacon-page container py-4">
+      {safehouseModalInitial && id ? (
+        <CreateSafehouseModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => void reloadSafehouse()}
+          editSafehouseId={Number(id)}
+          initialSafehouse={safehouseModalInitial}
+        />
+      ) : null}
       <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
         <div>
           <p className="landing-section__eyebrow mb-2">Safehouse</p>
           <h1 className="mb-0">{safehouse.name}</h1>
         </div>
-        <AdminDeleteRecordButton
-          entity="Safehouse"
-          id={id}
-          label="Delete safehouse"
-          confirmMessage={`Delete safehouse "${safehouse.name}" (ID ${id})? Depending on the database, related residents and other rows may be removed too. This cannot be undone.`}
-          redirectTo="/admin/all-safehouses"
-        />
+        <div className="d-flex flex-wrap gap-2 align-items-start">
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={() => setEditOpen(true)}
+          >
+            Edit safehouse
+          </button>
+          <AdminDeleteRecordButton
+            entity="Safehouse"
+            id={id}
+            label="Delete safehouse"
+            confirmMessage={`Delete safehouse "${safehouse.name}" (ID ${id})? Depending on the database, related residents and other rows may be removed too. This cannot be undone.`}
+            redirectTo="/admin/all-safehouses"
+          />
+        </div>
       </div>
 
       <div className="card beacon-detail-card mb-4">

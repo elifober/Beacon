@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../../config/api";
-import { createResident, type ResidentInput } from "../../api/Residents";
+import { createResident, updateResident, type ResidentInput } from "../../api/Residents";
 import type { Safehouse } from "../../types/Safehouse";
 import {
   ENTITY_ACTIVE_INACTIVE_OPTIONS,
@@ -13,8 +13,11 @@ import {
 } from "../../constants/residentCreateForm";
 import { ResidentRecordModal } from "../resident/ResidentRecordModal";
 import {
+  dateForDateInput,
+  mergePicklistOption,
   messageFromJsonPayload,
   postBeaconJson,
+  putBeaconJson,
   readResponseJson,
 } from "../resident/residentRecordFormUtils";
 
@@ -47,10 +50,22 @@ function safehouseCityOptionLabel(s: Safehouse): string {
 type ModalShellProps = {
   open: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onSaved: () => void;
 };
 
-export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProps) {
+type CreateResidentModalProps = ModalShellProps & {
+  /** When set, modal updates this resident instead of creating. */
+  editResidentId?: number | null;
+  initialResident?: Partial<ResidentInput> | null;
+};
+
+export function CreateResidentModal({
+  open,
+  onClose,
+  onSaved,
+  editResidentId = null,
+  initialResident = null,
+}: CreateResidentModalProps) {
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [form, setForm] = useState<ResidentInput>(emptyResidentForm);
   const [submitting, setSubmitting] = useState(false);
@@ -66,15 +81,38 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
     });
   }, [safehouses]);
 
+  const isEdit = editResidentId != null;
+
   useEffect(() => {
     if (!open) return;
-    setForm(emptyResidentForm);
     setError(null);
+    if (isEdit && initialResident) {
+      setForm({
+        ...emptyResidentForm,
+        firstName: initialResident.firstName ?? "",
+        lastInitial: initialResident.lastInitial ?? "",
+        caseControlNo: initialResident.caseControlNo ?? "",
+        internalCode: initialResident.internalCode ?? "",
+        safehouseId: initialResident.safehouseId ?? 0,
+        caseStatus: initialResident.caseStatus ?? "",
+        sex:
+          initialResident.sex === "M" || initialResident.sex === "F"
+            ? initialResident.sex
+            : "",
+        dateOfBirth: initialResident.dateOfBirth
+          ? initialResident.dateOfBirth.slice(0, 10)
+          : "",
+        initialRiskLevel: initialResident.initialRiskLevel ?? "",
+        currentRiskLevel: initialResident.currentRiskLevel ?? "",
+      });
+    } else {
+      setForm(emptyResidentForm);
+    }
     fetch(`${BASE_URL}/Safehouses`, { credentials: "include" })
       .then((r) => r.json())
       .then((data: Safehouse[]) => setSafehouses(Array.isArray(data) ? data : []))
       .catch(() => setSafehouses([]));
-  }, [open]);
+  }, [open, isEdit, initialResident]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -93,18 +131,33 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
     }
     setSubmitting(true);
     try {
-      await createResident(form);
-      onCreated();
+      if (isEdit) {
+        await updateResident(editResidentId, form);
+      } else {
+        await createResident(form);
+      }
+      onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create resident.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEdit
+            ? "Could not update resident."
+            : "Could not create resident.",
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <ResidentRecordModal title="New resident" open={open} onClose={onClose} narrow>
+    <ResidentRecordModal
+      title={isEdit ? "Edit resident" : "New resident"}
+      open={open}
+      onClose={onClose}
+      narrow
+    >
       <form className="p-4" onSubmit={onSubmit}>
         {error ? <div className="alert alert-danger py-2">{error}</div> : null}
 
@@ -119,13 +172,15 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             className="form-control"
             readOnly
             disabled
-            value=""
-            placeholder="Assigned on save"
+            value={isEdit ? String(editResidentId) : ""}
+            placeholder={isEdit ? undefined : "Assigned on save"}
             autoComplete="off"
             aria-describedby="create-res-id-help"
           />
           <div id="create-res-id-help" className="form-text">
-            The next id is assigned on the server when you save (sequential key — not entered here).
+            {isEdit
+              ? "Resident primary key (read-only)."
+              : "The next id is assigned on the server when you save (sequential key — not entered here)."}
           </div>
         </div>
 
@@ -344,7 +399,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             Cancel
           </button>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Saving…" : "Create resident"}
+            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create resident"}
           </button>
         </div>
       </form>
@@ -352,7 +407,30 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
   );
 }
 
-export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps) {
+export type PartnerModalInitial = {
+  partnerName: string;
+  partnerType: string;
+  roleType: string;
+  email: string;
+  phone: string;
+  region: string;
+  status: string;
+  startDate: string;
+  notes: string;
+};
+
+type CreatePartnerModalProps = ModalShellProps & {
+  editPartnerId?: number | null;
+  initialPartner?: PartnerModalInitial | null;
+};
+
+export function CreatePartnerModal({
+  open,
+  onClose,
+  onSaved,
+  editPartnerId = null,
+  initialPartner = null,
+}: CreatePartnerModalProps) {
   const [partnerName, setPartnerName] = useState("");
   const [partnerType, setPartnerType] = useState("");
   const [roleType, setRoleType] = useState("");
@@ -365,19 +443,45 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEdit = editPartnerId != null;
+  const partnerTypeChoices = useMemo(
+    () => mergePicklistOption([...PARTNER_TYPE_OPTIONS], partnerType),
+    [partnerType],
+  );
+  const roleTypeChoices = useMemo(
+    () => mergePicklistOption([...PARTNER_ROLE_TYPE_OPTIONS], roleType),
+    [roleType],
+  );
+  const statusChoices = useMemo(
+    () => mergePicklistOption([...ENTITY_ACTIVE_INACTIVE_OPTIONS], status),
+    [status],
+  );
+
   useEffect(() => {
     if (!open) return;
-    setPartnerName("");
-    setPartnerType("");
-    setRoleType("");
-    setEmail("");
-    setPhone("");
-    setRegion("");
-    setStatus("");
-    setStartDate("");
-    setNotes("");
     setError(null);
-  }, [open]);
+    if (isEdit && initialPartner) {
+      setPartnerName(initialPartner.partnerName);
+      setPartnerType(initialPartner.partnerType);
+      setRoleType(initialPartner.roleType);
+      setEmail(initialPartner.email);
+      setPhone(initialPartner.phone);
+      setRegion(initialPartner.region);
+      setStatus(initialPartner.status);
+      setStartDate(dateForDateInput(initialPartner.startDate));
+      setNotes(initialPartner.notes);
+    } else {
+      setPartnerName("");
+      setPartnerType("");
+      setRoleType("");
+      setEmail("");
+      setPhone("");
+      setRegion("");
+      setStatus("");
+      setStartDate("");
+      setNotes("");
+    }
+  }, [open, isEdit, initialPartner]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -403,23 +507,36 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
         startDate: startDate.trim() || null,
         notes: notes.trim() || null,
       };
-      const res = await postBeaconJson("Partners", body);
+      const res = isEdit
+        ? await putBeaconJson(`Partners/${editPartnerId}`, body)
+        : await postBeaconJson("Partners", body);
       const { payload } = await readResponseJson(res);
       if (!res.ok) {
         setError(messageFromJsonPayload(payload, `Request failed (${res.status})`));
         return;
       }
-      onCreated();
+      onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create partner.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEdit
+            ? "Could not update partner."
+            : "Could not create partner.",
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <ResidentRecordModal title="New partner" open={open} onClose={onClose} narrow>
+    <ResidentRecordModal
+      title={isEdit ? "Edit partner" : "New partner"}
+      open={open}
+      onClose={onClose}
+      narrow
+    >
       <form className="p-4" onSubmit={onSubmit}>
         {error ? <div className="alert alert-danger py-2">{error}</div> : null}
         <div className="mb-3">
@@ -433,11 +550,15 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             className="form-control"
             readOnly
             disabled
-            value=""
-            placeholder="Assigned on save"
+            value={isEdit ? String(editPartnerId) : ""}
+            placeholder={isEdit ? undefined : "Assigned on save"}
             autoComplete="off"
           />
-          <div className="form-text">The database assigns the next partner id when you save.</div>
+          <div className="form-text">
+            {isEdit
+              ? "Partner primary key (read-only)."
+              : "The database assigns the next partner id when you save."}
+          </div>
         </div>
         <div className="mb-3">
           <label className="form-label" htmlFor="create-par-name">
@@ -467,7 +588,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
               onChange={(e) => setPartnerType(e.target.value)}
             >
               <option value="">—</option>
-              {PARTNER_TYPE_OPTIONS.map((opt) => (
+              {partnerTypeChoices.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -486,7 +607,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
               onChange={(e) => setRoleType(e.target.value)}
             >
               <option value="">—</option>
-              {PARTNER_ROLE_TYPE_OPTIONS.map((opt) => (
+              {roleTypeChoices.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -552,7 +673,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
               <option value="" disabled>
                 Select status…
               </option>
-              {ENTITY_ACTIVE_INACTIVE_OPTIONS.map((opt) => (
+              {statusChoices.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -593,7 +714,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             Cancel
           </button>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Saving…" : "Create partner"}
+            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create partner"}
           </button>
         </div>
       </form>
@@ -601,7 +722,31 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
   );
 }
 
-export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellProps) {
+export type SafehouseModalInitial = {
+  name: string;
+  region: string;
+  city: string;
+  province: string;
+  country: string;
+  openDate: string;
+  status: string;
+  capacityGirls: string;
+  capacityStaff: string;
+  currentOccupancy: string;
+};
+
+type CreateSafehouseModalProps = ModalShellProps & {
+  editSafehouseId?: number | null;
+  initialSafehouse?: SafehouseModalInitial | null;
+};
+
+export function CreateSafehouseModal({
+  open,
+  onClose,
+  onSaved,
+  editSafehouseId = null,
+  initialSafehouse = null,
+}: CreateSafehouseModalProps) {
   const [name, setName] = useState("");
   const [region, setRegion] = useState("");
   const [city, setCity] = useState("");
@@ -615,20 +760,39 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEdit = editSafehouseId != null;
+  const safehouseStatusChoices = useMemo(
+    () => mergePicklistOption([...ENTITY_ACTIVE_INACTIVE_OPTIONS], status),
+    [status],
+  );
+
   useEffect(() => {
     if (!open) return;
-    setName("");
-    setRegion("");
-    setCity("");
-    setProvince("");
-    setCountry("");
-    setOpenDate("");
-    setStatus("");
-    setCapacityGirls("");
-    setCapacityStaff("");
-    setCurrentOccupancy("");
     setError(null);
-  }, [open]);
+    if (isEdit && initialSafehouse) {
+      setName(initialSafehouse.name);
+      setRegion(initialSafehouse.region);
+      setCity(initialSafehouse.city);
+      setProvince(initialSafehouse.province);
+      setCountry(initialSafehouse.country);
+      setOpenDate(dateForDateInput(initialSafehouse.openDate));
+      setStatus(initialSafehouse.status);
+      setCapacityGirls(initialSafehouse.capacityGirls);
+      setCapacityStaff(initialSafehouse.capacityStaff);
+      setCurrentOccupancy(initialSafehouse.currentOccupancy);
+    } else {
+      setName("");
+      setRegion("");
+      setCity("");
+      setProvince("");
+      setCountry("");
+      setOpenDate("");
+      setStatus("");
+      setCapacityGirls("");
+      setCapacityStaff("");
+      setCurrentOccupancy("");
+    }
+  }, [open, isEdit, initialSafehouse]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -670,23 +834,36 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
         capacityStaff: capS,
         currentOccupancy: occ,
       };
-      const res = await postBeaconJson("Safehouses", body);
+      const res = isEdit
+        ? await putBeaconJson(`Safehouses/${editSafehouseId}`, body)
+        : await postBeaconJson("Safehouses", body);
       const { payload } = await readResponseJson(res);
       if (!res.ok) {
         setError(messageFromJsonPayload(payload, `Request failed (${res.status})`));
         return;
       }
-      onCreated();
+      onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create safehouse.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEdit
+            ? "Could not update safehouse."
+            : "Could not create safehouse.",
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <ResidentRecordModal title="New safehouse" open={open} onClose={onClose} narrow>
+    <ResidentRecordModal
+      title={isEdit ? "Edit safehouse" : "New safehouse"}
+      open={open}
+      onClose={onClose}
+      narrow
+    >
       <form className="p-4" onSubmit={onSubmit}>
         {error ? <div className="alert alert-danger py-2">{error}</div> : null}
         <div className="mb-3">
@@ -700,12 +877,14 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             className="form-control"
             readOnly
             disabled
-            value=""
-            placeholder="Assigned on save"
+            value={isEdit ? String(editSafehouseId) : ""}
+            placeholder={isEdit ? undefined : "Assigned on save"}
             autoComplete="off"
           />
           <div className="form-text">
-            Safehouse code is assigned on save (e.g. SH-12 for id 12).
+            {isEdit
+              ? "Safehouse primary key (read-only). Safehouse code is not changed when you edit."
+              : "Safehouse code is assigned on save (e.g. SH-12 for id 12)."}
           </div>
         </div>
         <div className="mb-3">
@@ -808,7 +987,7 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
               <option value="" disabled>
                 Select status…
               </option>
-              {ENTITY_ACTIVE_INACTIVE_OPTIONS.map((opt) => (
+              {safehouseStatusChoices.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -865,7 +1044,272 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             Cancel
           </button>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Saving…" : "Create safehouse"}
+            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create safehouse"}
+          </button>
+        </div>
+      </form>
+    </ResidentRecordModal>
+  );
+}
+
+export type DonorModalInitial = {
+  supporterType: string;
+  firstName: string;
+  lastName: string;
+  relationshipType: string;
+  region: string;
+  email: string;
+  phone: string;
+  status: string;
+  acquisitionChannel: string;
+};
+
+type EditDonorModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+  supporterId: number;
+  initialDonor: DonorModalInitial;
+};
+
+/** Admin edit donor/supporter — same field set as admin create (Supporters POST). */
+export function EditDonorModal({
+  open,
+  onClose,
+  onSaved,
+  supporterId,
+  initialDonor,
+}: EditDonorModalProps) {
+  const [supporterType, setSupporterType] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [relationshipType, setRelationshipType] = useState("");
+  const [region, setRegion] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("");
+  const [acquisitionChannel, setAcquisitionChannel] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const donorStatusChoices = useMemo(
+    () => mergePicklistOption([...ENTITY_ACTIVE_INACTIVE_OPTIONS], status),
+    [status],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+    setSupporterType(initialDonor.supporterType);
+    setFirstName(initialDonor.firstName);
+    setLastName(initialDonor.lastName);
+    setRelationshipType(initialDonor.relationshipType);
+    setRegion(initialDonor.region);
+    setEmail(initialDonor.email);
+    setPhone(initialDonor.phone);
+    setStatus(initialDonor.status || "Active");
+    setAcquisitionChannel(initialDonor.acquisitionChannel);
+  }, [open, initialDonor]);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("First name and last name are required.");
+      return;
+    }
+    if (!status) {
+      setError("Choose Active or Inactive.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const body = {
+        supporterType: supporterType.trim() || null,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        relationshipType: relationshipType.trim() || null,
+        region: region.trim() || null,
+        email: email.trim() || null,
+        phone: phone.trim() || null,
+        status: status.trim() || null,
+        acquisitionChannel: acquisitionChannel.trim() || null,
+      };
+      const res = await putBeaconJson(`Donor/${supporterId}`, body);
+      const { payload } = await readResponseJson(res);
+      if (!res.ok) {
+        setError(messageFromJsonPayload(payload, `Request failed (${res.status})`));
+        return;
+      }
+      onSaved();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update donor.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <ResidentRecordModal title="Edit donor" open={open} onClose={onClose} narrow>
+      <form className="p-4" onSubmit={onSubmit}>
+        {error ? <div className="alert alert-danger py-2">{error}</div> : null}
+        <div className="mb-3">
+          <label className="form-label" htmlFor="edit-donor-id">
+            Supporter ID
+          </label>
+          <input
+            id="edit-donor-id"
+            name="edit-donor-id"
+            type="text"
+            className="form-control"
+            readOnly
+            disabled
+            value={String(supporterId)}
+            autoComplete="off"
+          />
+        </div>
+        <div className="row g-2 mb-2">
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-fn">
+              First name <span className="text-danger">*</span>
+            </label>
+            <input
+              id="edit-donor-fn"
+              name="edit-donor-fn"
+              className="form-control"
+              required
+              autoComplete="given-name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-ln">
+              Last name <span className="text-danger">*</span>
+            </label>
+            <input
+              id="edit-donor-ln"
+              name="edit-donor-ln"
+              className="form-control"
+              required
+              autoComplete="family-name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="form-label" htmlFor="edit-donor-stype">
+            Supporter type
+          </label>
+          <input
+            id="edit-donor-stype"
+            name="edit-donor-stype"
+            className="form-control"
+            autoComplete="off"
+            value={supporterType}
+            onChange={(e) => setSupporterType(e.target.value)}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label" htmlFor="edit-donor-rel">
+            Relationship type
+          </label>
+          <input
+            id="edit-donor-rel"
+            name="edit-donor-rel"
+            className="form-control"
+            autoComplete="off"
+            value={relationshipType}
+            onChange={(e) => setRelationshipType(e.target.value)}
+          />
+        </div>
+        <div className="row g-2 mb-2">
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-email">
+              Email
+            </label>
+            <input
+              id="edit-donor-email"
+              name="edit-donor-email"
+              type="email"
+              className="form-control"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-phone">
+              Phone
+            </label>
+            <input
+              id="edit-donor-phone"
+              name="edit-donor-phone"
+              className="form-control"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="row g-2 mb-2">
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-region">
+              Region
+            </label>
+            <input
+              id="edit-donor-region"
+              name="edit-donor-region"
+              className="form-control"
+              autoComplete="address-level1"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="edit-donor-status">
+              Status <span className="text-danger">*</span>
+            </label>
+            <select
+              id="edit-donor-status"
+              name="edit-donor-status"
+              className="form-select"
+              required
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="" disabled>
+                Select status…
+              </option>
+              {donorStatusChoices.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="form-label" htmlFor="edit-donor-acq">
+            Acquisition channel
+          </label>
+          <input
+            id="edit-donor-acq"
+            name="edit-donor-acq"
+            className="form-control"
+            autoComplete="off"
+            value={acquisitionChannel}
+            onChange={(e) => setAcquisitionChannel(e.target.value)}
+          />
+        </div>
+        <div className="d-flex gap-2 justify-content-end">
+          <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? "Saving…" : "Save changes"}
           </button>
         </div>
       </form>

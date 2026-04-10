@@ -242,7 +242,7 @@ function AdminAllResidentsPage() {
       <CreateResidentModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onCreated={() => setRefreshList((n) => n + 1)}
+        onSaved={() => setRefreshList((n) => n + 1)}
       />
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search residents by name, ID, safehouse, status, or risk..." />

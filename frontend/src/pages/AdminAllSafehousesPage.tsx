@@ -73,7 +73,7 @@ function AdminAllSafehousesPage() {
       <CreateSafehouseModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        onCreated={() => setRefreshList((n) => n + 1)}
+        onSaved={() => setRefreshList((n) => n + 1)}
       />
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search safehouses by city, province, country, or status..." />

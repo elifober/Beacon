@@ -90,3 +90,31 @@ export async function createResident(resident: ResidentInput): Promise<Resident>
   }
   return payload as Resident;
 }
+
+export async function updateResident(
+  residentId: number | string,
+  resident: ResidentInput,
+): Promise<void> {
+  const response = await fetch(`${BASE_URL}/Resident/${residentId}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(buildResidentJsonBody(resident)),
+  });
+  const raw = await response.text();
+  let payload: unknown = null;
+  if (raw.trim()) {
+    try {
+      payload = JSON.parse(raw) as unknown;
+    } catch {
+      payload = null;
+    }
+  }
+  if (!response.ok) {
+    const fallback = `Request failed (${response.status})`;
+    throw new Error(messageFromBeaconErrorPayload(payload, fallback));
+  }
+}

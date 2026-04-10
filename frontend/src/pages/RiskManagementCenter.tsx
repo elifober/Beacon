@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
   getResidentRisks,
@@ -209,7 +209,7 @@ export default function RiskManagementCenter() {
                 <span className="risk-distribution__hint">Click a segment to drill into that group</span>
               </div>
 
-              <StackedBandRow
+              <DonutBandRow
                 label="Incident risk (residents)"
                 bands={[
                   {
@@ -223,7 +223,7 @@ export default function RiskManagementCenter() {
                 ]}
               />
 
-              <StackedBandRow
+              <DonutBandRow
                 label="Reintegration readiness (residents)"
                 bands={[
                   {
@@ -237,7 +237,7 @@ export default function RiskManagementCenter() {
                 ]}
               />
 
-              <StackedBandRow
+              <DonutBandRow
                 label="Supporter churn risk"
                 bands={[
                   {
@@ -447,28 +447,52 @@ function SummaryCard({
   );
 }
 
-function StackedBandRow({ label, bands }: { label: string; bands: BandCount[] }) {
+function DonutBandRow({ label, bands }: { label: string; bands: BandCount[] }) {
   const total = bands.reduce((acc, b) => acc + b.count, 0);
+  const slices = bands.map((b) => (total > 0 ? (b.count / total) * 100 : 0));
+  const highSlice = slices.find((_, i) => bands[i]?.tone === "high") ?? 0;
+  const mediumSlice = slices.find((_, i) => bands[i]?.tone === "medium") ?? 0;
+  const lowSlice = slices.find((_, i) => bands[i]?.tone === "low") ?? 0;
+  const donutStyle = {
+    "--risk-high": `${highSlice}%`,
+    "--risk-medium": `${mediumSlice}%`,
+    "--risk-low": `${lowSlice}%`,
+  } as CSSProperties;
+
   return (
     <div className="risk-distribution__row">
       <div className="risk-distribution__label">{label}</div>
-      <div className="risk-distribution__stack" role="img" aria-label={`${label}: ${bands.map((b) => `${b.label} ${b.count}`).join(", ")}`}>
+      <div
+        className="risk-distribution__donut-wrap"
+        role="img"
+        aria-label={`${label}: ${bands.map((b) => `${b.label} ${b.count}`).join(", ")}`}
+      >
+        <div className="risk-distribution__donut" style={donutStyle}>
+          <div className="risk-distribution__donut-center">
+            <span className="risk-distribution__donut-total">{total}</span>
+            <span className="risk-distribution__donut-total-label">Total</span>
+          </div>
+        </div>
+        <div className="risk-distribution__legend">
         {bands.map((b) => {
-          const pct = total > 0 ? (b.count / total) * 100 : 0;
+          const ratio = total > 0 ? Math.round((b.count / total) * 100) : 0;
           return (
             <button
               key={b.label}
               type="button"
-              className={`risk-distribution__segment risk-distribution__segment--${b.tone} ${b.onClick ? "risk-distribution__segment--clickable" : ""}`}
-              style={{ width: `${Math.max(pct, 4)}%` }}
+              className={`risk-distribution__legend-item risk-distribution__legend-item--${b.tone} ${b.onClick ? "risk-distribution__legend-item--clickable" : ""}`}
               onClick={b.onClick}
               disabled={!b.onClick || b.count === 0}
-              title={`${b.label}: ${b.count}`}
+              title={`${b.label}: ${b.count} (${ratio}%)`}
             >
-              <span>{b.label} {b.count}</span>
+              <span className="risk-distribution__legend-dot" aria-hidden="true" />
+              <span className="risk-distribution__legend-text">{b.label}</span>
+              <span className="risk-distribution__legend-count">{b.count}</span>
+              <span className="risk-distribution__legend-ratio">{ratio}%</span>
             </button>
           );
         })}
+        </div>
       </div>
     </div>
   );

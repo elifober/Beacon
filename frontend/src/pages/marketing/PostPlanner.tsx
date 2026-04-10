@@ -1,5 +1,5 @@
 // src/pages/marketing/PostPlanner.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   predictPostSuccess,
   type PostPredictionRequest,
@@ -57,6 +57,52 @@ function formatHour12(hour24: number): string {
   return `${hour12}:00 ${suffix}`;
 }
 
+type WeeklySuggestion = {
+  day: string;
+  hour: number;
+  confidence: number;
+  reason: string;
+};
+
+const DAY_WEIGHTS: Record<string, number[]> = {
+  Facebook: [0.66, 0.71, 0.76, 0.78, 0.81, 0.69, 0.62],
+  Instagram: [0.68, 0.74, 0.79, 0.82, 0.84, 0.73, 0.65],
+  Twitter: [0.7, 0.75, 0.77, 0.79, 0.76, 0.64, 0.6],
+  TikTok: [0.72, 0.73, 0.75, 0.77, 0.79, 0.86, 0.82],
+  YouTube: [0.64, 0.7, 0.73, 0.76, 0.8, 0.83, 0.78],
+};
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+function getWeeklySuggestion(
+  platform: string,
+  postType: string,
+  hourPreview: { hour: number; probability: number }[],
+): WeeklySuggestion | null {
+  if (!hourPreview.length) return null;
+  const bestHourPoint = [...hourPreview].sort((a, b) => b.probability - a.probability)[0];
+  if (!bestHourPoint) return null;
+  const weights = DAY_WEIGHTS[platform] ?? DAY_WEIGHTS.Facebook;
+  let bestDayIdx = 0;
+  let bestScore = -1;
+  weights.forEach((weight, idx) => {
+    const score = (weight * 0.6) + (bestHourPoint.probability * 0.4);
+    if (score > bestScore) {
+      bestScore = score;
+      bestDayIdx = idx;
+    }
+  });
+  const reason =
+    postType === "Story" || postType === "Reel"
+      ? "Short-form content tends to perform best near end-of-week momentum."
+      : "Engagement trend and your strongest hour align best on this day.";
+  return {
+    day: DAY_NAMES[bestDayIdx],
+    hour: bestHourPoint.hour,
+    confidence: Math.min(0.95, bestScore),
+    reason,
+  };
+}
+
 export default function PostPlanner() {
   const [req, setReq] = useState<PostPredictionRequest>(defaultReq);
   const [result, setResult] = useState<PostPredictionResponse | null>(null);
@@ -108,6 +154,10 @@ export default function PostPlanner() {
   ) => setReq((r) => ({ ...r, [key]: value }));
 
   const tone = result ? riskTone(result.riskBand) : null;
+  const weeklySuggestion = useMemo(
+    () => getWeeklySuggestion(req.platform, req.postType, hourPreview),
+    [req.platform, req.postType, hourPreview],
+  );
 
   return (
     <div className="admin-dashboard beacon-page">
@@ -139,6 +189,10 @@ export default function PostPlanner() {
           <div className="row g-4">
             <div className="col-lg-6">
               <div className="post-planner__form-card h-100">
+                <div className="post-planner__form-head">
+                  <h3>Post Setup</h3>
+                  <p className="mb-0">Adjust your inputs to forecast likely engagement.</p>
+                </div>
                 <div className="post-planner__form-grid">
                   <Select label="Platform" value={req.platform} options={PLATFORMS} onChange={(v) => update("platform", v)} />
                   <Select label="Post Type" value={req.postType} options={POST_TYPES} onChange={(v) => update("postType", v)} />
@@ -191,6 +245,17 @@ export default function PostPlanner() {
 
                     <hr className="border-opacity-25 my-3" />
                     <h4>Best posting windows</h4>
+                    {weeklySuggestion ? (
+                      <div className="post-planner__weekly-suggestion">
+                        <p className="post-planner__weekly-suggestion-kicker mb-1">Suggestion of the week</p>
+                        <div className="post-planner__weekly-suggestion-main">
+                          <strong>{weeklySuggestion.day}</strong>
+                          <span>{formatHour12(weeklySuggestion.hour)}</span>
+                          <em>{Math.round(weeklySuggestion.confidence * 100)}% fit</em>
+                        </div>
+                        <p className="mb-0">{weeklySuggestion.reason}</p>
+                      </div>
+                    ) : null}
                     {hourPreviewLoading ? (
                       <p className="mb-0">Checking time slots…</p>
                     ) : (

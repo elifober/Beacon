@@ -1,7 +1,11 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { BASE_URL } from "../../config/api";
 import { createResident, type ResidentInput } from "../../api/Residents";
 import type { Safehouse } from "../../types/Safehouse";
+import {
+  RESIDENT_CASE_STATUS_OPTIONS,
+  RESIDENT_RISK_LEVEL_OPTIONS,
+} from "../../constants/residentCreateForm";
 import { ResidentRecordModal } from "../resident/ResidentRecordModal";
 import {
   messageFromJsonPayload,
@@ -10,17 +14,28 @@ import {
 } from "../resident/residentRecordFormUtils";
 
 const emptyResidentForm: ResidentInput = {
-  firstName: "",
-  lastInitial: "",
   caseControlNo: "",
   internalCode: "",
   safehouseId: 0,
   caseStatus: "",
   sex: "",
   dateOfBirth: "",
-  birthStatus: "",
-  placeOfBirth: "",
+  initialRiskLevel: "",
+  currentRiskLevel: "",
 };
+
+function safehouseCityOptionLabel(s: Safehouse): string {
+  const city = (s.city ?? "").trim();
+  const name = (s.name ?? "").trim();
+  const code = (s.safehouseCode ?? "").trim();
+  if (city) {
+    const extra =
+      name && name.toLowerCase() !== city.toLowerCase() ? ` — ${name}` : "";
+    return `${city}${extra}`;
+  }
+  if (name) return name;
+  return code || `Safehouse ${s.safehouseId}`;
+}
 
 type ModalShellProps = {
   open: boolean;
@@ -33,6 +48,16 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
   const [form, setForm] = useState<ResidentInput>(emptyResidentForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const safehousesSorted = useMemo(() => {
+    return [...safehouses].sort((a, b) => {
+      const labelA = safehouseCityOptionLabel(a);
+      const labelB = safehouseCityOptionLabel(b);
+      const byLabel = labelA.localeCompare(labelB, undefined, { sensitivity: "base" });
+      if (byLabel !== 0) return byLabel;
+      return a.safehouseId - b.safehouseId;
+    });
+  }, [safehouses]);
 
   useEffect(() => {
     if (!open) return;
@@ -48,7 +73,15 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
     e.preventDefault();
     setError(null);
     if (!form.safehouseId || form.safehouseId <= 0) {
-      setError("Choose a safehouse.");
+      setError("Choose a safehouse (by city).");
+      return;
+    }
+    if (!form.caseStatus.trim()) {
+      setError("Choose a status.");
+      return;
+    }
+    if (form.sex !== "M" && form.sex !== "F") {
+      setError("Select sex (M or F).");
       return;
     }
     setSubmitting(true);
@@ -67,12 +100,60 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
     <ResidentRecordModal title="New resident" open={open} onClose={onClose} narrow>
       <form className="p-4" onSubmit={onSubmit}>
         {error ? <div className="alert alert-danger py-2">{error}</div> : null}
-        <p className="small text-muted mb-3">
-          Resident ID is assigned automatically. Safehouse is required in the database.
-        </p>
+
+        <div className="mb-3">
+          <label className="form-label" htmlFor="create-res-id">
+            Resident ID
+          </label>
+          <input
+            id="create-res-id"
+            type="text"
+            className="form-control"
+            readOnly
+            disabled
+            value=""
+            placeholder="Assigned on save"
+            aria-describedby="create-res-id-help"
+          />
+          <div id="create-res-id-help" className="form-text">
+            The next id is assigned on the server when you save (sequential key — not entered here).
+          </div>
+        </div>
+
+        <div className="row g-3 mb-2">
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="create-res-cc">
+              Case control number
+            </label>
+            <input
+              id="create-res-cc"
+              className="form-control"
+              autoComplete="off"
+              value={form.caseControlNo}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, caseControlNo: e.target.value }))
+              }
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label" htmlFor="create-res-ic">
+              Internal code
+            </label>
+            <input
+              id="create-res-ic"
+              className="form-control"
+              autoComplete="off"
+              value={form.internalCode}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, internalCode: e.target.value }))
+              }
+            />
+          </div>
+        </div>
+
         <div className="mb-3">
           <label className="form-label" htmlFor="create-res-sh">
-            Safehouse
+            Safehouse (city)
           </label>
           <select
             id="create-res-sh"
@@ -83,135 +164,130 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
               setForm((f) => ({ ...f, safehouseId: Number(e.target.value) }))
             }
           >
-            <option value="">Select safehouse…</option>
-            {safehouses.map((s) => (
+            <option value="">Select city / safehouse…</option>
+            {safehousesSorted.map((s) => (
               <option key={s.safehouseId} value={s.safehouseId}>
-                {(s.name || s.city || s.safehouseCode) ?? `ID ${s.safehouseId}`}
+                {safehouseCityOptionLabel(s)}
               </option>
             ))}
           </select>
+          <div className="form-text">The value saved to the database is the safehouse ID.</div>
         </div>
-        <div className="row g-2 mb-2">
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-fn">
-              First name
-            </label>
-            <input
-              id="create-res-fn"
-              className="form-control"
-              value={form.firstName ?? ""}
-              onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
-            />
-          </div>
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-li">
-              Last initial
-            </label>
-            <input
-              id="create-res-li"
-              className="form-control"
-              maxLength={8}
-              value={form.lastInitial ?? ""}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, lastInitial: e.target.value }))
-              }
-            />
-          </div>
-        </div>
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-cc">
-            Case control no.
-          </label>
-          <input
-            id="create-res-cc"
-            className="form-control"
-            value={form.caseControlNo}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, caseControlNo: e.target.value }))
-            }
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-ic">
-            Internal code
-          </label>
-          <input
-            id="create-res-ic"
-            className="form-control"
-            value={form.internalCode}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, internalCode: e.target.value }))
-            }
-          />
-        </div>
-        <div className="row g-2 mb-2">
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-sex">
-              Sex
-            </label>
-            <input
-              id="create-res-sex"
-              className="form-control"
-              value={form.sex}
-              onChange={(e) => setForm((f) => ({ ...f, sex: e.target.value }))}
-            />
-          </div>
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-dob">
-              Date of birth
-            </label>
-            <input
-              id="create-res-dob"
-              type="date"
-              className="form-control"
-              value={form.dateOfBirth?.slice(0, 10) ?? ""}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, dateOfBirth: e.target.value }))
-              }
-            />
-          </div>
-        </div>
+
         <div className="mb-3">
           <label className="form-label" htmlFor="create-res-cs">
-            Case status
+            Status
           </label>
-          <input
+          <select
             id="create-res-cs"
-            className="form-control"
+            className="form-select"
+            required
             value={form.caseStatus}
             onChange={(e) =>
               setForm((f) => ({ ...f, caseStatus: e.target.value }))
             }
+          >
+            <option value="" disabled>
+              Select status…
+            </option>
+            {RESIDENT_CASE_STATUS_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <fieldset className="mb-3">
+          <legend className="form-label mb-2">Sex</legend>
+          <div className="d-flex flex-wrap gap-3">
+            <div className="form-check">
+              <input
+                id="create-res-sex-m"
+                type="radio"
+                className="form-check-input"
+                name="create-res-sex"
+                checked={form.sex === "M"}
+                onChange={() => setForm((f) => ({ ...f, sex: "M" }))}
+              />
+              <label className="form-check-label" htmlFor="create-res-sex-m">
+                M
+              </label>
+            </div>
+            <div className="form-check">
+              <input
+                id="create-res-sex-f"
+                type="radio"
+                className="form-check-input"
+                name="create-res-sex"
+                checked={form.sex === "F"}
+                onChange={() => setForm((f) => ({ ...f, sex: "F" }))}
+              />
+              <label className="form-check-label" htmlFor="create-res-sex-f">
+                F
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        <div className="mb-3">
+          <label className="form-label" htmlFor="create-res-dob">
+            Date of birth
+          </label>
+          <input
+            id="create-res-dob"
+            type="date"
+            className="form-control"
+            value={form.dateOfBirth?.slice(0, 10) ?? ""}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, dateOfBirth: e.target.value }))
+            }
           />
         </div>
-        <div className="row g-2 mb-3">
+
+        <div className="row g-3 mb-3">
           <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-bs">
-              Birth status
+            <label className="form-label" htmlFor="create-res-risk-i">
+              Initial risk
             </label>
-            <input
-              id="create-res-bs"
-              className="form-control"
-              value={form.birthStatus}
+            <select
+              id="create-res-risk-i"
+              className="form-select"
+              value={form.initialRiskLevel}
               onChange={(e) =>
-                setForm((f) => ({ ...f, birthStatus: e.target.value }))
+                setForm((f) => ({ ...f, initialRiskLevel: e.target.value }))
               }
-            />
+            >
+              <option value="">—</option>
+              {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-pob">
-              Place of birth
+            <label className="form-label" htmlFor="create-res-risk-c">
+              Current risk
             </label>
-            <input
-              id="create-res-pob"
-              className="form-control"
-              value={form.placeOfBirth}
+            <select
+              id="create-res-risk-c"
+              className="form-select"
+              value={form.currentRiskLevel}
               onChange={(e) =>
-                setForm((f) => ({ ...f, placeOfBirth: e.target.value }))
+                setForm((f) => ({ ...f, currentRiskLevel: e.target.value }))
               }
-            />
+            >
+              <option value="">—</option>
+              {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+
         <div className="d-flex gap-2 justify-content-end">
           <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
             Cancel

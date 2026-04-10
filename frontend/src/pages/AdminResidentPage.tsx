@@ -1,86 +1,69 @@
-import {type FormEvent, useState, useEffect} from 'react';
-import Navbar from '../components/Navbar';
-import {useAuth} from '../context/AuthContext';
-import {createResident, getManagingResidents, type ResidentInput} from '../api/Residents';
-import type {Resident} from '../types/Resident';
-
-
-
-const emptyResident: ResidentInput = {
-  caseControlNo: '',
-  internalCode: '',
-  safehouseId: 0,
-  caseStatus: '',
-  sex: '',
-  dateOfBirth: '',
-  birthStatus: '',
-  placeOfBirth: '',
-};
+import { type FormEvent, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { useAuth } from "../context/AuthContext";
+import { getManagingResidents } from "../api/Residents";
+import type { Resident } from "../types/Resident";
 
 function AdminResidentPage() {
-  const {authSession, isLoading} = useAuth();
-  const isAdmin = (authSession?.roles ?? []).includes('Admin');
+  const { authSession, isLoading } = useAuth();
+  const isAdmin = (authSession?.roles ?? []).includes("Admin");
   const [resident, setResident] = useState<Resident[]>([]);
-  const [formState, setFormState] = useState<ResidentInput>(emptyResident);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!isLoading && isAdmin) {
-        void loadResidents();
+      void loadResidents();
     }
-}, [isAdmin, isLoading]);
+  }, [isAdmin, isLoading]);
 
-async function loadResidents() {
+  async function loadResidents() {
     try {
-        const data = await getManagingResidents();
-        setResident(data);
+      const data = await getManagingResidents();
+      setResident(data);
     } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : 'Failed to load residents');
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to load residents",
+      );
     }
-}
+  }
 
-async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleRefresh(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-        const data = await createResident(formState);
-        setResident([...resident, data]);
-        setFormState(emptyResident);
-        setSuccessMessage('Resident created successfully');
-    } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : 'Failed to create resident');
-    } finally {
-        setIsSubmitting(false);
-    }
-}
+    setErrorMessage("");
+    await loadResidents();
+  }
 
-
-function updateField<K extends keyof ResidentInput>(
-    key: K, 
-    value: ResidentInput[K]
-) {
-    setFormState((current: ResidentInput) => ({...current, [key]: value}));
-}
-
-return (
-    <div className="flex flex-col items-center justify-center h-screen">
-        <Navbar />
-        <h1 className="text-2xl font-bold">Admin Resident Page</h1>
-        {errorMessage ? <p className="text-red-600">{errorMessage}</p> : null}
-        {successMessage ? <p className="text-green-600">{successMessage}</p> : null}
-        <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center">
-            <input type="text" name="caseControlNo" placeholder="Case Control No" value={formState.caseControlNo} onChange={e => updateField('caseControlNo', e.target.value)} />
-            <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Create resident'}
-            </button>
-        </form>
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8">
+      <Navbar />
+      <h1 className="text-2xl font-bold mb-3">Admin Resident Page</h1>
+      <p className="text-center text-muted mb-4 max-w-lg">
+        Add new residents from the{" "}
+        <Link to="/admin" className="fw-semibold">
+          admin dashboard
+        </Link>{" "}
+        → <strong>New resident</strong> (full intake form).
+      </p>
+      {errorMessage ? <p className="text-red-600 mb-2">{errorMessage}</p> : null}
+      <form onSubmit={handleRefresh} className="mb-4">
+        <button type="submit" className="btn btn-outline-secondary btn-sm">
+          Refresh list
+        </button>
+      </form>
+      <p className="small text-muted mb-2">{resident.length} resident(s) loaded</p>
+      <ul className="list-unstyled small text-start" style={{ maxHeight: "40vh", overflow: "auto" }}>
+        {resident.slice(0, 50).map((r) => (
+          <li key={r.residentId}>
+            #{r.residentId} — {(r.firstName ?? "") + " " + (r.lastInitial ?? "")}
+          </li>
+        ))}
+        {resident.length > 50 ? (
+          <li className="text-muted">…and {resident.length - 50} more</li>
+        ) : null}
+      </ul>
     </div>
-);
+  );
 }
 
 export default AdminResidentPage;

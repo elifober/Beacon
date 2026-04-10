@@ -3,32 +3,27 @@ import type { Resident } from "../types/Resident";
 import type { ResidentList } from "../types/ResidentList";
 
 export interface ResidentInput {
-  firstName?: string;
-  lastInitial?: string;
   caseControlNo: string;
   internalCode: string;
   safehouseId: number;
   caseStatus: string;
   sex: string;
   dateOfBirth: string;
-  birthStatus: string;
-  placeOfBirth: string;
+  initialRiskLevel: string;
+  currentRiskLevel: string;
 }
 
 function buildResidentJsonBody(resident: ResidentInput): Record<string, unknown> {
   const dob = resident.dateOfBirth?.trim();
   return {
-    firstName: resident.firstName?.trim() || null,
-    lastInitial: resident.lastInitial?.trim() || null,
     caseControlNo: resident.caseControlNo?.trim() || null,
     internalCode: resident.internalCode?.trim() || null,
     safehouseId: resident.safehouseId,
     caseStatus: resident.caseStatus?.trim() || null,
     sex: resident.sex?.trim() || null,
-    // API accepts ISO date string or null (not DateOnly JSON object).
     dateOfBirth: dob ? dob.slice(0, 10) : null,
-    birthStatus: resident.birthStatus?.trim() || null,
-    placeOfBirth: resident.placeOfBirth?.trim() || null,
+    initialRiskLevel: resident.initialRiskLevel?.trim() || null,
+    currentRiskLevel: resident.currentRiskLevel?.trim() || null,
   };
 }
 

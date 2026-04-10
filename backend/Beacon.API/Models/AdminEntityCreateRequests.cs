@@ -6,10 +6,6 @@ namespace Beacon.API.Models;
 /// </summary>
 public sealed class AdminCreateResidentRequest
 {
-    public string? FirstName { get; set; }
-
-    public string? LastInitial { get; set; }
-
     public string? CaseControlNo { get; set; }
 
     public string? InternalCode { get; set; }
@@ -23,9 +19,9 @@ public sealed class AdminCreateResidentRequest
     /// <summary>ISO calendar date (yyyy-MM-dd), empty, or null — not a full DateTime string required.</summary>
     public string? DateOfBirth { get; set; }
 
-    public string? BirthStatus { get; set; }
+    public string? InitialRiskLevel { get; set; }
 
-    public string? PlaceOfBirth { get; set; }
+    public string? CurrentRiskLevel { get; set; }
 }
 
 /// <summary>Admin-only create body for <c>partners</c>; PK is database-generated.</summary>

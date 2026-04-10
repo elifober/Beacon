@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Beacon.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Beacon.API.Controllers;
 
@@ -110,37 +111,73 @@ public class BeaconController : ControllerBase
         }
 
         var dob = ParseOptionalDateOnly(body.DateOfBirth);
-        var residentId = await _beaconContext.AllocateNextResidentIdAsync();
-        var resident = new Resident
+        const int maxAttempts = 8;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
-            ResidentId = residentId,
-            FirstName = NullIfWhiteSpace(body.FirstName),
-            LastInitial = NullIfWhiteSpace(body.LastInitial),
-            CaseControlNo = NullIfWhiteSpace(body.CaseControlNo),
-            InternalCode = NullIfWhiteSpace(body.InternalCode),
-            SafehouseId = body.SafehouseId,
-            CaseStatus = NullIfWhiteSpace(body.CaseStatus),
-            Sex = NullIfWhiteSpace(body.Sex),
-            DateOfBirth = dob,
-            BirthStatus = NullIfWhiteSpace(body.BirthStatus),
-            PlaceOfBirth = NullIfWhiteSpace(body.PlaceOfBirth),
-        };
+            var residentId = await _beaconContext.AllocateNextResidentIdAsync();
+            var resident = new Resident
+            {
+                ResidentId = residentId,
+                CaseControlNo = NullIfWhiteSpace(body.CaseControlNo),
+                InternalCode = NullIfWhiteSpace(body.InternalCode),
+                SafehouseId = body.SafehouseId,
+                CaseStatus = NullIfWhiteSpace(body.CaseStatus),
+                Sex = NullIfWhiteSpace(body.Sex),
+                DateOfBirth = dob,
+                InitialRiskLevel = NullIfWhiteSpace(body.InitialRiskLevel),
+                CurrentRiskLevel = NullIfWhiteSpace(body.CurrentRiskLevel),
+                CreatedAt = DateTime.UtcNow,
+            };
 
-        _beaconContext.Residents.Add(resident);
-        try
-        {
-            await _beaconContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "CreateResident: database insert failed");
-            return Problem(
-                title: "Could not create resident",
-                detail: "The database rejected this insert. Check logs for details.",
-                statusCode: StatusCodes.Status409Conflict);
+            _beaconContext.Residents.Add(resident);
+            try
+            {
+                await _beaconContext.SaveChangesAsync();
+                return Created($"/residents/{resident.ResidentId}", resident);
+            }
+            catch (DbUpdateException ex)
+            {
+                _beaconContext.Entry(resident).State = EntityState.Detached;
+
+                if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+                {
+                    // Concurrent inserts can race on MAX(resident_id)+1; retry only for PK conflicts.
+                    if (attempt < maxAttempts - 1
+                        && string.Equals(pg.SqlState, PostgresErrorCodes.UniqueViolation, StringComparison.Ordinal)
+                        && IsResidentsPrimaryKeyViolation(pg))
+                    {
+                        _logger.LogWarning(
+                            "CreateResident: resident PK conflict on id {ResidentId} (attempt {Attempt}); retrying. {Detail}",
+                            residentId,
+                            attempt + 1,
+                            pg.Detail ?? pg.MessageText);
+                        continue;
+                    }
+
+                    var detail = !string.IsNullOrWhiteSpace(pg.Detail)
+                        ? pg.Detail!
+                        : (pg.MessageText ?? "Database rejected the insert.");
+                    var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
+                        ? StatusCodes.Status400BadRequest
+                        : StatusCodes.Status409Conflict;
+                    return Problem(
+                        title: "Could not create resident",
+                        detail: detail,
+                        statusCode: status);
+                }
+
+                _logger.LogError(ex, "CreateResident: database insert failed");
+                return Problem(
+                    title: "Could not create resident",
+                    detail: "The database rejected this insert. Check logs for details.",
+                    statusCode: StatusCodes.Status409Conflict);
+            }
         }
 
-        return Created($"/residents/{resident.ResidentId}", resident);
+        return Problem(
+            title: "Could not create resident",
+            detail: "Could not allocate a unique resident id after several attempts. Try again in a moment.",
+            statusCode: StatusCodes.Status409Conflict);
     }
 
     [Authorize(Policy = AuthPolicies.AdminOnly)]
@@ -1638,6 +1675,30 @@ public class BeaconController : ControllerBase
         if (t.Length >= 10 && DateOnly.TryParse(t.AsSpan(0, 10), out var fromIsoDate))
             return fromIsoDate;
         return DateOnly.TryParse(t, out var parsed) ? parsed : null;
+    }
+
+    private static bool TryGetPostgresException(Exception ex, out PostgresException? pg)
+    {
+        for (var e = ex.InnerException; e != null; e = e.InnerException)
+        {
+            if (e is PostgresException p)
+            {
+                pg = p;
+                return true;
+            }
+        }
+
+        pg = null;
+        return false;
+    }
+
+    /// <summary>True when unique violation is on <c>residents.resident_id</c> / <c>pk_residents</c>, not another unique index.</summary>
+    private static bool IsResidentsPrimaryKeyViolation(PostgresException pg)
+    {
+        if (string.Equals(pg.ConstraintName, "pk_residents", StringComparison.OrdinalIgnoreCase))
+            return true;
+        var d = pg.Detail ?? string.Empty;
+        return d.Contains("(resident_id)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>

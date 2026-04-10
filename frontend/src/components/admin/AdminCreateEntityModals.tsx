@@ -8,6 +8,8 @@ import {
   PARTNER_TYPE_OPTIONS,
 } from "../../constants/adminEntityCreateForm";
 import {
+  RESIDENT_BIRTH_STATUS_OPTIONS,
+  RESIDENT_CASE_CATEGORY_OPTIONS,
   RESIDENT_CASE_STATUS_OPTIONS,
   RESIDENT_RISK_LEVEL_OPTIONS,
 } from "../../constants/residentCreateForm";
@@ -24,6 +26,9 @@ import {
 const emptyResidentForm: ResidentInput = {
   firstName: "",
   lastInitial: "",
+  religion: "",
+  caseCategory: "",
+  dateOfAdmission: "",
   caseControlNo: "",
   internalCode: "",
   safehouseId: 0,
@@ -32,7 +37,65 @@ const emptyResidentForm: ResidentInput = {
   dateOfBirth: "",
   initialRiskLevel: "",
   currentRiskLevel: "",
+  birthStatus: "",
+  placeOfBirth: "",
+  familyIs4ps: false,
+  familySoloParent: false,
+  familyIndigenous: false,
+  familyParentPwd: false,
+  subCatOrphaned: false,
+  subCatTrafficked: false,
+  subCatChildLabor: false,
+  subCatPhysicalAbuse: false,
+  subCatSexualAbuse: false,
+  subCatOsaec: false,
+  subCatCicl: false,
+  subCatAtRisk: false,
+  subCatStreetChild: false,
+  subCatChildWithHiv: false,
+  isPwd: false,
+  pwdType: "",
+  hasSpecialNeeds: false,
+  specialNeedsDiagnosis: "",
 };
+
+const RESIDENT_INTAKE_STEP_COUNT = 4;
+
+function normalizeResidentFormFromInitial(
+  initial: Partial<ResidentInput>,
+): ResidentInput {
+  const sex =
+    initial.sex === "M" || initial.sex === "F" ? initial.sex : "";
+  return {
+    ...emptyResidentForm,
+    ...initial,
+    sex,
+    dateOfBirth: initial.dateOfBirth
+      ? initial.dateOfBirth.slice(0, 10)
+      : "",
+    dateOfAdmission: initial.dateOfAdmission
+      ? initial.dateOfAdmission.slice(0, 10)
+      : "",
+    familyIs4ps: initial.familyIs4ps === true,
+    familySoloParent: initial.familySoloParent === true,
+    familyIndigenous: initial.familyIndigenous === true,
+    familyParentPwd: initial.familyParentPwd === true,
+    subCatOrphaned: initial.subCatOrphaned === true,
+    subCatTrafficked: initial.subCatTrafficked === true,
+    subCatChildLabor: initial.subCatChildLabor === true,
+    subCatPhysicalAbuse: initial.subCatPhysicalAbuse === true,
+    subCatSexualAbuse: initial.subCatSexualAbuse === true,
+    subCatOsaec: initial.subCatOsaec === true,
+    subCatCicl: initial.subCatCicl === true,
+    subCatAtRisk: initial.subCatAtRisk === true,
+    subCatStreetChild: initial.subCatStreetChild === true,
+    subCatChildWithHiv: initial.subCatChildWithHiv === true,
+    isPwd: initial.isPwd === true,
+    hasSpecialNeeds: initial.hasSpecialNeeds === true,
+    pwdType: initial.pwdType ?? "",
+    specialNeedsDiagnosis: initial.specialNeedsDiagnosis ?? "",
+  };
+}
 
 function safehouseCityOptionLabel(s: Safehouse): string {
   const city = (s.city ?? "").trim();
@@ -70,6 +133,7 @@ export function CreateResidentModal({
   const [form, setForm] = useState<ResidentInput>(emptyResidentForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState(0);
 
   const safehousesSorted = useMemo(() => {
     return [...safehouses].sort((a, b) => {
@@ -81,30 +145,24 @@ export function CreateResidentModal({
     });
   }, [safehouses]);
 
+  const caseCategoryOptions = useMemo(
+    () =>
+      mergePicklistOption([...RESIDENT_CASE_CATEGORY_OPTIONS], form.caseCategory),
+    [form.caseCategory],
+  );
+
   const isEdit = editResidentId != null;
+  const isCreate = !isEdit;
+  const lastStep = RESIDENT_INTAKE_STEP_COUNT - 1;
+  const showAllAtOnce = isEdit;
+  const showStep = (n: number) => showAllAtOnce || step === n;
 
   useEffect(() => {
     if (!open) return;
+    setStep(0);
     setError(null);
     if (isEdit && initialResident) {
-      setForm({
-        ...emptyResidentForm,
-        firstName: initialResident.firstName ?? "",
-        lastInitial: initialResident.lastInitial ?? "",
-        caseControlNo: initialResident.caseControlNo ?? "",
-        internalCode: initialResident.internalCode ?? "",
-        safehouseId: initialResident.safehouseId ?? 0,
-        caseStatus: initialResident.caseStatus ?? "",
-        sex:
-          initialResident.sex === "M" || initialResident.sex === "F"
-            ? initialResident.sex
-            : "",
-        dateOfBirth: initialResident.dateOfBirth
-          ? initialResident.dateOfBirth.slice(0, 10)
-          : "",
-        initialRiskLevel: initialResident.initialRiskLevel ?? "",
-        currentRiskLevel: initialResident.currentRiskLevel ?? "",
-      });
+      setForm(normalizeResidentFormFromInitial(initialResident));
     } else {
       setForm(emptyResidentForm);
     }
@@ -114,27 +172,68 @@ export function CreateResidentModal({
       .catch(() => setSafehouses([]));
   }, [open, isEdit, initialResident]);
 
+  function validateGeneral(): string | null {
+    if (form.sex !== "M" && form.sex !== "F") return "Select sex (M or F).";
+    return null;
+  }
+
+  function validateAdmission(): string | null {
+    if (!form.safehouseId || form.safehouseId <= 0) {
+      return "Choose a safehouse (by city).";
+    }
+    if (!form.caseStatus.trim()) return "Choose a status.";
+    return null;
+  }
+
+  function goNext() {
+    setError(null);
+    if (step === 0) {
+      const g = validateGeneral();
+      if (g) {
+        setError(g);
+        return;
+      }
+    }
+    if (step === 1) {
+      const a = validateAdmission();
+      if (a) {
+        setError(a);
+        return;
+      }
+    }
+    setStep((s) => Math.min(s + 1, lastStep));
+  }
+
+  function goBack() {
+    setError(null);
+    setStep((s) => Math.max(s - 1, 0));
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!form.safehouseId || form.safehouseId <= 0) {
-      setError("Choose a safehouse (by city).");
+    const g = validateGeneral();
+    const a = validateAdmission();
+    if (g) {
+      setError(g);
+      setStep(0);
       return;
     }
-    if (!form.caseStatus.trim()) {
-      setError("Choose a status.");
+    if (a) {
+      setError(a);
+      setStep(1);
       return;
     }
-    if (form.sex !== "M" && form.sex !== "F") {
-      setError("Select sex (M or F).");
-      return;
-    }
+    const toSave: ResidentInput = isEdit
+      ? form
+      : { ...form, currentRiskLevel: form.initialRiskLevel };
+
     setSubmitting(true);
     try {
       if (isEdit) {
-        await updateResident(editResidentId, form);
+        await updateResident(editResidentId!, toSave);
       } else {
-        await createResident(form);
+        await createResident(toSave);
       }
       onSaved();
       onClose();
@@ -156,251 +255,495 @@ export function CreateResidentModal({
       title={isEdit ? "Edit resident" : "New resident"}
       open={open}
       onClose={onClose}
-      narrow
     >
       <form className="p-4" onSubmit={onSubmit}>
         {error ? <div className="alert alert-danger py-2">{error}</div> : null}
 
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-id">
-            Resident ID
-          </label>
-          <input
-            id="create-res-id"
-            name="create-res-id"
-            type="text"
-            className="form-control"
-            readOnly
-            disabled
-            value={isEdit ? String(editResidentId) : ""}
-            placeholder={isEdit ? undefined : "Assigned on save"}
-            autoComplete="off"
-            aria-describedby="create-res-id-help"
-          />
-          <div id="create-res-id-help" className="form-text">
-            {isEdit
-              ? "Resident primary key (read-only)."
-              : "The next id is assigned on the server when you save (sequential key — not entered here)."}
-          </div>
-        </div>
+        {isCreate ? (
+          <p className="text-muted small mb-3" aria-live="polite">
+            Step {step + 1} of {RESIDENT_INTAKE_STEP_COUNT}
+          </p>
+        ) : null}
 
-        <div className="row g-3 mb-2">
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-fn">
-              First name
-            </label>
-            <input
-              id="create-res-fn"
-              name="create-res-fn"
-              className="form-control"
-              autoComplete="given-name"
-              value={form.firstName}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, firstName: e.target.value }))
-              }
-            />
-          </div>
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-li">
-              Last initial
-            </label>
-            <input
-              id="create-res-li"
-              name="create-res-li"
-              className="form-control"
-              autoComplete="family-name"
-              maxLength={8}
-              value={form.lastInitial}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, lastInitial: e.target.value }))
-              }
-            />
-          </div>
-        </div>
-
-        <div className="row g-3 mb-2">
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-cc">
-              Case control number
-            </label>
-            <input
-              id="create-res-cc"
-              name="create-res-cc"
-              className="form-control"
-              autoComplete="off"
-              value={form.caseControlNo}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, caseControlNo: e.target.value }))
-              }
-            />
-          </div>
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-ic">
-              Internal code
-            </label>
-            <input
-              id="create-res-ic"
-              name="create-res-ic"
-              className="form-control"
-              autoComplete="off"
-              value={form.internalCode}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, internalCode: e.target.value }))
-              }
-            />
-          </div>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-sh">
-            Safehouse (city)
-          </label>
-          <select
-            id="create-res-sh"
-            name="create-res-sh"
-            className="form-select"
-            required
-            value={form.safehouseId || ""}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, safehouseId: Number(e.target.value) }))
-            }
-          >
-            <option value="">Select city / safehouse…</option>
-            {safehousesSorted.map((s) => (
-              <option key={s.safehouseId} value={s.safehouseId}>
-                {safehouseCityOptionLabel(s)}
-              </option>
-            ))}
-          </select>
-          <div className="form-text">The value saved to the database is the safehouse ID.</div>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-cs">
-            Status
-          </label>
-          <select
-            id="create-res-cs"
-            name="create-res-cs"
-            className="form-select"
-            required
-            value={form.caseStatus}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, caseStatus: e.target.value }))
-            }
-          >
-            <option value="" disabled>
-              Select status…
-            </option>
-            {RESIDENT_CASE_STATUS_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <fieldset className="mb-3">
-          <legend className="form-label mb-2">Sex</legend>
-          <div className="d-flex flex-wrap gap-3">
-            <div className="form-check">
-              <input
-                id="create-res-sex-m"
-                name="create-res-sex"
-                type="radio"
-                className="form-check-input"
-                checked={form.sex === "M"}
-                onChange={() => setForm((f) => ({ ...f, sex: "M" }))}
-              />
-              <label className="form-check-label" htmlFor="create-res-sex-m">
-                M
+        {showStep(0) ? (
+          <section className="border rounded-3 p-3 p-md-4 mb-4 bg-body-secondary bg-opacity-25">
+            <h3 className="h6 text-uppercase text-muted mb-3">General information</h3>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-id">
+                Resident ID
               </label>
-            </div>
-            <div className="form-check">
               <input
-                id="create-res-sex-f"
-                name="create-res-sex"
-                type="radio"
-                className="form-check-input"
-                checked={form.sex === "F"}
-                onChange={() => setForm((f) => ({ ...f, sex: "F" }))}
+                id="create-res-id"
+                name="create-res-id"
+                type="text"
+                className="form-control"
+                readOnly
+                disabled
+                value={isEdit ? String(editResidentId) : ""}
+                placeholder={isEdit ? undefined : "Assigned on save"}
+                autoComplete="off"
+                aria-describedby="create-res-id-help"
               />
-              <label className="form-check-label" htmlFor="create-res-sex-f">
-                F
-              </label>
+              <div id="create-res-id-help" className="form-text">
+                {isEdit
+                  ? "Resident primary key (read-only)."
+                  : "Assigned on the server when you save."}
+              </div>
             </div>
-          </div>
-        </fieldset>
+            <div className="row g-3 mb-2">
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-fn">
+                  First name
+                </label>
+                <input
+                  id="create-res-fn"
+                  name="create-res-fn"
+                  className="form-control"
+                  autoComplete="given-name"
+                  value={form.firstName}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, firstName: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-li">
+                  Last initial
+                </label>
+                <input
+                  id="create-res-li"
+                  name="create-res-li"
+                  className="form-control"
+                  autoComplete="family-name"
+                  maxLength={8}
+                  value={form.lastInitial}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, lastInitial: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-religion">
+                Religion
+              </label>
+              <input
+                id="create-res-religion"
+                name="create-res-religion"
+                className="form-control"
+                autoComplete="off"
+                value={form.religion}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, religion: e.target.value }))
+                }
+              />
+            </div>
+            <fieldset className="mb-3">
+              <legend className="form-label mb-2">Sex</legend>
+              <div className="d-flex flex-wrap gap-3">
+                <div className="form-check">
+                  <input
+                    id="create-res-sex-m"
+                    name="create-res-sex"
+                    type="radio"
+                    className="form-check-input"
+                    checked={form.sex === "M"}
+                    onChange={() => setForm((f) => ({ ...f, sex: "M" }))}
+                  />
+                  <label className="form-check-label" htmlFor="create-res-sex-m">
+                    M
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    id="create-res-sex-f"
+                    name="create-res-sex"
+                    type="radio"
+                    className="form-check-input"
+                    checked={form.sex === "F"}
+                    onChange={() => setForm((f) => ({ ...f, sex: "F" }))}
+                  />
+                  <label className="form-check-label" htmlFor="create-res-sex-f">
+                    F
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+            <div className="mb-0">
+              <label className="form-label" htmlFor="create-res-dob">
+                Date of birth
+              </label>
+              <input
+                id="create-res-dob"
+                name="create-res-dob"
+                type="date"
+                className="form-control"
+                autoComplete="bday"
+                value={form.dateOfBirth?.slice(0, 10) ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, dateOfBirth: e.target.value }))
+                }
+              />
+            </div>
+          </section>
+        ) : null}
 
-        <div className="mb-3">
-          <label className="form-label" htmlFor="create-res-dob">
-            Date of birth
-          </label>
-          <input
-            id="create-res-dob"
-            name="create-res-dob"
-            type="date"
-            className="form-control"
-            autoComplete="bday"
-            value={form.dateOfBirth?.slice(0, 10) ?? ""}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, dateOfBirth: e.target.value }))
-            }
-          />
-        </div>
-
-        <div className="row g-3 mb-3">
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-risk-i">
-              Initial risk
-            </label>
-            <select
-              id="create-res-risk-i"
-              name="create-res-risk-i"
-              className="form-select"
-              value={form.initialRiskLevel}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, initialRiskLevel: e.target.value }))
-              }
-            >
-              <option value="">—</option>
-              {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
+        {showStep(1) ? (
+          <section className="border rounded-3 p-3 p-md-4 mb-4 bg-body-secondary bg-opacity-25">
+            <h3 className="h6 text-uppercase text-muted mb-3">Admission</h3>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-cat">
+                Case category
+              </label>
+              <select
+                id="create-res-cat"
+                name="create-res-cat"
+                className="form-select"
+                value={form.caseCategory}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, caseCategory: e.target.value }))
+                }
+              >
+                <option value="">—</option>
+                {caseCategoryOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-adm">
+                Date of admission
+              </label>
+              <input
+                id="create-res-adm"
+                name="create-res-adm"
+                type="date"
+                className="form-control"
+                value={form.dateOfAdmission?.slice(0, 10) ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, dateOfAdmission: e.target.value }))
+                }
+              />
+            </div>
+            <div className="row g-3 mb-2">
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-cc">
+                  Case control number
+                </label>
+                <input
+                  id="create-res-cc"
+                  name="create-res-cc"
+                  className="form-control"
+                  autoComplete="off"
+                  value={form.caseControlNo}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, caseControlNo: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-ic">
+                  Internal code
+                </label>
+                <input
+                  id="create-res-ic"
+                  name="create-res-ic"
+                  className="form-control"
+                  autoComplete="off"
+                  value={form.internalCode}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, internalCode: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-sh">
+                Safehouse (city)
+              </label>
+              <select
+                id="create-res-sh"
+                name="create-res-sh"
+                className="form-select"
+                required
+                value={form.safehouseId || ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, safehouseId: Number(e.target.value) }))
+                }
+              >
+                <option value="">Select city / safehouse…</option>
+                {safehousesSorted.map((s) => (
+                  <option key={s.safehouseId} value={s.safehouseId}>
+                    {safehouseCityOptionLabel(s)}
+                  </option>
+                ))}
+              </select>
+              <div className="form-text">Saved as safehouse ID.</div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-cs">
+                Status
+              </label>
+              <select
+                id="create-res-cs"
+                name="create-res-cs"
+                className="form-select"
+                required
+                value={form.caseStatus}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, caseStatus: e.target.value }))
+                }
+              >
+                <option value="" disabled>
+                  Select status…
                 </option>
-              ))}
-            </select>
-          </div>
-          <div className="col-md-6">
-            <label className="form-label" htmlFor="create-res-risk-c">
-              Current risk
-            </label>
-            <select
-              id="create-res-risk-c"
-              name="create-res-risk-c"
-              className="form-select"
-              value={form.currentRiskLevel}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, currentRiskLevel: e.target.value }))
-              }
-            >
-              <option value="">—</option>
-              {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+                {RESIDENT_CASE_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="row g-3 mb-0">
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-risk-i">
+                  Initial risk
+                </label>
+                <select
+                  id="create-res-risk-i"
+                  name="create-res-risk-i"
+                  className="form-select"
+                  value={form.initialRiskLevel}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, initialRiskLevel: e.target.value }))
+                  }
+                >
+                  <option value="">—</option>
+                  {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label className="form-label" htmlFor="create-res-risk-c">
+                  Current risk
+                </label>
+                {isCreate ? (
+                  <>
+                    <input
+                      id="create-res-risk-c"
+                      name="create-res-risk-c"
+                      type="text"
+                      className="form-control"
+                      readOnly
+                      disabled
+                      value={form.initialRiskLevel || "—"}
+                    />
+                    <div className="form-text">
+                      Matches initial risk at intake. You can change it later when editing the resident.
+                    </div>
+                  </>
+                ) : (
+                  <select
+                    id="create-res-risk-c"
+                    name="create-res-risk-c"
+                    className="form-select"
+                    value={form.currentRiskLevel}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, currentRiskLevel: e.target.value }))
+                    }
+                  >
+                    <option value="">—</option>
+                    {RESIDENT_RISK_LEVEL_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
-        <div className="d-flex gap-2 justify-content-end">
+        {showStep(2) ? (
+          <section className="border rounded-3 p-3 p-md-4 mb-4 bg-body-secondary bg-opacity-25">
+            <h3 className="h6 text-uppercase text-muted mb-3">Family information</h3>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-birthstat">
+                Birth status
+              </label>
+              <select
+                id="create-res-birthstat"
+                name="create-res-birthstat"
+                className="form-select"
+                value={form.birthStatus}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, birthStatus: e.target.value }))
+                }
+              >
+                <option value="">—</option>
+                {RESIDENT_BIRTH_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="create-res-pob">
+                Place of birth
+              </label>
+              <input
+                id="create-res-pob"
+                name="create-res-pob"
+                className="form-control"
+                autoComplete="off"
+                value={form.placeOfBirth}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, placeOfBirth: e.target.value }))
+                }
+              />
+            </div>
+            <p className="small fw-semibold mb-2">Household flags</p>
+            <div className="row g-2">
+              {(
+                [
+                  ["create-res-f4p", "familyIs4ps", "4P family"] as const,
+                  ["create-res-solo", "familySoloParent", "Solo parent"] as const,
+                  ["create-res-ind", "familyIndigenous", "Indigenous"] as const,
+                  ["create-res-ppwd", "familyParentPwd", "Parents with disability"] as const,
+                ] as const
+              ).map(([fid, key, label]) => (
+                <div key={fid} className="col-md-6 col-xl-4">
+                  <div className="form-check">
+                    <input
+                      id={fid}
+                      type="checkbox"
+                      className="form-check-input"
+                      checked={form[key]}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, [key]: e.target.checked }))
+                      }
+                    />
+                    <label className="form-check-label" htmlFor={fid}>
+                      {label}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {showStep(3) ? (
+          <section className="border rounded-3 p-3 p-md-4 mb-2 bg-body-secondary bg-opacity-25">
+            <h3 className="h6 text-uppercase text-muted mb-3">Classification</h3>
+            <div className="row g-2 mb-3">
+              {(
+                [
+                  ["create-res-sc-orph", "subCatOrphaned", "Orphaned"] as const,
+                  ["create-res-sc-traf", "subCatTrafficked", "Trafficked"] as const,
+                  ["create-res-sc-cl", "subCatChildLabor", "Child labor"] as const,
+                  ["create-res-sc-pa", "subCatPhysicalAbuse", "Physical abuse"] as const,
+                  ["create-res-sc-sa", "subCatSexualAbuse", "Sexual abuse"] as const,
+                  ["create-res-sc-osaec", "subCatOsaec", "Online sexual abuse"] as const,
+                  ["create-res-sc-cicl", "subCatCicl", "Legal conflict"] as const,
+                  ["create-res-sc-risk", "subCatAtRisk", "At risk"] as const,
+                  ["create-res-sc-street", "subCatStreetChild", "Street child"] as const,
+                  ["create-res-sc-hiv", "subCatChildWithHiv", "HIV"] as const,
+                  ["create-res-sc-pwd", "isPwd", "Disability"] as const,
+                  ["create-res-sc-sn", "hasSpecialNeeds", "Special needs"] as const,
+                ] as const
+              ).map(([fid, key, label]) => (
+                <div key={fid} className="col-md-6 col-xl-4">
+                  <div className="form-check">
+                    <input
+                      id={fid}
+                      type="checkbox"
+                      className="form-check-input"
+                      checked={form[key]}
+                      onChange={(e) =>
+                        setForm((f) => {
+                          const next = { ...f, [key]: e.target.checked } as ResidentInput;
+                          if (key === "isPwd" && !e.target.checked) next.pwdType = "";
+                          if (key === "hasSpecialNeeds" && !e.target.checked) {
+                            next.specialNeedsDiagnosis = "";
+                          }
+                          return next;
+                        })
+                      }
+                    />
+                    <label className="form-check-label" htmlFor={fid}>
+                      {label}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {form.isPwd ? (
+              <div className="mb-3">
+                <label className="form-label" htmlFor="create-res-pwd-type">
+                  Disability type
+                </label>
+                <input
+                  id="create-res-pwd-type"
+                  name="create-res-pwd-type"
+                  className="form-control"
+                  value={form.pwdType}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, pwdType: e.target.value }))
+                  }
+                />
+              </div>
+            ) : null}
+            {form.hasSpecialNeeds ? (
+              <div className="mb-0">
+                <label className="form-label" htmlFor="create-res-sp-dx">
+                  Special needs diagnosis
+                </label>
+                <input
+                  id="create-res-sp-dx"
+                  name="create-res-sp-dx"
+                  className="form-control"
+                  value={form.specialNeedsDiagnosis}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      specialNeedsDiagnosis: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+
+        <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-4 pt-2 border-top">
           <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create resident"}
-          </button>
+          <div className="d-flex flex-wrap gap-2">
+            {isCreate && step > 0 ? (
+              <button type="button" className="btn btn-outline-secondary" onClick={goBack}>
+                Back
+              </button>
+            ) : null}
+            {isCreate && step < lastStep ? (
+              <button type="button" className="btn btn-primary" onClick={goNext}>
+                Next
+              </button>
+            ) : null}
+            {(!isCreate || step === lastStep) && (
+              <button type="submit" className="btn btn-primary" disabled={submitting}>
+                {submitting ? "Saving…" : isEdit ? "Save changes" : "Create resident"}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </ResidentRecordModal>

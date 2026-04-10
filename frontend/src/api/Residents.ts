@@ -5,6 +5,9 @@ import type { ResidentList } from "../types/ResidentList";
 export interface ResidentInput {
   firstName: string;
   lastInitial: string;
+  religion: string;
+  caseCategory: string;
+  dateOfAdmission: string;
   caseControlNo: string;
   internalCode: string;
   safehouseId: number;
@@ -13,13 +16,37 @@ export interface ResidentInput {
   dateOfBirth: string;
   initialRiskLevel: string;
   currentRiskLevel: string;
+  birthStatus: string;
+  placeOfBirth: string;
+  familyIs4ps: boolean;
+  familySoloParent: boolean;
+  familyIndigenous: boolean;
+  familyParentPwd: boolean;
+  subCatOrphaned: boolean;
+  subCatTrafficked: boolean;
+  subCatChildLabor: boolean;
+  subCatPhysicalAbuse: boolean;
+  subCatSexualAbuse: boolean;
+  subCatOsaec: boolean;
+  subCatCicl: boolean;
+  subCatAtRisk: boolean;
+  subCatStreetChild: boolean;
+  subCatChildWithHiv: boolean;
+  isPwd: boolean;
+  pwdType: string;
+  hasSpecialNeeds: boolean;
+  specialNeedsDiagnosis: string;
 }
 
 function buildResidentJsonBody(resident: ResidentInput): Record<string, unknown> {
   const dob = resident.dateOfBirth?.trim();
+  const adm = resident.dateOfAdmission?.trim();
   return {
     firstName: resident.firstName?.trim() || null,
     lastInitial: resident.lastInitial?.trim() || null,
+    religion: resident.religion?.trim() || null,
+    caseCategory: resident.caseCategory?.trim() || null,
+    dateOfAdmission: adm ? adm.slice(0, 10) : null,
     caseControlNo: resident.caseControlNo?.trim() || null,
     internalCode: resident.internalCode?.trim() || null,
     safehouseId: resident.safehouseId,
@@ -28,6 +55,28 @@ function buildResidentJsonBody(resident: ResidentInput): Record<string, unknown>
     dateOfBirth: dob ? dob.slice(0, 10) : null,
     initialRiskLevel: resident.initialRiskLevel?.trim() || null,
     currentRiskLevel: resident.currentRiskLevel?.trim() || null,
+    birthStatus: resident.birthStatus?.trim() || null,
+    placeOfBirth: resident.placeOfBirth?.trim() || null,
+    familyIs4ps: resident.familyIs4ps,
+    familySoloParent: resident.familySoloParent,
+    familyIndigenous: resident.familyIndigenous,
+    familyParentPwd: resident.familyParentPwd,
+    subCatOrphaned: resident.subCatOrphaned,
+    subCatTrafficked: resident.subCatTrafficked,
+    subCatChildLabor: resident.subCatChildLabor,
+    subCatPhysicalAbuse: resident.subCatPhysicalAbuse,
+    subCatSexualAbuse: resident.subCatSexualAbuse,
+    subCatOsaec: resident.subCatOsaec,
+    subCatCicl: resident.subCatCicl,
+    subCatAtRisk: resident.subCatAtRisk,
+    subCatStreetChild: resident.subCatStreetChild,
+    subCatChildWithHiv: resident.subCatChildWithHiv,
+    isPwd: resident.isPwd,
+    pwdType: resident.isPwd ? resident.pwdType?.trim() || null : null,
+    hasSpecialNeeds: resident.hasSpecialNeeds,
+    specialNeedsDiagnosis: resident.hasSpecialNeeds
+      ? resident.specialNeedsDiagnosis?.trim() || null
+      : null,
   };
 }
 

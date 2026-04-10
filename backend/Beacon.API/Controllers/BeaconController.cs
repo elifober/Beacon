@@ -111,15 +111,23 @@ public class BeaconController : ControllerBase
         }
 
         var dob = ParseOptionalDateOnly(body.DateOfBirth);
+        var dateAdmission = ParseOptionalDateOnly(body.DateOfAdmission);
         var createdAt = DateTime.UtcNow;
         var firstName = NullIfWhiteSpace(body.FirstName);
         var lastInitial = NullIfWhiteSpace(body.LastInitial);
+        var religion = NullIfWhiteSpace(body.Religion);
         var caseControlNo = NullIfWhiteSpace(body.CaseControlNo);
         var internalCode = NullIfWhiteSpace(body.InternalCode);
         var caseStatus = NullIfWhiteSpace(body.CaseStatus);
         var sex = NullIfWhiteSpace(body.Sex);
         var initialRisk = NullIfWhiteSpace(body.InitialRiskLevel);
-        var currentRisk = NullIfWhiteSpace(body.CurrentRiskLevel);
+        var currentRisk = initialRisk;
+        var caseCategory = NullIfWhiteSpace(body.CaseCategory);
+        var birthStatus = NullIfWhiteSpace(body.BirthStatus);
+        var placeOfBirth = NullIfWhiteSpace(body.PlaceOfBirth);
+        var pwdType = body.IsPwd == true ? NullIfWhiteSpace(body.PwdType) : null;
+        var specialNeedsDiagnosis =
+            body.HasSpecialNeeds == true ? NullIfWhiteSpace(body.SpecialNeedsDiagnosis) : null;
 
         const int maxAttempts = 8;
         for (var attempt = 0; attempt < maxAttempts; attempt++)
@@ -131,14 +139,37 @@ public class BeaconController : ControllerBase
                     residentId,
                     firstName,
                     lastInitial,
+                    religion,
+                    sex,
+                    dob,
+                    caseCategory,
+                    dateAdmission,
                     caseControlNo,
                     internalCode,
                     body.SafehouseId,
                     caseStatus,
-                    sex,
-                    dob,
                     initialRisk,
                     currentRisk,
+                    birthStatus,
+                    placeOfBirth,
+                    body.FamilyIs4ps,
+                    body.FamilySoloParent,
+                    body.FamilyIndigenous,
+                    body.FamilyParentPwd,
+                    body.SubCatOrphaned,
+                    body.SubCatTrafficked,
+                    body.SubCatChildLabor,
+                    body.SubCatPhysicalAbuse,
+                    body.SubCatSexualAbuse,
+                    body.SubCatOsaec,
+                    body.SubCatCicl,
+                    body.SubCatAtRisk,
+                    body.SubCatStreetChild,
+                    body.SubCatChildWithHiv,
+                    body.IsPwd,
+                    pwdType,
+                    body.HasSpecialNeeds,
+                    specialNeedsDiagnosis,
                     createdAt,
                     HttpContext.RequestAborted);
             }
@@ -182,14 +213,37 @@ public class BeaconController : ControllerBase
                 ResidentId = residentId,
                 FirstName = firstName,
                 LastInitial = lastInitial,
+                Religion = religion,
                 CaseControlNo = caseControlNo,
                 InternalCode = internalCode,
                 SafehouseId = body.SafehouseId,
                 CaseStatus = caseStatus,
                 Sex = sex,
                 DateOfBirth = dob,
+                CaseCategory = caseCategory,
+                DateOfAdmission = dateAdmission,
                 InitialRiskLevel = initialRisk,
                 CurrentRiskLevel = currentRisk,
+                BirthStatus = birthStatus,
+                PlaceOfBirth = placeOfBirth,
+                FamilyIs4ps = body.FamilyIs4ps,
+                FamilySoloParent = body.FamilySoloParent,
+                FamilyIndigenous = body.FamilyIndigenous,
+                FamilyParentPwd = body.FamilyParentPwd,
+                SubCatOrphaned = body.SubCatOrphaned,
+                SubCatTrafficked = body.SubCatTrafficked,
+                SubCatChildLabor = body.SubCatChildLabor,
+                SubCatPhysicalAbuse = body.SubCatPhysicalAbuse,
+                SubCatSexualAbuse = body.SubCatSexualAbuse,
+                SubCatOsaec = body.SubCatOsaec,
+                SubCatCicl = body.SubCatCicl,
+                SubCatAtRisk = body.SubCatAtRisk,
+                SubCatStreetChild = body.SubCatStreetChild,
+                SubCatChildWithHiv = body.SubCatChildWithHiv,
+                IsPwd = body.IsPwd,
+                PwdType = pwdType,
+                HasSpecialNeeds = body.HasSpecialNeeds,
+                SpecialNeedsDiagnosis = specialNeedsDiagnosis,
                 CreatedAt = createdAt,
                 EducationRecords = new List<EducationRecord>(),
                 HealthWellbeingRecords = new List<HealthWellbeingRecord>(),
@@ -530,14 +584,22 @@ public class BeaconController : ControllerBase
             return NotFound();
 
         var dob = ParseOptionalDateOnly(body.DateOfBirth);
+        var dateAdmission = ParseOptionalDateOnly(body.DateOfAdmission);
         var firstName = NullIfWhiteSpace(body.FirstName);
         var lastInitial = NullIfWhiteSpace(body.LastInitial);
+        var religion = NullIfWhiteSpace(body.Religion);
         var caseControlNo = NullIfWhiteSpace(body.CaseControlNo);
         var internalCode = NullIfWhiteSpace(body.InternalCode);
         var caseStatus = NullIfWhiteSpace(body.CaseStatus);
         var sex = NullIfWhiteSpace(body.Sex);
         var initialRisk = NullIfWhiteSpace(body.InitialRiskLevel);
         var currentRisk = NullIfWhiteSpace(body.CurrentRiskLevel);
+        var caseCategory = NullIfWhiteSpace(body.CaseCategory);
+        var birthStatus = NullIfWhiteSpace(body.BirthStatus);
+        var placeOfBirth = NullIfWhiteSpace(body.PlaceOfBirth);
+        var pwdType = body.IsPwd == true ? NullIfWhiteSpace(body.PwdType) : null;
+        var specialNeedsDiagnosis =
+            body.HasSpecialNeeds == true ? NullIfWhiteSpace(body.SpecialNeedsDiagnosis) : null;
 
         try
         {
@@ -545,14 +607,37 @@ public class BeaconController : ControllerBase
                 id,
                 firstName,
                 lastInitial,
+                religion,
+                sex,
+                dob,
+                caseCategory,
+                dateAdmission,
                 caseControlNo,
                 internalCode,
                 body.SafehouseId,
                 caseStatus,
-                sex,
-                dob,
                 initialRisk,
                 currentRisk,
+                birthStatus,
+                placeOfBirth,
+                body.FamilyIs4ps,
+                body.FamilySoloParent,
+                body.FamilyIndigenous,
+                body.FamilyParentPwd,
+                body.SubCatOrphaned,
+                body.SubCatTrafficked,
+                body.SubCatChildLabor,
+                body.SubCatPhysicalAbuse,
+                body.SubCatSexualAbuse,
+                body.SubCatOsaec,
+                body.SubCatCicl,
+                body.SubCatAtRisk,
+                body.SubCatStreetChild,
+                body.SubCatChildWithHiv,
+                body.IsPwd,
+                pwdType,
+                body.HasSpecialNeeds,
+                specialNeedsDiagnosis,
                 HttpContext.RequestAborted);
             if (n == 0)
                 return NotFound();
@@ -1109,6 +1194,7 @@ public class BeaconController : ControllerBase
                 x.ResidentId,
                 x.FirstName,
                 x.LastInitial,
+                x.Religion,
                 x.CaseControlNo,
                 x.InternalCode,
                 x.DateOfBirth,
@@ -1116,8 +1202,30 @@ public class BeaconController : ControllerBase
                 x.CaseStatus,
                 x.SafehouseId,
                 x.LengthOfStay,
+                x.CaseCategory,
+                x.DateOfAdmission,
                 x.InitialRiskLevel,
                 x.CurrentRiskLevel,
+                x.BirthStatus,
+                x.PlaceOfBirth,
+                x.FamilyIs4ps,
+                x.FamilySoloParent,
+                x.FamilyIndigenous,
+                x.FamilyParentPwd,
+                x.SubCatOrphaned,
+                x.SubCatTrafficked,
+                x.SubCatChildLabor,
+                x.SubCatPhysicalAbuse,
+                x.SubCatSexualAbuse,
+                x.SubCatOsaec,
+                x.SubCatCicl,
+                x.SubCatAtRisk,
+                x.SubCatStreetChild,
+                x.SubCatChildWithHiv,
+                x.IsPwd,
+                x.PwdType,
+                x.HasSpecialNeeds,
+                x.SpecialNeedsDiagnosis,
             })
             .FirstOrDefault();
         if (r == null) return NotFound();
@@ -1300,6 +1408,7 @@ public class BeaconController : ControllerBase
             r.ResidentId,
             r.FirstName,
             r.LastInitial,
+            r.Religion,
             r.CaseControlNo,
             r.InternalCode,
             Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
@@ -1309,8 +1418,30 @@ public class BeaconController : ControllerBase
             SafehouseId = r.SafehouseId,
             SafehouseCity = safehouse?.City,
             r.LengthOfStay,
+            r.CaseCategory,
+            r.DateOfAdmission,
             r.InitialRiskLevel,
             r.CurrentRiskLevel,
+            r.BirthStatus,
+            r.PlaceOfBirth,
+            r.FamilyIs4ps,
+            r.FamilySoloParent,
+            r.FamilyIndigenous,
+            r.FamilyParentPwd,
+            r.SubCatOrphaned,
+            r.SubCatTrafficked,
+            r.SubCatChildLabor,
+            r.SubCatPhysicalAbuse,
+            r.SubCatSexualAbuse,
+            r.SubCatOsaec,
+            r.SubCatCicl,
+            r.SubCatAtRisk,
+            r.SubCatStreetChild,
+            r.SubCatChildWithHiv,
+            r.IsPwd,
+            r.PwdType,
+            r.HasSpecialNeeds,
+            r.SpecialNeedsDiagnosis,
             educationRecords,
             healthWellbeingRecords,
             processRecordings,

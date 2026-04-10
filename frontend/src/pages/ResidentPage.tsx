@@ -79,6 +79,230 @@ function formatLocalDateMdY(d: Date): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
+/** Sort key for ISO-ish record dates (date-only prefix preferred). */
+function recordDateComparable(iso: string): number {
+  const part = iso.split("T")[0] ?? "";
+  const local = part ? parseDateOnlyLocal(part) : null;
+  if (local) return local.getTime();
+  const t = Date.parse(iso);
+  return Number.isNaN(t) ? 0 : t;
+}
+
+/** Whole local days from session date to today (0 if today). */
+function daysSinceMostRecentSession(sessionDateIso: string): number | null {
+  const part = sessionDateIso.split("T")[0] ?? "";
+  const sessionDay = part ? parseDateOnlyLocal(part) : parseDateOnlyLocal(sessionDateIso);
+  if (!sessionDay) {
+    const t = Date.parse(sessionDateIso);
+    if (Number.isNaN(t)) return null;
+    const normalized = startOfLocalDay(new Date(t));
+    const today = startOfLocalDay(new Date());
+    return Math.max(0, Math.round((today.getTime() - normalized.getTime()) / 86400000));
+  }
+  const today = startOfLocalDay(new Date());
+  return Math.max(
+    0,
+    Math.round((today.getTime() - startOfLocalDay(sessionDay).getTime()) / 86400000),
+  );
+}
+
+/** First line of value after `health status:` in notes (case-insensitive). */
+function parseHealthStatusFromNotes(notes: string | undefined | null): string | null {
+  if (notes == null) return null;
+  const trimmed = notes.trim();
+  if (!trimmed) return null;
+  const m = /health\s*status\s*:\s*(.+)/i.exec(trimmed);
+  if (!m) return null;
+  const firstLine = m[1].split(/\n/)[0]?.trim() ?? "";
+  return firstLine.replace(/\s+/g, " ") || null;
+}
+
+type ResidentQuickMetricsProps = {
+  daysSinceTherapy: number | null;
+  educationProgressPercent: number | null | undefined;
+  healthStatusLabel: string | null;
+};
+
+function ResidentQuickMetricsSection({
+  daysSinceTherapy,
+  educationProgressPercent,
+  healthStatusLabel,
+}: ResidentQuickMetricsProps) {
+  const therapyDisplay =
+    daysSinceTherapy === null ? "\u2014" : String(daysSinceTherapy);
+  const therapySub =
+    daysSinceTherapy === null
+      ? "No process / therapy sessions on file."
+      : daysSinceTherapy === 0
+        ? "Latest session is today."
+        : daysSinceTherapy === 1
+          ? "Since last session."
+          : "Days since last session.";
+
+  const progressDisplay =
+    educationProgressPercent != null && !Number.isNaN(Number(educationProgressPercent))
+      ? `${Math.round(Number(educationProgressPercent))}%`
+      : "\u2014";
+  const progressSub =
+    educationProgressPercent != null && !Number.isNaN(Number(educationProgressPercent))
+      ? "From most recent education record."
+      : "No progress value on latest education record.";
+
+  const healthDisplay = healthStatusLabel?.trim() ? healthStatusLabel.trim() : "\u2014";
+  const healthSub =
+    healthStatusLabel?.trim() ? "From most recent health & wellbeing notes." : "No parsed health status in latest record.";
+
+  return (
+    <div className="resident-profile-metrics">
+      <p className="landing-section__eyebrow mb-3">Case metrics</p>
+      <div className="row g-3 align-items-stretch">
+        <div className="col-12 col-md-4">
+          <div
+            className="resident-metric-tile resident-metric-tile--therapy h-100"
+            role="group"
+            aria-label="Therapy session recency"
+          >
+            <div className="resident-metric-tile__accent" aria-hidden="true" />
+            <div className="resident-metric-tile__body">
+              <p className="resident-metric-tile__label mb-1">Days since last therapy session</p>
+              <p className="resident-metric-tile__value mb-0">{therapyDisplay}</p>
+              <p className="resident-metric-tile__hint mb-0">{therapySub}</p>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div
+            className="resident-metric-tile resident-metric-tile--education h-100"
+            role="group"
+            aria-label="Education progress"
+          >
+            <div className="resident-metric-tile__accent" aria-hidden="true" />
+            <div className="resident-metric-tile__body">
+              <p className="resident-metric-tile__label mb-1">Education progress</p>
+              <p className="resident-metric-tile__value mb-0">{progressDisplay}</p>
+              <p className="resident-metric-tile__hint mb-0">{progressSub}</p>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div
+            className="resident-metric-tile resident-metric-tile--health h-100"
+            role="group"
+            aria-label="Health status"
+          >
+            <div className="resident-metric-tile__accent" aria-hidden="true" />
+            <div className="resident-metric-tile__body">
+              <p className="resident-metric-tile__label mb-1">Health status</p>
+              <p className="resident-metric-tile__value resident-metric-tile__value--text mb-0">
+                {healthDisplay}
+              </p>
+              <p className="resident-metric-tile__hint mb-0">{healthSub}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type FlagLine = { label: string; detail?: string };
+
+function residentHouseholdFlagLines(r: ResidentDetail): FlagLine[] {
+  const out: FlagLine[] = [];
+  if (r.familyIs4ps === true) out.push({ label: "4P family" });
+  if (r.familySoloParent === true) out.push({ label: "Solo parent" });
+  if (r.familyIndigenous === true) out.push({ label: "Indigenous" });
+  if (r.familyParentPwd === true) out.push({ label: "Parents with disability" });
+  return out;
+}
+
+function residentClassificationFlagLines(r: ResidentDetail): FlagLine[] {
+  const out: FlagLine[] = [];
+  if (r.subCatOrphaned === true) out.push({ label: "Orphaned" });
+  if (r.subCatTrafficked === true) out.push({ label: "Trafficked" });
+  if (r.subCatChildLabor === true) out.push({ label: "Child labor" });
+  if (r.subCatPhysicalAbuse === true) out.push({ label: "Physical abuse" });
+  if (r.subCatSexualAbuse === true) out.push({ label: "Sexual abuse" });
+  if (r.subCatOsaec === true) out.push({ label: "Online sexual abuse" });
+  if (r.subCatCicl === true) out.push({ label: "Legal conflict" });
+  if (r.subCatAtRisk === true) out.push({ label: "At risk" });
+  if (r.subCatStreetChild === true) out.push({ label: "Street child" });
+  if (r.subCatChildWithHiv === true) out.push({ label: "HIV" });
+  if (r.isPwd === true) {
+    const detail = r.pwdType?.trim();
+    out.push({
+      label: "Disability",
+      ...(detail ? { detail } : {}),
+    });
+  }
+  if (r.hasSpecialNeeds === true) {
+    const detail = r.specialNeedsDiagnosis?.trim();
+    out.push({
+      label: "Special needs",
+      ...(detail ? { detail } : {}),
+    });
+  }
+  return out;
+}
+
+function ResidentHouseholdClassificationCard({ resident }: { resident: ResidentDetail }) {
+  const household = residentHouseholdFlagLines(resident);
+  const classification = residentClassificationFlagLines(resident);
+  const total = household.length + classification.length;
+
+  return (
+    <div className="card shadow-sm beacon-detail-card resident-record-preview-card h-100">
+      <div className="card-body d-flex flex-column">
+        <div className="mb-3">
+          <h3 className="h5 mb-1 fw-semibold">Household &amp; classification</h3>
+          <p className="text-muted small mb-0">
+            {total === 0 ? "No flags recorded" : `${total} active flag${total === 1 ? "" : "s"}`}
+          </p>
+        </div>
+
+        {total === 0 ? (
+          <p className="small text-muted mb-0 mt-auto">
+            Intake flags will appear here when they are set on the resident record.
+          </p>
+        ) : (
+          <div className="small mt-auto">
+            {household.length > 0 ? (
+              <div className="mb-3">
+                <p className="landing-section__eyebrow mb-2">Household</p>
+                <ul className="list-unstyled mb-0 resident-profile-flags">
+                  {household.map(({ label, detail }) => (
+                    <li key={label} className="mb-2">
+                      <span className="badge bg-secondary rounded-pill me-1 align-middle">{label}</span>
+                      {detail ? (
+                        <span className="text-muted d-block mt-1 ps-1">{detail}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {classification.length > 0 ? (
+              <div>
+                <p className="landing-section__eyebrow mb-2">Classification</p>
+                <ul className="list-unstyled mb-0 resident-profile-flags">
+                  {classification.map(({ label, detail }) => (
+                    <li key={`${label}-${detail ?? ""}`} className="mb-2">
+                      <span className="badge bg-secondary rounded-pill me-1 align-middle">{label}</span>
+                      {detail ? (
+                        <span className="text-muted d-block mt-1 ps-1">{detail}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ResidentPage() {
   const { id } = useParams();
   const [resident, setResident] = useState<ResidentDetail | null>(null);
@@ -185,6 +409,24 @@ function ResidentPage() {
   const processRecordings = resident.processRecordings ?? [];
   const homeVisitations = resident.homeVisitations ?? [];
   const incidentReports = resident.incidentReports ?? [];
+
+  const sortedProcess = [...processRecordings].sort(
+    (a, b) => recordDateComparable(b.sessionDate) - recordDateComparable(a.sessionDate),
+  );
+  const daysSinceTherapy =
+    sortedProcess[0] != null
+      ? daysSinceMostRecentSession(sortedProcess[0].sessionDate)
+      : null;
+
+  const sortedEducation = [...educationRecords].sort(
+    (a, b) => recordDateComparable(b.recordDate) - recordDateComparable(a.recordDate),
+  );
+  const educationProgressPercent = sortedEducation[0]?.progressPercent;
+
+  const sortedHealth = [...healthWellbeingRecords].sort(
+    (a, b) => recordDateComparable(b.recordDate) - recordDateComparable(a.recordDate),
+  );
+  const healthStatusLabel = parseHealthStatusFromNotes(sortedHealth[0]?.notes);
 
   const dobDisplay = resident.dateOfBirth
     ? formatDate(resident.dateOfBirth)
@@ -344,6 +586,9 @@ function ResidentPage() {
           <p className="landing-section__eyebrow mb-3">Case records</p>
           <div className="row row-cols-1 row-cols-md-2 g-3 resident-record-sections-grid">
             <div className="col">
+              <ResidentHouseholdClassificationCard resident={resident} />
+            </div>
+            <div className="col">
               <EducationRecordsSection
                 records={educationRecords}
                 residentId={residentIdNum}
@@ -380,6 +625,12 @@ function ResidentPage() {
               />
             </div>
           </div>
+
+          <ResidentQuickMetricsSection
+            daysSinceTherapy={daysSinceTherapy}
+            educationProgressPercent={educationProgressPercent}
+            healthStatusLabel={healthStatusLabel}
+          />
         </div>
       </div>
     </div>

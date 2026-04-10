@@ -535,22 +535,46 @@ public class BeaconController : ControllerBase
 
     private async Task<IActionResult> DeleteResidentCoreAsync(int id)
     {
-        var entity = await _beaconContext.Residents
-            .FirstOrDefaultAsync(r => r.ResidentId == id, HttpContext.RequestAborted);
-        if (entity == null)
-            return NotFound();
-
-        _beaconContext.Residents.Remove(entity);
         try
         {
-            await _beaconContext.SaveChangesAsync(HttpContext.RequestAborted);
+            var exists = await _beaconContext.Residents.AsNoTracking()
+                .AnyAsync(r => r.ResidentId == id, HttpContext.RequestAborted);
+            if (!exists)
+                return NotFound();
+
+            // Avoid loading the full Resident row (production schemas may omit columns EF maps).
+            // Delete dependents explicitly so DB FKs match EF even when import scripts did not add ON DELETE CASCADE.
+            await using var tx = await _beaconContext.Database.BeginTransactionAsync(HttpContext.RequestAborted);
+            await _beaconContext.EducationRecords.Where(e => e.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.HealthWellbeingRecords.Where(h => h.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.HomeVisitations.Where(v => v.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.IncidentReports.Where(i => i.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.InterventionPlans.Where(p => p.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.ProcessRecordings.Where(p => p.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            await _beaconContext.ResidentMlScores.Where(m => m.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+
+            var deleted = await _beaconContext.Residents.Where(r => r.ResidentId == id)
+                .ExecuteDeleteAsync(HttpContext.RequestAborted);
+            if (deleted == 0)
+            {
+                await tx.RollbackAsync(HttpContext.RequestAborted);
+                return NotFound();
+            }
+
+            await tx.CommitAsync(HttpContext.RequestAborted);
+            return NoContent();
         }
         catch (Exception ex)
         {
             return DatabaseMutationFailed("Could not delete resident", "DeleteResident: failed", ex);
         }
-
-        return NoContent();
     }
 
     private async Task<IActionResult> DeleteSafehouseCoreAsync(int id)

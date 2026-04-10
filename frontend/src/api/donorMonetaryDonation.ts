@@ -13,7 +13,16 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
     const data: unknown = await response.json();
     if (data && typeof data === "object") {
       const o = data as Record<string, unknown>;
-      if (typeof o.message === "string" && o.message.length > 0) return o.message;
+      const sqlState = typeof o.sqlState === "string" ? o.sqlState : null;
+      const base =
+        (typeof o.message === "string" && o.message.length > 0
+          ? o.message
+          : typeof o.detail === "string" && o.detail.length > 0
+            ? o.detail
+            : typeof o.title === "string" && o.title.length > 0
+              ? o.title
+              : null) ?? fallback;
+      return sqlState ? `${base} (SQL ${sqlState})` : base;
     }
   } catch {
     /* ignore */

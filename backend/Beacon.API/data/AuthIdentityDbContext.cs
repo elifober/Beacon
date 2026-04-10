@@ -809,21 +809,14 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             var dbTx = infra.GetInfrastructure()
                 ?? throw new InvalidOperationException("Underlying DbTransaction is not available.");
 
-            if (conn is not NpgsqlConnection npgConn)
-            {
-                throw new InvalidOperationException("PostgreSQL connection required to record donations.");
-            }
-
-            var npgTx = (NpgsqlTransaction)dbTx;
-
             int donationId;
 
             switch (strategy)
             {
                 case MonetaryDonationInsertStrategy.Returning:
-                    donationId = await ExecuteNpgsqlScalarIntAsync(
-                        npgConn,
-                        npgTx,
+                    donationId = await ExecuteDbScalarIntAsync(
+                        conn,
+                        dbTx,
                         """
                         INSERT INTO donations (
                             supporter_id,
@@ -855,21 +848,21 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                         """,
                         cmd =>
                         {
-                            cmd.Parameters.AddWithValue("supporter_id", supporterId);
-                            cmd.Parameters.AddWithValue("donation_type", "monetary");
-                            cmd.Parameters.AddWithValue("donation_date", donationDate);
-                            cmd.Parameters.AddWithValue("is_recurring", isRecurring);
-                            cmd.Parameters.AddWithValue("channel_source", "direct");
-                            cmd.Parameters.AddWithValue("currency_code", "PHP");
-                            cmd.Parameters.AddWithValue("amount", amount);
-                            cmd.Parameters.AddWithValue("estimated_value", amount);
-                            cmd.Parameters.AddWithValue("impact_unit", "pesos");
+                            AddDbParameter(cmd, "supporter_id", supporterId);
+                            AddDbParameter(cmd, "donation_type", "monetary");
+                            AddDbParameter(cmd, "donation_date", donationDate);
+                            AddDbParameter(cmd, "is_recurring", isRecurring);
+                            AddDbParameter(cmd, "channel_source", "direct");
+                            AddDbParameter(cmd, "currency_code", "PHP");
+                            AddDbParameter(cmd, "amount", amount);
+                            AddDbParameter(cmd, "estimated_value", amount);
+                            AddDbParameter(cmd, "impact_unit", "pesos");
                         },
                         cancellationToken);
 
-                    await ExecuteNpgsqlNonQueryAsync(
-                        npgConn,
-                        npgTx,
+                    await ExecuteDbNonQueryAsync(
+                        conn,
+                        dbTx,
                         """
                         INSERT INTO donation_allocations (
                             donation_id,
@@ -889,10 +882,10 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                         """,
                         cmd =>
                         {
-                            cmd.Parameters.AddWithValue("donation_id", donationId);
-                            cmd.Parameters.AddWithValue("safehouse_id", safehouseId);
-                            cmd.Parameters.AddWithValue("amount", amount);
-                            cmd.Parameters.AddWithValue("allocation_date", donationDate);
+                            AddDbParameter(cmd, "donation_id", donationId);
+                            AddDbParameter(cmd, "safehouse_id", safehouseId);
+                            AddDbParameter(cmd, "amount", amount);
+                            AddDbParameter(cmd, "allocation_date", donationDate);
                         },
                         cancellationToken);
                     break;
@@ -914,9 +907,9 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                     var overriding = strategy == MonetaryDonationInsertStrategy.ExplicitPkOverriding;
                     var overrideClause = overriding ? "OVERRIDING SYSTEM VALUE " : "";
 
-                    await ExecuteNpgsqlNonQueryAsync(
-                        npgConn,
-                        npgTx,
+                    await ExecuteDbNonQueryAsync(
+                        conn,
+                        dbTx,
                         $"""
                         INSERT INTO donations (
                             donation_id,
@@ -950,22 +943,22 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                         """,
                         cmd =>
                         {
-                            cmd.Parameters.AddWithValue("donation_id", donationId);
-                            cmd.Parameters.AddWithValue("supporter_id", supporterId);
-                            cmd.Parameters.AddWithValue("donation_type", "monetary");
-                            cmd.Parameters.AddWithValue("donation_date", donationDate);
-                            cmd.Parameters.AddWithValue("is_recurring", isRecurring);
-                            cmd.Parameters.AddWithValue("channel_source", "direct");
-                            cmd.Parameters.AddWithValue("currency_code", "PHP");
-                            cmd.Parameters.AddWithValue("amount", amount);
-                            cmd.Parameters.AddWithValue("estimated_value", amount);
-                            cmd.Parameters.AddWithValue("impact_unit", "pesos");
+                            AddDbParameter(cmd, "donation_id", donationId);
+                            AddDbParameter(cmd, "supporter_id", supporterId);
+                            AddDbParameter(cmd, "donation_type", "monetary");
+                            AddDbParameter(cmd, "donation_date", donationDate);
+                            AddDbParameter(cmd, "is_recurring", isRecurring);
+                            AddDbParameter(cmd, "channel_source", "direct");
+                            AddDbParameter(cmd, "currency_code", "PHP");
+                            AddDbParameter(cmd, "amount", amount);
+                            AddDbParameter(cmd, "estimated_value", amount);
+                            AddDbParameter(cmd, "impact_unit", "pesos");
                         },
                         cancellationToken);
 
-                    await ExecuteNpgsqlNonQueryAsync(
-                        npgConn,
-                        npgTx,
+                    await ExecuteDbNonQueryAsync(
+                        conn,
+                        dbTx,
                         $"""
                         INSERT INTO donation_allocations (
                             allocation_id,
@@ -987,11 +980,11 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                         """,
                         cmd =>
                         {
-                            cmd.Parameters.AddWithValue("allocation_id", allocationId);
-                            cmd.Parameters.AddWithValue("donation_id", donationId);
-                            cmd.Parameters.AddWithValue("safehouse_id", safehouseId);
-                            cmd.Parameters.AddWithValue("amount", amount);
-                            cmd.Parameters.AddWithValue("allocation_date", donationDate);
+                            AddDbParameter(cmd, "allocation_id", allocationId);
+                            AddDbParameter(cmd, "donation_id", donationId);
+                            AddDbParameter(cmd, "safehouse_id", safehouseId);
+                            AddDbParameter(cmd, "amount", amount);
+                            AddDbParameter(cmd, "allocation_date", donationDate);
                         },
                         cancellationToken);
                     break;
@@ -1010,27 +1003,48 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         }
     }
 
-    private static async Task<int> ExecuteNpgsqlScalarIntAsync(
-        NpgsqlConnection conn,
-        NpgsqlTransaction tx,
+    private static void AddDbParameter(DbCommand cmd, string parameterName, object? value)
+    {
+        var p = cmd.CreateParameter();
+        p.ParameterName = parameterName;
+        if (value is DateOnly d)
+        {
+            p.DbType = DbType.Date;
+            p.Value = d;
+        }
+        else
+        {
+            p.Value = value ?? DBNull.Value;
+        }
+
+        cmd.Parameters.Add(p);
+    }
+
+    private static async Task<int> ExecuteDbScalarIntAsync(
+        DbConnection conn,
+        DbTransaction dbTx,
         string sql,
-        Action<NpgsqlCommand> bind,
+        Action<DbCommand> bind,
         CancellationToken cancellationToken)
     {
-        await using var cmd = new NpgsqlCommand(sql, conn, tx);
+        await using var cmd = conn.CreateCommand();
+        cmd.Transaction = dbTx;
+        cmd.CommandText = sql;
         bind(cmd);
         var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
     }
 
-    private static async Task ExecuteNpgsqlNonQueryAsync(
-        NpgsqlConnection conn,
-        NpgsqlTransaction tx,
+    private static async Task ExecuteDbNonQueryAsync(
+        DbConnection conn,
+        DbTransaction dbTx,
         string sql,
-        Action<NpgsqlCommand> bind,
+        Action<DbCommand> bind,
         CancellationToken cancellationToken)
     {
-        await using var cmd = new NpgsqlCommand(sql, conn, tx);
+        await using var cmd = conn.CreateCommand();
+        cmd.Transaction = dbTx;
+        cmd.CommandText = sql;
         bind(cmd);
         await cmd.ExecuteNonQueryAsync(cancellationToken);
     }

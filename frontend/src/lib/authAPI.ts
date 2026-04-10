@@ -27,19 +27,30 @@ async function readApiError(
       return data.title;
     }
   
-    if (data?.errors && typeof data.errors === 'object') {
+    if (data?.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
       const firstError = Object.values(data.errors)
       .flat()
       .find((value): value is string => typeof value === 'string');
 
-    if (firstError) {
-      return firstError;
+      if (firstError) {
+        return firstError;
+      }
     }
-  }
 
-  if (typeof data?.message === 'string' && data.message.length > 0) {
-    return data.message;
-  }
+    if (typeof data?.message === 'string' && data.message.length > 0) {
+      return data.message;
+    }
+
+    if (typeof data?.error === 'string' && data.error.length > 0) {
+        return data.error;
+    }
+
+    if (Array.isArray(data?.errors)) {
+        const first = data.errors.find((x: unknown): x is string => typeof x === 'string');
+        if (first) {
+            return first;
+        }
+    }
 
   return fallbackMessage;
 }

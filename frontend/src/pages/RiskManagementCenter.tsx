@@ -9,6 +9,7 @@ import {
   type RiskSummary,
 } from "../api/Risk";
 import AdminDashboardBackLink from "../components/AdminDashboardBackLink";
+import Pagination from "../components/Pagination";
 
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
 
@@ -45,6 +46,17 @@ export default function RiskManagementCenter() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("residents-incident");
+  const [incidentPage, setIncidentPage] = useState(1);
+  const [reintegrationPage, setReintegrationPage] = useState(1);
+  const [supporterPage, setSupporterPage] = useState(1);
+  const pageSize = 15;
+
+    // Reset to page 1 when switching tabs
+  useEffect(() => {
+    setIncidentPage(1);
+    setReintegrationPage(1);
+    setSupporterPage(1);
+    }, [tab]);
 
   useEffect(() => {
     Promise.all([getRiskSummary(), getResidentRisks(), getSupporterRisks()])
@@ -188,7 +200,9 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByIncident.map((r) => (
+                {residentsByIncident
+                    .slice((incidentPage - 1) * pageSize, incidentPage * pageSize)
+                    .map((r) => (
                   <tr key={r.residentId}>
                     <td>
                       <Link to={`/resident/${r.residentId}`}>{r.name}</Link>
@@ -202,6 +216,13 @@ export default function RiskManagementCenter() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={incidentPage}
+            pageSize={pageSize}
+            totalCount={residentsByIncident.length}
+            onPageChange={setIncidentPage}
+            className="mt-4"
+            />
         </div>
       )}
 
@@ -219,7 +240,9 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByReintegration.map((r) => (
+                {residentsByReintegration
+                    .slice((reintegrationPage - 1) * pageSize, reintegrationPage * pageSize)
+                    .map((r) => (
                   <tr key={r.residentId}>
                     <td>
                       <Link to={`/resident/${r.residentId}`}>{r.name}</Link>
@@ -233,6 +256,13 @@ export default function RiskManagementCenter() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={reintegrationPage}
+            pageSize={pageSize}
+            totalCount={residentsByReintegration.length}
+            onPageChange={setReintegrationPage}
+            className="mt-4"
+            />
         </div>
       )}
 
@@ -250,7 +280,9 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {supportersByChurn.map((s) => (
+                {supportersByChurn
+                    .slice((supporterPage - 1) * pageSize, supporterPage * pageSize)
+                    .map((s) => (
                   <tr key={s.supporterId}>
                     <td>
                        <Link to={`/donor/${s.supporterId}`}>{s.name}</Link>

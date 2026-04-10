@@ -1854,6 +1854,18 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 /* Admin dashboard — overview KPIs */
+.admin-overview__panel {
+  transform-style: preserve-3d;
+  transition: transform 180ms ease;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-overview__panel {
+    transition: none;
+    transform: none !important;
+  }
+}
+
 .admin-overview__kpis {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1876,6 +1888,21 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.admin-kpi--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.admin-kpi--link:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 30px rgba(27, 38, 29, 0.1);
+}
+.admin-kpi--link:focus-visible {
+  outline: 3px solid rgba(45, 79, 53, 0.45);
+  outline-offset: 2px;
 }
 .admin-kpi__value {
   font-family: "Plus Jakarta Sans", sans-serif;

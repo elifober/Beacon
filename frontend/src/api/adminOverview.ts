@@ -69,6 +69,9 @@ export async function fetchAdminOverviewStats(): Promise<AdminOverviewStats | nu
   try {
     const url = new URL("Admin/OverviewStats", `${BASE_URL}/`);
     const res = await fetch(url.toString(), { credentials: "include" });
+    if (res.status === 401 || res.status === 403) {
+      return null;
+    }
     if (!res.ok) return null;
     const raw: unknown = await res.json();
     return parseAdminOverviewStats(raw);

@@ -15,8 +15,6 @@ function AdminSearchInput({
         src="/logo.png"
         alt=""
         className="admin-hub-search__logo flex-shrink-0"
-        width={40}
-        height={40}
         decoding="async"
       />
       <input

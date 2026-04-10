@@ -58,8 +58,6 @@ function SearchBar({ maxWidth = 400, inputClassName = "" }: SearchBarProps) {
           src="/logo.png"
           alt=""
           className="search-bar__logo flex-shrink-0"
-          width={44}
-          height={44}
           decoding="async"
         />
         <div className="search-bar__field flex-grow-1 position-relative min-w-0">

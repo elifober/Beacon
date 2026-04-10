@@ -56,7 +56,6 @@ function AdminDashboardPage() {
   const [adminHeroFallback, setAdminHeroFallback] = useState(false);
   const [overviewStats, setOverviewStats] = useState<AdminOverviewStats | null>(null);
   const [overviewError, setOverviewError] = useState(false);
-  const [tiltStyle, setTiltStyle] = useState<React.CSSProperties | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,22 +72,6 @@ function AdminDashboardPage() {
       cancelled = true;
     };
   }, []);
-
-  const onOverviewMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    const el = e.currentTarget;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width; // 0..1
-    const py = (e.clientY - r.top) / r.height; // 0..1
-    const rotY = (px - 0.5) * 6; // degrees
-    const rotX = (0.5 - py) * 4; // degrees
-    setTiltStyle({
-      transform: `perspective(900px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`,
-    });
-  };
-
-  const onOverviewLeave: React.MouseEventHandler<HTMLDivElement> = () => {
-    setTiltStyle(undefined);
-  };
 
   type NeedItem = { key: string; label: string; to: string };
   const needs: NeedItem[] = [];
@@ -141,12 +124,7 @@ function AdminDashboardPage() {
 
           <div className="row g-4 align-items-stretch">
             <div className="col-lg-8">
-              <div
-                className="admin-dashboard__panel h-100 admin-overview__panel"
-                onMouseMove={onOverviewMove}
-                onMouseLeave={onOverviewLeave}
-                style={tiltStyle}
-              >
+              <div className="admin-dashboard__panel h-100">
                 <p className="landing-section__eyebrow mb-2">Overview</p>
                 <h2 className="landing-section__heading mb-3">At a glance</h2>
 

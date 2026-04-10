@@ -125,7 +125,7 @@ export default function RiskManagementCenter() {
       <header className="admin-dashboard__hero" aria-label="Risk management header">
         <img
           className="admin-dashboard__hero-img"
-          src={heroFallback ? heroForestImage : "/newadmindashboard.jpg"}
+          src={heroFallback ? heroForestImage : "/riskcenter.jpg"}
           alt=""
           decoding="async"
           onError={() => setHeroFallback(true)}
@@ -134,7 +134,7 @@ export default function RiskManagementCenter() {
         <div className="container admin-dashboard__hero-content">
           <p className="admin-dashboard__hero-eyebrow">Admin</p>
           <h1 className="admin-dashboard__hero-title">Risk Management Center</h1>
-          <p className="post-planner__lead mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+          <p className="post-planner__lead admin-dashboard__hero-subtitle mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
             Predictive risk scores for residents and supporters, powered by the Beacon ML pipelines.
           </p>
         </div>
@@ -142,11 +142,8 @@ export default function RiskManagementCenter() {
 
       <section className="admin-dashboard__main">
         <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+          <div className="mb-4">
             <AdminDashboardBackLink />
-            <Link to="/admin/post-planner" className="btn btn-primary btn-sm">
-              Open Post Planner
-            </Link>
           </div>
 
           {/* Summary cards */}
@@ -174,21 +171,21 @@ export default function RiskManagementCenter() {
           </div>
 
           {/* Tab switcher */}
-          <div className="btn-group btn-group-sm flex-wrap mb-3 w-100 w-md-auto" role="tablist">
+          <div className="risk-tabs mb-3" role="tablist" aria-label="Risk view tabs">
         <button
-          className={`btn ${tab === "residents-incident" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "residents-incident" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("residents-incident")}
         >
           Incident risk
         </button>
         <button
-          className={`btn ${tab === "residents-reintegration" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "residents-reintegration" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("residents-reintegration")}
         >
           Reintegration
         </button>
         <button
-          className={`btn ${tab === "supporters" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "supporters" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("supporters")}
         >
           Supporter Churn
@@ -197,7 +194,7 @@ export default function RiskManagementCenter() {
 
       {/* Tables */}
       {tab === "residents-incident" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -231,13 +228,13 @@ export default function RiskManagementCenter() {
             pageSize={pageSize}
             totalCount={residentsByIncident.length}
             onPageChange={setIncidentPage}
-            className="mt-4"
+            className="mt-3 d-flex justify-content-center"
             />
         </div>
       )}
 
       {tab === "residents-reintegration" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -271,13 +268,13 @@ export default function RiskManagementCenter() {
             pageSize={pageSize}
             totalCount={residentsByReintegration.length}
             onPageChange={setReintegrationPage}
-            className="mt-4"
+            className="mt-3 d-flex justify-content-center"
             />
         </div>
       )}
 
       {tab === "supporters" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -306,6 +303,13 @@ export default function RiskManagementCenter() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={supporterPage}
+            pageSize={pageSize}
+            totalCount={supportersByChurn.length}
+            onPageChange={setSupporterPage}
+            className="mt-3 d-flex justify-content-center"
+          />
         </div>
       )}
         </div>

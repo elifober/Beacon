@@ -1832,6 +1832,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-shadow: 0 2px 24px rgba(27, 38, 29, 0.4);
 }
 
+.admin-dashboard__hero-subtitle {
+  max-width: 44ch;
+  margin-inline: 0;
+  margin-top: 0.55rem;
+  text-align: left;
+}
+
 .admin-dashboard__main {
   padding: 3rem 0 4.5rem;
 }
@@ -1854,18 +1861,6 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 /* Admin dashboard — overview KPIs */
-.admin-overview__panel {
-  transform-style: preserve-3d;
-  transition: transform 180ms ease;
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce) {
-  .admin-overview__panel {
-    transition: none;
-    transform: none !important;
-  }
-}
-
 .admin-overview__kpis {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4703,7 +4698,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 
 .post-planner__form-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.9rem;
   grid-template-columns: 1fr;
 }
 
@@ -4716,23 +4711,48 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 
 .post-planner__form-grid label > div:first-child {
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--beacon-text-muted);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.38rem;
 }
 
 .post-planner__form-grid .form-check {
   margin-bottom: 0;
-  padding-top: 0.15rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(45, 79, 53, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+}
+.post-planner__form-grid .form-check .form-check-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--beacon-text);
+}
+.post-planner__form-grid .form-check .form-check-input {
+  margin-top: 0.18rem;
 }
 
 .post-planner__form-card {
-  padding: 1.25rem;
+  padding: 1.35rem;
   background: var(--beacon-bg-card);
   border: 1px solid var(--beacon-border);
-  border-radius: var(--beacon-radius);
-  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 8px 26px rgba(27, 38, 29, 0.08);
+}
+.post-planner__form-grid .form-select,
+.post-planner__form-grid .form-control {
+  min-height: 44px;
+  border-radius: 10px;
+  border-color: rgba(45, 79, 53, 0.2);
+  background: #fff;
+}
+.post-planner__form-grid .form-select:focus,
+.post-planner__form-grid .form-control:focus {
+  border-color: rgba(45, 79, 53, 0.45);
+  box-shadow: 0 0 0 0.2rem rgba(45, 79, 53, 0.12);
 }
 
 .post-planner__reminders summary {
@@ -4766,11 +4786,11 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 
 
 .post-planner__aside {
-  padding: 1.25rem;
+  padding: 1.35rem;
   background: var(--beacon-bg-card);
   border: 1px solid var(--beacon-border);
-  border-radius: var(--beacon-radius);
-  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 8px 26px rgba(27, 38, 29, 0.08);
 }
 
 @media (min-width: 992px) {
@@ -4783,8 +4803,8 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .post-planner__aside h3,
 .post-planner__aside h4 {
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.08rem;
+  font-weight: 700;
   margin-bottom: 0.75rem;
 }
 
@@ -4835,16 +4855,95 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .post-planner__aside ul {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--beacon-text-muted);
-  padding-left: 1.15rem;
+  padding-left: 1.05rem;
   margin-bottom: 0;
+  line-height: 1.55;
 }
 
 .post-planner__aside p {
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--beacon-text-muted);
-  line-height: 1.55;
+  line-height: 1.6;
+}
+
+/* Risk center — glass segmented tabs */
+.risk-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  width: 100%;
+  border-radius: 10px;
+  padding: 0.3rem;
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px solid rgba(45, 79, 53, 0.2);
+  backdrop-filter: saturate(1.1) blur(10px);
+  -webkit-backdrop-filter: saturate(1.1) blur(10px);
+}
+.risk-tabs__btn {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--beacon-text);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.55rem 0.8rem;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.risk-tabs__btn:hover {
+  background: rgba(45, 79, 53, 0.08);
+  border-color: rgba(45, 79, 53, 0.18);
+}
+.risk-tabs__btn--active {
+  background: linear-gradient(180deg, rgba(45, 79, 53, 0.95), rgba(45, 79, 53, 0.86));
+  border-color: rgba(45, 79, 53, 0.95);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(45, 79, 53, 0.22);
+}
+.risk-tabs__btn:focus-visible {
+  outline: 3px solid rgba(45, 79, 53, 0.35);
+  outline-offset: 1px;
+}
+@media (max-width: 640px) {
+  .risk-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Risk center table polish */
+.risk-center-table-card .card-body {
+  padding: 1rem 1rem 0.25rem;
+}
+.risk-center-table-card .table {
+  margin-bottom: 0;
+}
+.risk-center-table-card .table th {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--beacon-text-muted);
+  white-space: nowrap;
+  padding-top: 0.65rem;
+  padding-bottom: 0.55rem;
+}
+.risk-center-table-card .table td {
+  font-size: 0.95rem;
+  padding-top: 0.62rem;
+  padding-bottom: 0.62rem;
+  vertical-align: middle;
+}
+.risk-center-table-card .table td:first-child a {
+  font-weight: 600;
+}
+.risk-center-table-card .post-planner__badge {
+  font-size: 0.66rem;
+  padding: 0.19rem 0.44rem;
+  letter-spacing: 0.01em;
 }
 
 /* Admin list pages — link back to main dashboard */

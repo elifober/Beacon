@@ -5,7 +5,6 @@ import {
   type PostPredictionRequest,
   type PostPredictionResponse,
 } from "../../api/postPlanner";
-import { Link } from "react-router-dom";
 import AdminDashboardBackLink from "../../components/AdminDashboardBackLink";
 import heroForestImage from "../../assets/forrest.jpg";
 
@@ -82,7 +81,7 @@ export default function PostPlanner() {
       <header className="admin-dashboard__hero" aria-label="Post planner header">
         <img
           className="admin-dashboard__hero-img"
-          src={heroFallback ? heroForestImage : "/newadmindashboard.jpg"}
+          src={heroFallback ? heroForestImage : "/postplanner.jpg"}
           alt=""
           decoding="async"
           onError={() => setHeroFallback(true)}
@@ -91,7 +90,7 @@ export default function PostPlanner() {
         <div className="container admin-dashboard__hero-content">
           <p className="admin-dashboard__hero-eyebrow">Marketing</p>
           <h1 className="admin-dashboard__hero-title">Post Planner</h1>
-          <p className="post-planner__lead mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+          <p className="post-planner__lead admin-dashboard__hero-subtitle mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
             Draft a post and see its predicted success rate in real time.
           </p>
         </div>
@@ -99,11 +98,8 @@ export default function PostPlanner() {
 
       <section className="admin-dashboard__main">
         <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+          <div className="mb-4">
             <AdminDashboardBackLink />
-            <Link to="/admin/risk" className="btn btn-primary btn-sm">
-              Back to Risk Center
-            </Link>
           </div>
 
           {/* 6 / 6 split: inputs left, predictor right */}

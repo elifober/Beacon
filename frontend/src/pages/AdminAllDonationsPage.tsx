@@ -11,6 +11,14 @@ import { useAdminSearch } from "../context/AdminSearchContext";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import heroForestImage from "../assets/forrest.jpg";
 
+/**
+ * Admin donations list.
+ *
+ * Architecture notes:
+ * - This is a reporting view backed by `/Beacon/AllDonations` (admin-only).
+ * - We keep raw values from the API, then derive display buckets (type/recency/recurring)
+ *   and apply client-side search/filters/pagination.
+ */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   const mm = String(d.getMonth() + 1).padStart(2, "0");

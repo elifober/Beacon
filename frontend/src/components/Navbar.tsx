@@ -3,6 +3,14 @@ import { NavLink, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { showGlobalSiteAnnouncement } from "./SiteAnnouncementBar";
 
+/**
+ * Top navigation.
+ *
+ * Architecture notes:
+ * - Uses roles from `/api/auth/me` (via `AuthContext`) to show role-appropriate dashboard links.
+ * - The UI only hides/shows links; backend policies still enforce actual access.
+ * - Navbar styling changes based on the route (marketing/landing “glass” vs app “solid”).
+ */
 function Navbar() {
   const { authSession, isAuthenticated, isLoading } = useAuth();
   const roles = authSession?.roles ?? [];

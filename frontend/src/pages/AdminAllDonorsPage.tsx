@@ -11,6 +11,16 @@ import { useAdminSearch } from "../context/AdminSearchContext";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import heroForestImage from "../assets/forrest.jpg";
 
+/**
+ * Admin donors list.
+ *
+ * Architecture notes:
+ * - Data comes from an admin-only backend projection (`/Beacon/AllDonors`).
+ * - UI uses client-side search/filters/pagination for fast iteration; the backend still
+ *   enforces AdminOnly on the underlying endpoint.
+ * - Clicking a donor navigates to a donor detail route; the API will still enforce
+ *   donor ownership rules for non-admin users.
+ */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   const mm = String(d.getMonth() + 1).padStart(2, "0");

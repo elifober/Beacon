@@ -41,6 +41,12 @@ public class BeaconController : ControllerBase
             .FirstOrDefaultAsync();
     }
 
+    // Controller responsibilities (high-level):
+    // - `/Beacon/*` provides the main operational REST surface for the SPA.
+    // - Admin-only CRUD endpoints are protected with `AuthPolicies.AdminOnly`.
+    // - Donor/Partner read endpoints use role policies AND (where applicable) ownership checks.
+    //   (Never rely on the SPA route parameter alone for security.)
+
     /// <summary>
     /// Loads a related collection; returns an empty list if the query fails (e.g. table not migrated on prod).
     /// Uses a typed list so System.Text.Json can serialize the response (boxed <c>object</c> + anonymous types often breaks JSON).
@@ -2578,6 +2584,9 @@ public class BeaconController : ControllerBase
     [HttpGet("Donor/{id}")]
     public async Task<IActionResult> GetDonor(int id)
     {
+        // Authorization model:
+        // - Admins may view any donor for operations/support.
+        // - Donors (Supporter role) may only view their own supporterId, even if they guess another ID.
         if (!IsAdminUser())
         {
             var supporterId = await GetCurrentSupporterIdAsync();
@@ -2779,6 +2788,7 @@ public class BeaconController : ControllerBase
     [HttpGet("DonorDashboard/{id}")]
     public async Task<IActionResult> GetDonorDashboard(int id)
     {
+        // Same ownership enforcement as `GetDonor` (dashboard is also personal data).
         if (!IsAdminUser())
         {
             var supporterId = await GetCurrentSupporterIdAsync();

@@ -3,6 +3,16 @@ import type { ReactNode } from 'react';
 import {getAuthSession} from '../lib/authAPI';
 import type { AuthSession } from '../types/AuthSession';
 
+/**
+ * Auth state is derived from the backend session (`/api/auth/me`).
+ *
+ * Architecture notes:
+ * - We do not store passwords/tokens in the SPA.
+ * - The backend sets the session cookie (ASP.NET Identity) and this context hydrates
+ *   the current user/roles from the API.
+ * - UI components read `authSession.roles` to show/hide navigation and to gate routes,
+ *   but the backend is still the source of truth for authorization.
+ */
 interface AuthContextValue {
     authSession: AuthSession | null;
     isAuthenticated: boolean;
@@ -40,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
+        // Load session once on app mount; call `refreshAuthSession` after login/logout events.
         void refreshAuthSession();
     }, [refreshAuthSession]);
 

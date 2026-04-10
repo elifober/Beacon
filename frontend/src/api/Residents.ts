@@ -2,6 +2,14 @@ import { BASE_URL } from "../config/api";
 import type { Resident } from "../types/Resident";
 import type { ResidentList } from "../types/ResidentList";
 
+/**
+ * Residents API (admin-only operations).
+ *
+ * Architecture notes:
+ * - Reads are sometimes public within the admin UI, but the backend still enforces AdminOnly.
+ * - Mutations always send `credentials: "include"` so the Identity session cookie is used.
+ * - We normalize dates (YYYY-MM-DD) to match server expectations and avoid timezone issues.
+ */
 export interface ResidentInput {
   firstName: string;
   lastInitial: string;

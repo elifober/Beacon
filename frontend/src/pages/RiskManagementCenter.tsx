@@ -13,6 +13,14 @@ import Pagination from "../components/Pagination";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import heroForestImage from "../assets/forrest.jpg";
 
+/**
+ * Risk Management Center (admin analytics).
+ *
+ * Architecture notes:
+ * - Pulls three datasets in parallel from `/Risk/*` endpoints (summary + resident risk + supporter risk).
+ * - The backend enforces AdminOnly; this page focuses on visualization, filtering, and paging.
+ * - Uses client-side sorting and quick filters to keep the UI responsive.
+ */
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
 type QuickFilter =
   | "incident-high"

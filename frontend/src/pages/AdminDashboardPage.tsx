@@ -16,6 +16,15 @@ import {
 } from "../components/admin/AdminCreateEntityModals";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Admin landing page / operations hub.
+ *
+ * Architecture notes:
+ * - Primary navigation to admin CRUD lists and analytics tools (Risk Center / Post Planner).
+ * - “Overview” stats are fetched from an admin-only endpoint and rendered defensively
+ *   (fallback UI when the API fails).
+ * - Modal-based “quick add” forms keep admins in context without full-page navigation.
+ */
 const navLinks = [
   { to: "/admin/all-residents", label: "Residents" },
   { to: "/admin/all-safehouses", label: "Safehouses" },

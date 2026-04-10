@@ -1,6 +1,14 @@
 import type { AuthSession } from '../types/AuthSession';
 import { requireApiBaseUrl } from '../lib/apiBaseUrl';
 
+/**
+ * Centralized auth API wrapper.
+ *
+ * Architecture notes:
+ * - All calls include `credentials: 'include'` so the browser sends the Identity session cookie.
+ * - The API base URL is environment-driven (dev/prod) via `VITE_API_BASE_URL`.
+ * - Error parsing is centralized to keep UI code small and consistent.
+ */
 export type ExternalAuthProvider = {
     name: string;
     displayName: string;

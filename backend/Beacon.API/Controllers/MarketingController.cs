@@ -12,6 +12,11 @@ namespace Beacon.Api.Controllers;
 [Authorize(Policy = AuthPolicies.AdminOnly)]
 public class MarketingController : ControllerBase
 {
+    // Post Planner / marketing ML endpoints.
+    //
+    // Architecture notes:
+    // - AdminOnly because this feature is intended for staff planning, not public browsing.
+    // - The predictor is a singleton service that loads model assets/config once at startup.
     private readonly PostSuccessPredictor _predictor;
 
     public MarketingController(PostSuccessPredictor predictor)

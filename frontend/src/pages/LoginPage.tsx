@@ -10,6 +10,15 @@ import { getSafeNextFromSearch } from '../lib/safeInternalPath';
 import { useAuth } from '../context/AuthContext.tsx';
 import { AuthHeroVideo } from '../components/AuthHeroVideo';
 
+/**
+ * Login page (local credentials + external provider entry).
+ *
+ * Architecture notes:
+ * - `loginUser` creates an ASP.NET Identity session (cookie) on the backend.
+ * - After login we immediately call `refreshAuthSession()` (hits `/api/auth/me`) so the SPA
+ *   knows the user's roles and can route them to the correct dashboard.
+ * - External auth (Google) is handled via redirect; errors are returned in the query string.
+ */
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();

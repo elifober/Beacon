@@ -4,6 +4,13 @@ import { BASE_URL } from "../config/api";
 // Swap the suffix so we share the same origin/proxy config.
 const RISK_BASE = BASE_URL.replace(/\/Beacon$/, "") + "/Risk";
 
+/**
+ * Risk Center API.
+ *
+ * Architecture notes:
+ * - Served from a separate controller prefix (`/Risk`) to keep risk queries isolated.
+ * - Uses `credentials: "include"` because these endpoints are admin-only in the backend.
+ */
 export interface ResidentRisk {
   residentId: number;
   name: string;

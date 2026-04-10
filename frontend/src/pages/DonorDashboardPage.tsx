@@ -5,6 +5,14 @@ import type { DonorDashboard } from "../types/DonorDashboard";
 import { DonorDashboardLayout } from "../components/donor/DonorDashboardLayout";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 
+/**
+ * Donor dashboard page.
+ *
+ * Architecture notes:
+ * - The route includes `:id` for deep linking, but the backend enforces ownership:
+ *   donors can only fetch their own dashboard; admins may fetch any donor by ID.
+ * - This page delegates layout/visualization to `DonorDashboardLayout`.
+ */
 function DonorDashboardPage() {
   const { id } = useParams();
   const [data, setData] = useState<DonorDashboard | null>(null);

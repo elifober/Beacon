@@ -129,9 +129,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  background: rgba(242, 244, 240, 0.78);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: transparent;
 }
 
 /* ═══════════════════════════════════════════════
@@ -274,24 +272,22 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   align-items: center;
   text-decoration: none !important;
   flex-shrink: 0;
-  /* Pull scaled logo into vertical padding so bar height stays ~unchanged */
-  margin-block: -0.32rem;
+  /* Keep navbar height stable while logo is visually larger */
+  margin-block: -0.2rem;
 }
 .beacon-navbar__logo {
-  height: 56px;
+  height: 72px;
   width: auto;
   max-width: none;
   object-fit: contain;
   object-position: left center;
   display: block;
-  transform: scale(1.26);
-  transform-origin: left center;
-  transition: filter 0.3s, transform 0.3s;
+  transform: none;
+  transition: filter 0.3s ease;
 }
 /* Hero / glass bar: white mark + layered shadow for legibility on busy media */
 .beacon-navbar--glass .beacon-navbar__logo {
-  filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75))
-    drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
+  filter: brightness(0) invert(1) drop-shadow(0 1px 5px rgba(0, 0, 0, 0.45));
 }
 .beacon-navbar--scrolled .beacon-navbar__logo,
 .beacon-navbar--solid .beacon-navbar__logo {

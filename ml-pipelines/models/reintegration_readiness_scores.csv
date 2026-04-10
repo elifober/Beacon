@@ -1,0 +1,61 @@
+resident_id,name,readiness_score,readiness_level,current_status
+1,Carmen T.,0.4855497822689097,Developing,In Progress
+2,Nicole G.,0.7977472258610607,Ready,Completed
+3,Angel C.,0.638400117722054,Developing,Completed
+4,Julia B.,0.42481264325854623,Developing,On Hold
+5,Francesca Z.,0.5952167618160926,Developing,Completed
+6,Denise H.,0.20629102549626618,Not Ready,In Progress
+7,Clarisse J.,0.20514267746153345,Not Ready,In Progress
+8,Bianca C.,0.2064226825640077,Not Ready,Not Started
+9,Teresa H.,0.6307162907135849,Developing,Not Started
+10,Trisha D.,0.7843678356701008,Ready,On Hold
+11,Fatima M.,0.5061209496699126,Developing,Completed
+12,Nadia I.,0.3200881383370925,Developing,In Progress
+13,Wendy O.,0.6394909590994934,Developing,Completed
+14,Joy W.,0.2484558896317677,Not Ready,In Progress
+15,Zara L.,0.4923313257782581,Developing,On Hold
+16,Patricia F.,0.6985893894425986,Developing,In Progress
+17,Grace L.,0.4756605298384056,Developing,On Hold
+18,Ursela L.,0.2905764607069339,Not Ready,In Progress
+19,Imelda G.,0.6025720203299981,Developing,Completed
+20,Andrea Z.,0.28351625745371256,Not Ready,Completed
+21,Pilar I.,0.8167836074276803,Ready,Completed
+22,Ursula Z.,0.42469135453990603,Developing,Completed
+23,Elena W.,0.4222600143560851,Developing,In Progress
+24,Ximena C.,0.11916221037568019,Not Ready,On Hold
+25,Isabella V.,0.8797379363402343,Ready,Completed
+26,Krista W.,0.35410423321449525,Developing,Not Started
+27,Olivia F.,0.6638697865064551,Developing,In Progress
+28,Beatrice S.,0.22779319462957773,Not Ready,Not Started
+29,Queenie H.,0.6726933918244792,Developing,Completed
+30,Gabriela F.,0.6619508665573411,Developing,Completed
+31,Ofelia O.,0.19654039963943865,Not Ready,In Progress
+32,Natasha M.,0.2139012102917252,Not Ready,On Hold
+33,Gianna I.,0.27790747816937256,Not Ready,In Progress
+34,Maria W.,0.5866022693900612,Developing,Completed
+35,Monica S.,0.4583684958247967,Developing,In Progress
+36,Daniela H.,0.7006874624359162,Ready,In Progress
+37,Katrina Z.,0.2975753268846506,Not Ready,On Hold
+38,Ysabel K.,0.15912617999778772,Not Ready,On Hold
+39,Althea B.,0.6322857536717432,Developing,On Hold
+40,Rosa H.,0.37400290578612044,Developing,On Hold
+41,Faith B.,0.6516819213757858,Developing,In Progress
+42,Mikaela K.,0.23243577718454184,Not Ready,Not Started
+43,Jasmine M.,0.1734674167852762,Not Ready,In Progress
+44,Hope I.,0.3300246241640688,Developing,Completed
+45,Lourdes C.,0.22350650142834924,Not Ready,In Progress
+46,Samantha G.,0.3869110492952984,Developing,Not Started
+47,Helena T.,0.7424135096455732,Ready,In Progress
+48,Tricia K.,0.4638992329747552,Developing,On Hold
+49,Yasmin G.,0.5704005986667381,Developing,Completed
+50,Camille W.,0.3519547163305449,Developing,On Hold
+51,Hannah P.,0.2662700408248754,Not Ready,Not Started
+52,Venus M.,0.8020708278188934,Ready,Completed
+53,Vivienne W.,0.6817556140186137,Developing,Completed
+54,Selena O.,0.41437617165414925,Developing,In Progress
+55,Irene E.,0.2765867247501764,Not Ready,In Progress
+56,Erika I.,0.5955173003083616,Developing,Completed
+57,Sophia E.,0.4323316209606516,Developing,On Hold
+58,Rhea H.,0.2582403236458364,Not Ready,In Progress
+59,Liza S.,0.5913635186473223,Developing,Completed
+60,Angelica S.,0.3624002831386934,Developing,In Progress

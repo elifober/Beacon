@@ -13,3 +13,8 @@
 *.db-shm
 *.db-wal
 /backend/Beacon.API/data/AuthIdentityDbContext.cs
+
+# ml-pipelines
+ml-pipelines/data/*.csv
+ml-pipelines/data/*.parquet
+ml-pipelines/**/.ipynb_checkpoints/

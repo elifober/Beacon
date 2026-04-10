@@ -423,10 +423,12 @@ function LandingPage() {
       <section id="mission" className="landing-section landing-section--light landing-section--mission-tail">
         <div className="container">
           <div className="text-center mb-5">
-            <p className="landing-section__eyebrow">What We Do</p>
-            <h2 className="landing-section__heading">
-              Provide safety, healing, justice, and empowerment.
+            <h2 className="landing-section__heading landing-section__heading--what-we-do">
+              What We Do
             </h2>
+            <p className="landing-section__mission-lead">
+              Provide safety, healing, justice, and empowerment.
+            </p>
           </div>
           <div className="row g-4">
             {pillars.map((p) => (
@@ -448,13 +450,12 @@ function LandingPage() {
       {/* 5b ─── GIVE: Philippines video + donate card (full-width section) ─── */}
       <section className="landing-donate-video landing-donate-video--featured" id="give">
         <div className="landing-donate-video__bg">
-          <video
-            className="landing-donate-video__video"
-            src="/philippines_video.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
+          <img
+            className="landing-donate-video__bg-img"
+            src="/BackwardsJump.jpg"
+            alt=""
+            loading="lazy"
+            decoding="async"
           />
           <div className="landing-donate-video__overlay" />
         </div>
@@ -530,12 +531,14 @@ function LandingPage() {
             </div>
             <div className="col-lg-6">
               <figure className="campaign-media">
-                <img
-                  className="campaign-media__img"
-                  src="/BackwardsJump.jpg"
-                  alt="Children playing outdoors—joy and hope at Beacon"
-                  loading="lazy"
-                  decoding="async"
+                <video
+                  className="campaign-media__video"
+                  src="/philippines_video.mp4"
+                  poster="/BackwardsJump.jpg"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
                 />
                 <figcaption className="campaign-media__caption">Wheels of Hope — getting girls where they need to be, safely.</figcaption>
               </figure>

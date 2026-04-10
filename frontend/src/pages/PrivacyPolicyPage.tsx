@@ -1,17 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="container mt-5 mb-5">
-      <div className="row justify-content-center">
-        <div className="col-lg-10">
-          <div className="card shadow-sm p-4 p-md-5">
+    <div className="beacon-page privacy-policy-page glass-nav-offset">
+      <div className="container py-4 py-md-5 mb-5">
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="card shadow-sm p-4 p-md-5">
             <h1 className="mb-4">Privacy Policy</h1>
             <p className="text-muted">Last updated: April 2026</p>
 
             <p>
-              Beacon ("we", "our", or "us") is committed to protecting your personal data. 
-              This privacy notice explains how we collect, use, and safeguard your information 
+              Beacon (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your personal data.
+              This privacy notice explains how we collect, use, and safeguard your information
               when you visit our application and use our services.
             </p>
 
@@ -30,7 +31,7 @@ export default function PrivacyPolicyPage() {
               <li>Register online or create a supporter profile.</li>
               <li>Log in using our local authentication or via a third-party provider like Google.</li>
               <li>Make a donation or interact with our donor dashboard.</li>
-              <li>Use or view our website via your browser's cookies.</li>
+              <li>Use or view our website via your browser&apos;s cookies.</li>
             </ul>
 
             <h3 className="mt-4">3. How will we use your data?</h3>
@@ -54,7 +55,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="mt-4">5. Cookies</h3>
             <p>
-              Cookies are text files placed on your computer to collect standard Internet log information and visitor behavior information. 
+              Cookies are text files placed on your computer to collect standard Internet log information and visitor behavior information.
               When you visit our application, we collect information from you automatically through cookies strictly necessary for the operation of the site, such as authentication sessions.
             </p>
 
@@ -69,6 +70,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </div>
+      </div>
     </div>
-  );
+  )
 }

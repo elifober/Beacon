@@ -1,14 +1,9 @@
 import Footer from "../components/Footer";
 
-const boardMembers = [
-  { name: "Julie Hernando", role: "President / Co-Founder" },
-  { name: "Lance Platt", role: "Vice President" },
-  { name: "Candace Kunze", role: "Secretary of the Board" },
-  { name: "Kalli Kamauoha-Wilson", role: "Board Member" },
-  { name: "Russell J. Osguthorpe", role: "Board Member" },
-  { name: "Apple Lanman", role: "Board Member" },
-  { name: "Steven Shraedel", role: "Board Member" },
-] as const;
+const fbTooltip =
+  "Opens Lighthouse Sanctuary on Facebook in a new browser tab.";
+const ytTooltip =
+  "Opens Lighthouse Sanctuary on YouTube in a new browser tab.";
 
 function ContactPage() {
   return (
@@ -57,6 +52,7 @@ function ContactPage() {
                     href="https://www.facebook.com/LighthouseSanctuary"
                     target="_blank"
                     rel="noopener noreferrer"
+                    title={fbTooltip}
                   >
                     Facebook
                   </a>
@@ -65,6 +61,7 @@ function ContactPage() {
                     href="https://www.youtube.com/@LighthouseSanctuary"
                     target="_blank"
                     rel="noopener noreferrer"
+                    title={ytTooltip}
                   >
                     YouTube
                   </a>
@@ -73,53 +70,36 @@ function ContactPage() {
             </div>
           </div>
 
-          <article className="contact-page__card">
-            <h2 className="h4 mb-1">Beacon board</h2>
-            <p className="contact-page__board-sub mb-3">
-              The team helping steward operations, partnerships, and survivor support.
-            </p>
-            <div className="row g-4">
-              {boardMembers.map((member) => (
-                <div className="col-sm-6 col-lg-4 col-xl-3" key={member.name}>
-                  <div className="contact-page__board-member mb-0">
-                    <div className="contact-page__board-copy">
-                      <p className="contact-page__member-name mb-1">{member.name}</p>
-                      <p className="contact-page__member-role mb-0">{member.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </article>
-
           <div className="row g-4 mt-1 align-items-stretch">
             <div className="col-lg-6 d-flex">
-              <article className="contact-page__card contact-page__photo-card w-100">
-                <img
-                  src="/garden.jpg"
-                  alt="Beacon community garden"
-                  className="contact-page__photo"
-                  loading="lazy"
-                  decoding="async"
+              <article
+                className="involve-photo-card involve-photo-card--contact w-100"
+                aria-label="Community spaces"
+              >
+                <div
+                  className="involve-photo-card__bg"
+                  style={{ backgroundImage: "url(/garden.jpg)" }}
                 />
-                <div className="contact-page__photo-glass">
-                  <p className="mb-1">Community spaces</p>
-                  <p className="mb-0">Safe places where growth can happen.</p>
+                <div className="involve-photo-card__scrim" aria-hidden="true" />
+                <h3 className="involve-photo-card__title">Community spaces</h3>
+                <div className="involve-photo-card__glass">
+                  <span>Safe places where growth can happen.</span>
                 </div>
               </article>
             </div>
             <div className="col-lg-6 d-flex">
-              <article className="contact-page__card contact-page__photo-card w-100">
-                <img
-                  src="/land.jpg"
-                  alt="Beacon shelter surroundings"
-                  className="contact-page__photo"
-                  loading="lazy"
-                  decoding="async"
+              <article
+                className="involve-photo-card involve-photo-card--contact w-100"
+                aria-label="On-site impact"
+              >
+                <div
+                  className="involve-photo-card__bg"
+                  style={{ backgroundImage: "url(/land.jpg)" }}
                 />
-                <div className="contact-page__photo-glass">
-                  <p className="mb-1">On-site impact</p>
-                  <p className="mb-0">Every call and donation supports real places and people.</p>
+                <div className="involve-photo-card__scrim" aria-hidden="true" />
+                <h3 className="involve-photo-card__title">On-site impact</h3>
+                <div className="involve-photo-card__glass">
+                  <span>Every call and donation supports real places and people.</span>
                 </div>
               </article>
             </div>

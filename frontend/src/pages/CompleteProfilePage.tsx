@@ -76,7 +76,7 @@ function CompleteProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="beacon-page beacon-page--loading text-center">
+      <div className="beacon-page beacon-page--loading text-center glass-nav-offset">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -85,7 +85,7 @@ function CompleteProfilePage() {
   }
 
   return (
-    <div className="beacon-page beacon-page--auth">
+    <div className="beacon-page beacon-page--auth glass-nav-offset">
       <div className="container">
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">

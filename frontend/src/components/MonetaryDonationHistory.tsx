@@ -8,25 +8,28 @@ function formatDate(dateStr: string): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
-interface MonetaryDonationHistoryProps {
-  history: DonorHistoryItem[];
+function filterMonetary(history: DonorHistoryItem[]): DonorHistoryItem[] {
+  return history.filter((item) => item.donationType?.toLowerCase() === "monetary");
 }
 
-function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
-  const monetary = history.filter(
-    (item) => item.donationType?.toLowerCase() === "monetary"
-  );
+export interface MonetaryDonationHistoryProps {
+  history: DonorHistoryItem[];
+  /**
+   * When set, renders only the table (no card/title). Rows should already be monetary
+   * and typically a single page slice.
+   */
+  embeddedTableRows?: DonorHistoryItem[];
+}
 
-  if (monetary.length === 0) {
-    return (
-      <div className="alert alert-secondary">No monetary donations found.</div>
-    );
-  }
+function MonetaryDonationHistory({ history, embeddedTableRows }: MonetaryDonationHistoryProps) {
+  const monetary = embeddedTableRows ?? filterMonetary(history);
+  const embedded = embeddedTableRows != null;
 
-  return (
-    <div className="card beacon-detail-card">
-      <div className="card-body">
-        <h2 className="card-title h5 mb-3">Monetary Donations</h2>
+  const inner =
+    monetary.length === 0 ? (
+      <div className="alert alert-secondary mb-0">No monetary donations found.</div>
+    ) : (
+      <div className="table-responsive">
         <table className="table table-striped table-hover mb-0">
           <thead>
             <tr>
@@ -37,7 +40,7 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
           </thead>
           <tbody>
             {monetary.map((item, i) => (
-              <tr key={i}>
+              <tr key={`${item.donationDate}-${i}`}>
                 <td>{formatDate(item.donationDate)}</td>
                 <td>
                   {item.amount != null
@@ -49,6 +52,18 @@ function MonetaryDonationHistory({ history }: MonetaryDonationHistoryProps) {
             ))}
           </tbody>
         </table>
+      </div>
+    );
+
+  if (embedded) {
+    return inner;
+  }
+
+  return (
+    <div className="card beacon-detail-card">
+      <div className="card-body">
+        <h2 className="card-title h5 mb-3">Monetary Donations</h2>
+        {inner}
       </div>
     </div>
   );

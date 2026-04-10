@@ -136,7 +136,7 @@ function DonorPage() {
       <DonorDashboardLayout
         mode={isAdmin ? "admin" : "donor"}
         data={dashboardData}
-        adminHeroToolbar={
+        adminBelowHeroBar={
           isAdmin ? (
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 w-100">
               <Link to="/admin" className="admin-dashboard-back">
@@ -152,7 +152,7 @@ function DonorPage() {
         }
         footerSlot={
           isAdmin ? (
-            <div className="d-flex flex-wrap gap-2 justify-content-end align-items-center">
+            <>
               <button
                 type="button"
                 className="btn btn-outline-primary"
@@ -167,7 +167,7 @@ function DonorPage() {
                 confirmMessage={`Delete donor "${name}" (ID ${id})? Donation rows linked to this supporter may be removed too. This cannot be undone.`}
                 redirectTo="/admin/all-donors"
               />
-            </div>
+            </>
           ) : undefined
         }
       />

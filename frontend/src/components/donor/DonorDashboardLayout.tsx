@@ -1,6 +1,12 @@
-import { type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { DonorDashboard } from "../../types/DonorDashboard";
+import { ResidentRecordModal } from "../resident/ResidentRecordModal";
+import Pagination from "../Pagination";
+import MonetaryDonationHistory from "../MonetaryDonationHistory";
+import NonMonetaryDonationHistory from "../NonMonetaryDonationHistory";
+
+const DONOR_HISTORY_MODAL_PAGE_SIZE = 10;
 
 function formatCurrency(value: number): string {
   return `PHP ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -42,9 +48,9 @@ export type DonorDashboardLayoutProps = {
   /** Overrides auto welcome line for donor mode */
   heroEyebrow?: string;
   heroTitle?: string;
-  /** Admin: back links row inside hero (under fixed nav) */
-  adminHeroToolbar?: ReactNode;
-  /** Admin: actions at bottom of page (e.g. edit / delete) */
+  /** Admin: back links below hero, above overview */
+  adminBelowHeroBar?: ReactNode;
+  /** Admin: actions after donation activity (still inside main content) */
   footerSlot?: ReactNode;
 };
 
@@ -53,9 +59,18 @@ export function DonorDashboardLayout({
   mode,
   heroEyebrow,
   heroTitle,
-  adminHeroToolbar,
+  adminBelowHeroBar,
   footerSlot,
 }: DonorDashboardLayoutProps) {
+  const [donationModal, setDonationModal] = useState<null | "monetary" | "nonmonetary">(null);
+  const [monetaryModalPage, setMonetaryModalPage] = useState(1);
+  const [nonMonetaryModalPage, setNonMonetaryModalPage] = useState(1);
+
+  useEffect(() => {
+    if (donationModal === "monetary") setMonetaryModalPage(1);
+    if (donationModal === "nonmonetary") setNonMonetaryModalPage(1);
+  }, [donationModal]);
+
   const fullName =
     data.supporter.displayName ??
     ([data.supporter.firstName, data.supporter.lastName].filter(Boolean).join(" ") || "Supporter");
@@ -185,6 +200,15 @@ export function DonorDashboardLayout({
 
   const latestTrend = monthlyTrend[monthlyTrend.length - 1];
 
+  const monetaryModalSlice = monetaryDonations.slice(
+    (monetaryModalPage - 1) * DONOR_HISTORY_MODAL_PAGE_SIZE,
+    monetaryModalPage * DONOR_HISTORY_MODAL_PAGE_SIZE,
+  );
+  const nonMonetaryModalSlice = nonMonetaryDonations.slice(
+    (nonMonetaryModalPage - 1) * DONOR_HISTORY_MODAL_PAGE_SIZE,
+    nonMonetaryModalPage * DONOR_HISTORY_MODAL_PAGE_SIZE,
+  );
+
   const upcomingEvents = [
     {
       title: "Community Build Day",
@@ -221,11 +245,6 @@ export function DonorDashboardLayout({
           decoding="async"
         />
         <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
-        {adminHeroToolbar ? (
-          <div className="donor-dashboard__admin-hero-toolbar">
-            <div className="container">{adminHeroToolbar}</div>
-          </div>
-        ) : null}
         <div className="container admin-dashboard__hero-content">
           <p className="admin-dashboard__hero-eyebrow">{resolvedEyebrow}</p>
           <h1 className="admin-dashboard__hero-title">{resolvedTitle}</h1>
@@ -234,6 +253,10 @@ export function DonorDashboardLayout({
 
       <section className="admin-dashboard__main">
         <div className="container">
+          {adminBelowHeroBar ? (
+            <div className="donor-dashboard__admin-below-hero mb-3 pb-1">{adminBelowHeroBar}</div>
+          ) : null}
+
           <div className="row g-4 align-items-stretch mb-4">
             <div className={mode === "donor" ? "col-lg-8" : "col-12"}>
               <div className="admin-dashboard__panel donor-dashboard__glass-panel h-100">
@@ -277,7 +300,19 @@ export function DonorDashboardLayout({
 
           <div className="row g-3 mb-4">
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
+              <div
+                className="card beacon-stat-card donor-dashboard__glass-panel donor-dashboard__stat-card--drilldown h-100"
+                role="button"
+                tabIndex={0}
+                onClick={() => setDonationModal("monetary")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setDonationModal("monetary");
+                  }
+                }}
+                aria-label="View monetary donation history"
+              >
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Monetary total</p>
                   <p className="beacon-stat-value h3 mb-0">{formatCurrency(monetaryTotal)}</p>
@@ -285,7 +320,19 @@ export function DonorDashboardLayout({
               </div>
             </div>
             <div className="col-12 col-md-6 col-xl-3">
-              <div className="card beacon-stat-card donor-dashboard__glass-panel h-100">
+              <div
+                className="card beacon-stat-card donor-dashboard__glass-panel donor-dashboard__stat-card--drilldown h-100"
+                role="button"
+                tabIndex={0}
+                onClick={() => setDonationModal("nonmonetary")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setDonationModal("nonmonetary");
+                  }
+                }}
+                aria-label="View non-monetary donation history"
+              >
                 <div className="card-body">
                   <p className="beacon-section-subtitle mb-2">Non-monetary estimate</p>
                   <p className="beacon-stat-value h3 mb-0">{formatCurrency(nonMonetaryTotal)}</p>
@@ -429,6 +476,14 @@ export function DonorDashboardLayout({
             </div>
           </div>
 
+          {footerSlot ? (
+            <div className="row mt-4 pt-3 border-top">
+              <div className="col-12 d-flex flex-wrap gap-2 justify-content-end align-items-center">
+                {footerSlot}
+              </div>
+            </div>
+          ) : null}
+
           {mode === "donor" ? (
             <div id="donor-community" className="row g-4 mt-1">
               <div className="col-lg-5">
@@ -464,11 +519,53 @@ export function DonorDashboardLayout({
           ) : null}
         </div>
       </section>
-      {footerSlot ? (
-        <div className="donor-dashboard__admin-footer">
-          <div className="container py-4">{footerSlot}</div>
+
+      <ResidentRecordModal
+        open={donationModal != null}
+        onClose={() => setDonationModal(null)}
+        title={
+          donationModal === "monetary"
+            ? "Monetary donations"
+            : donationModal === "nonmonetary"
+              ? "Non-monetary donations"
+              : ""
+        }
+        belowCard={
+          donationModal === "monetary" &&
+          monetaryDonations.length > DONOR_HISTORY_MODAL_PAGE_SIZE ? (
+            <Pagination
+              className="mt-3"
+              page={monetaryModalPage}
+              pageSize={DONOR_HISTORY_MODAL_PAGE_SIZE}
+              totalCount={monetaryDonations.length}
+              onPageChange={setMonetaryModalPage}
+            />
+          ) : donationModal === "nonmonetary" &&
+            nonMonetaryDonations.length > DONOR_HISTORY_MODAL_PAGE_SIZE ? (
+            <Pagination
+              className="mt-3"
+              page={nonMonetaryModalPage}
+              pageSize={DONOR_HISTORY_MODAL_PAGE_SIZE}
+              totalCount={nonMonetaryDonations.length}
+              onPageChange={setNonMonetaryModalPage}
+            />
+          ) : undefined
+        }
+      >
+        <div className="p-3">
+          {donationModal === "monetary" ? (
+            <MonetaryDonationHistory
+              history={data.donationHistory}
+              embeddedTableRows={monetaryModalSlice}
+            />
+          ) : donationModal === "nonmonetary" ? (
+            <NonMonetaryDonationHistory
+              history={data.donationHistory}
+              embeddedTableRows={nonMonetaryModalSlice}
+            />
+          ) : null}
         </div>
-      ) : null}
+      </ResidentRecordModal>
     </div>
   );
 }

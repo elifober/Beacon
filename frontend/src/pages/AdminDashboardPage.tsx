@@ -131,6 +131,7 @@ function AdminDashboardPage() {
         },
       ]
     : [];
+  const totalAttention = attentionMix.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <div className="admin-dashboard beacon-page">
@@ -156,7 +157,7 @@ function AdminDashboardPage() {
           </div>
 
           <div className="row g-4 align-items-stretch">
-            <div className="col-lg-8">
+            <div className="col-lg-9">
               <div className="admin-dashboard__panel h-100">
                 <p className="landing-section__eyebrow mb-2">Overview</p>
                 <h2 className="landing-section__heading mb-3">At a glance</h2>
@@ -209,37 +210,44 @@ function AdminDashboardPage() {
 
                       <div className="admin-overview__chart-card">
                         <p className="admin-overview__chart-title">Attention load</p>
-                        <div className="admin-overview__attention-bar" role="img" aria-label="Needs attention distribution">
+                        <div className="admin-overview__attention-list" role="img" aria-label="Needs attention distribution">
                           {attentionMix.map((item) => (
                             <Link
                               key={item.key}
                               to={item.to}
-                              className={`admin-overview__attention-segment admin-overview__attention-segment--${item.tone}`}
-                              style={{ width: `${Math.max(8, (item.value / Math.max(1, attentionMix.reduce((a, b) => a + b.value, 0))) * 100)}%` }}
+                              className={`admin-overview__attention-item admin-overview__attention-item--${item.tone}`}
                               title={`${item.label}: ${item.value}`}
                             >
-                              <span>{item.value}</span>
+                              <span className="admin-overview__attention-label">{item.label}</span>
+                              <strong className="admin-overview__attention-value">{item.value}</strong>
+                              <span className="admin-overview__attention-rail" aria-hidden="true">
+                                <span
+                                  className="admin-overview__attention-fill"
+                                  style={{
+                                    width: `${Math.max(8, (item.value / Math.max(1, totalAttention)) * 100)}%`,
+                                  }}
+                                />
+                              </span>
                             </Link>
                           ))}
                         </div>
-                        <ul className="admin-overview__attention-legend">
-                          {attentionMix.map((item) => (
-                            <li key={`${item.key}-legend`}>
-                              <span className={`admin-overview__legend-dot admin-overview__legend-dot--${item.tone}`} />
-                              <span>{item.label}</span>
-                            </li>
-                          ))}
-                        </ul>
                       </div>
                     </div>
 
                     <div className="admin-overview__needs" aria-label="Needs attention">
-                      <p className="admin-overview__needs-title">Needs attention</p>
+                      <div className="admin-overview__needs-head">
+                        <p className="admin-overview__needs-title">Needs attention</p>
+                        <span className="admin-overview__needs-count" aria-label={`${needs.length} items need attention`}>
+                          {needs.length}
+                        </span>
+                      </div>
                       {needs.length ? (
                         <ul className="admin-overview__needs-list">
                           {needs.map((n) => (
                             <li key={n.key}>
-                              <Link to={n.to}>{n.label}</Link>
+                              <Link to={n.to} className={`admin-overview__needs-link admin-overview__needs-link--${n.key}`}>
+                                {n.label}
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -258,8 +266,8 @@ function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="col-lg-4">
-              <div className="admin-dashboard__nav-card">
+            <div className="col-lg-3">
+              <div className="admin-dashboard__nav-card admin-dashboard__nav-card--compact">
                 <p className="landing-section__eyebrow mb-3">Navigate</p>
                 <nav className="admin-dashboard__nav" aria-label="Admin sections">
                   {navLinks.map(({ to, label }) => (
@@ -283,8 +291,8 @@ function AdminDashboardPage() {
                   </p>
                 </div>
                 <div className="row g-3 g-lg-4 mt-1">
-                  <div className="col-12 col-lg-6">
-                    <section className="admin-dashboard__action-group" aria-label="Resident records">
+                  <div className="col-12 col-md-6">
+                    <section className="admin-dashboard__action-group admin-dashboard__action-group--records" aria-label="Resident records">
                       <p className="admin-dashboard__action-group-kicker mb-2">Resident records</p>
                       <p className="landing-section__body small text-muted mb-3">
                         Open a form to add education, health, home visit, wellbeing, or incident data.
@@ -303,8 +311,8 @@ function AdminDashboardPage() {
                       </nav>
                     </section>
                   </div>
-                  <div className="col-12 col-lg-6 admin-dashboard__profiles-column">
-                    <section className="admin-dashboard__action-group" aria-label="Profiles">
+                  <div className="col-12 col-md-6">
+                    <section className="admin-dashboard__action-group admin-dashboard__action-group--profiles" aria-label="Profiles">
                       <p className="admin-dashboard__action-group-kicker mb-2">Profiles</p>
                       <p className="landing-section__body small text-muted mb-3">
                         Create new residents, partners, and safehouses. Donors are added via signup.

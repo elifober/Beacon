@@ -121,9 +121,15 @@ function ResidentPage() {
     if (!resident || !id) return null;
     const sex =
       resident.sex === "M" || resident.sex === "F" ? resident.sex : "";
+    const b = (v: boolean | null | undefined) => v === true;
     return {
       firstName: resident.firstName ?? "",
       lastInitial: resident.lastInitial ?? "",
+      religion: resident.religion ?? "",
+      caseCategory: resident.caseCategory ?? "",
+      dateOfAdmission: resident.dateOfAdmission
+        ? resident.dateOfAdmission.slice(0, 10)
+        : "",
       caseControlNo: resident.caseControlNo ?? "",
       internalCode: resident.internalCode ?? "",
       safehouseId: resident.safehouseId ?? 0,
@@ -134,6 +140,26 @@ function ResidentPage() {
         : "",
       initialRiskLevel: resident.initialRiskLevel ?? "",
       currentRiskLevel: resident.currentRiskLevel ?? "",
+      birthStatus: resident.birthStatus ?? "",
+      placeOfBirth: resident.placeOfBirth ?? "",
+      familyIs4ps: b(resident.familyIs4ps),
+      familySoloParent: b(resident.familySoloParent),
+      familyIndigenous: b(resident.familyIndigenous),
+      familyParentPwd: b(resident.familyParentPwd),
+      subCatOrphaned: b(resident.subCatOrphaned),
+      subCatTrafficked: b(resident.subCatTrafficked),
+      subCatChildLabor: b(resident.subCatChildLabor),
+      subCatPhysicalAbuse: b(resident.subCatPhysicalAbuse),
+      subCatSexualAbuse: b(resident.subCatSexualAbuse),
+      subCatOsaec: b(resident.subCatOsaec),
+      subCatCicl: b(resident.subCatCicl),
+      subCatAtRisk: b(resident.subCatAtRisk),
+      subCatStreetChild: b(resident.subCatStreetChild),
+      subCatChildWithHiv: b(resident.subCatChildWithHiv),
+      isPwd: b(resident.isPwd),
+      pwdType: resident.pwdType ?? "",
+      hasSpecialNeeds: b(resident.hasSpecialNeeds),
+      specialNeedsDiagnosis: resident.specialNeedsDiagnosis ?? "",
     };
   }, [resident, id]);
 

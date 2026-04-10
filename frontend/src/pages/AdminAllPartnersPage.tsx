@@ -52,7 +52,7 @@ function AdminAllPartnersPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 15;
-  const [view, setView] = useState<"table" | "card">("table");
+  const [view, setView] = useState<"table" | "card">("card");
   const { query } = useAdminSearch();
   const [openFilterMenu, setOpenFilterMenu] = useState<string | null>(null);
   const [listFilters, setListFilters] = useState({

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
@@ -44,11 +45,12 @@ interface AdminDonor {
 }
 
 function AdminAllDonorsPage() {
+  const navigate = useNavigate();
   const [donors, setDonors] = useState<AdminDonor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [view, setView] = useState<"table" | "card">("table");
+  const [view, setView] = useState<"table" | "card">("card");
   const pageSize = 15;
   const { query } = useAdminSearch();
   const [openFilterMenu, setOpenFilterMenu] = useState<string | null>(null);
@@ -286,7 +288,20 @@ function AdminAllDonorsPage() {
               </thead>
               <tbody>
                 {visibleDonors.map((d) => (
-                  <tr key={d.donorId}>
+                  <tr
+                    key={d.donorId}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Open donor profile for ${d.displayName ?? "donor " + d.donorId}`}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/donor/${d.donorId}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/donor/${d.donorId}`);
+                      }
+                    }}
+                  >
                     <td>{d.donorId}</td>
                     <td>{d.displayName ?? "-"}</td>
                     <td>{d.relationship ?? "-"}</td>
@@ -326,8 +341,33 @@ function AdminAllDonorsPage() {
                       {d.firstDonation ? formatDate(d.firstDonation) : "\u2014"}
                     </dd>
                   </dl>
+              <Link
+                to={`/donor/${d.donorId}`}
+                className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
+                aria-label={`Open donor profile for ${d.displayName ?? "donor " + d.donorId}`}
+              >
+                <div className="admin-all-residents-card card h-100 shadow-sm">
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title mb-3">{d.displayName ?? "Unknown"}</h5>
+                    <dl className="row small mb-0 flex-grow-1">
+                      <dt className="col-5 text-muted fw-normal">Status</dt>
+                      <dd className="col-7 mb-2">{d.status ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">Relationship</dt>
+                      <dd className="col-7 mb-2">{d.relationship ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">Region</dt>
+                      <dd className="col-7 mb-2">{d.region ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">Country</dt>
+                      <dd className="col-7 mb-2">{d.country ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">Email</dt>
+                      <dd className="col-7 mb-2">{d.email ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal">First gift</dt>
+                      <dd className="col-7 mb-0">
+                        {d.firstDonation ? formatDate(d.firstDonation) : "\u2014"}
+                      </dd>
+                    </dl>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
         </div>

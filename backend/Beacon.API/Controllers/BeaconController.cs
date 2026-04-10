@@ -497,6 +497,237 @@ public class BeaconController : ControllerBase
             statusCode: StatusCodes.Status409Conflict);
     }
 
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("Resident/{id:int}")]
+    public async Task<IActionResult> UpdateResident(int id, [FromBody] AdminCreateResidentRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid or empty JSON body." });
+
+        if (body.SafehouseId <= 0)
+        {
+            return BadRequest(new
+            {
+                message = "A valid safehouse is required.",
+                errors = new Dictionary<string, string> { ["safehouseId"] = "Required" },
+            });
+        }
+
+        var safehouseExists = await _beaconContext.Safehouses.AsNoTracking()
+            .AnyAsync(s => s.SafehouseId == body.SafehouseId, HttpContext.RequestAborted);
+        if (!safehouseExists)
+        {
+            return BadRequest(new
+            {
+                message = "Safehouse not found for the given id.",
+                errors = new Dictionary<string, string> { ["safehouseId"] = "Not found" },
+            });
+        }
+
+        var residentExists = await _beaconContext.Residents.AsNoTracking()
+            .AnyAsync(r => r.ResidentId == id, HttpContext.RequestAborted);
+        if (!residentExists)
+            return NotFound();
+
+        var dob = ParseOptionalDateOnly(body.DateOfBirth);
+        var firstName = NullIfWhiteSpace(body.FirstName);
+        var lastInitial = NullIfWhiteSpace(body.LastInitial);
+        var caseControlNo = NullIfWhiteSpace(body.CaseControlNo);
+        var internalCode = NullIfWhiteSpace(body.InternalCode);
+        var caseStatus = NullIfWhiteSpace(body.CaseStatus);
+        var sex = NullIfWhiteSpace(body.Sex);
+        var initialRisk = NullIfWhiteSpace(body.InitialRiskLevel);
+        var currentRisk = NullIfWhiteSpace(body.CurrentRiskLevel);
+
+        try
+        {
+            var n = await _beaconContext.UpdateResidentRowAsync(
+                id,
+                firstName,
+                lastInitial,
+                caseControlNo,
+                internalCode,
+                body.SafehouseId,
+                caseStatus,
+                sex,
+                dob,
+                initialRisk,
+                currentRisk,
+                HttpContext.RequestAborted);
+            if (n == 0)
+                return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not update resident", "UpdateResident: failed", ex);
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Resident/{id:int}/Update")]
+    public Task<IActionResult> PostUpdateResident(int id, [FromBody] AdminCreateResidentRequest? body)
+        => UpdateResident(id, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("Partners/{id:int}")]
+    public async Task<IActionResult> UpdatePartner(int id, [FromBody] AdminCreatePartnerRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body." });
+        if (string.IsNullOrWhiteSpace(body.PartnerName))
+            return BadRequest(new { message = "Partner name is required.", errors = new Dictionary<string, string> { ["partner_name"] = "Required" } });
+
+        var exists = await _beaconContext.Partners.AsNoTracking()
+            .AnyAsync(p => p.PartnerId == id, HttpContext.RequestAborted);
+        if (!exists)
+            return NotFound();
+
+        var partnerName = body.PartnerName.Trim();
+        var contactName = partnerName;
+        try
+        {
+            var n = await _beaconContext.UpdatePartnerRowAsync(
+                id,
+                partnerName,
+                NullIfWhiteSpace(body.PartnerType),
+                NullIfWhiteSpace(body.RoleType),
+                contactName,
+                NullIfWhiteSpace(body.Email),
+                NullIfWhiteSpace(body.Phone),
+                NullIfWhiteSpace(body.Region),
+                NullIfWhiteSpace(body.Status),
+                body.StartDate,
+                NullIfWhiteSpace(body.Notes),
+                HttpContext.RequestAborted);
+            if (n == 0)
+                return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not update partner", "UpdatePartner: failed", ex);
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Partners/{id:int}/Update")]
+    public Task<IActionResult> PostUpdatePartner(int id, [FromBody] AdminCreatePartnerRequest? body)
+        => UpdatePartner(id, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("Safehouses/{id:int}")]
+    public async Task<IActionResult> UpdateSafehouse(int id, [FromBody] AdminCreateSafehouseRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body." });
+        if (string.IsNullOrWhiteSpace(body.Name))
+            return BadRequest(new { message = "Name is required.", errors = new Dictionary<string, string> { ["name"] = "Required" } });
+
+        var exists = await _beaconContext.Safehouses.AsNoTracking()
+            .AnyAsync(s => s.SafehouseId == id, HttpContext.RequestAborted);
+        if (!exists)
+            return NotFound();
+
+        var name = body.Name.Trim();
+        try
+        {
+            var n = await _beaconContext.UpdateSafehouseRowAsync(
+                id,
+                name,
+                NullIfWhiteSpace(body.Region),
+                NullIfWhiteSpace(body.City),
+                NullIfWhiteSpace(body.Province),
+                NullIfWhiteSpace(body.Country),
+                body.OpenDate,
+                NullIfWhiteSpace(body.Status),
+                body.CapacityGirls,
+                body.CurrentOccupancy,
+                body.CapacityStaff,
+                HttpContext.RequestAborted);
+            if (n == 0)
+                return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not update safehouse", "UpdateSafehouse: failed", ex);
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Safehouses/{id:int}/Update")]
+    public Task<IActionResult> PostUpdateSafehouse(int id, [FromBody] AdminCreateSafehouseRequest? body)
+        => UpdateSafehouse(id, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("Supporters/{id:int}")]
+    public async Task<IActionResult> UpdateSupporterAdmin(int id, [FromBody] AdminCreateSupporterRequest? body)
+    {
+        if (body == null)
+            return BadRequest(new { message = "Invalid request body." });
+
+        if (string.IsNullOrWhiteSpace(body.FirstName) || string.IsNullOrWhiteSpace(body.LastName))
+        {
+            return BadRequest(new
+            {
+                message = "First name and last name are required.",
+                errors = new Dictionary<string, string>
+                {
+                    ["firstName"] = "Required",
+                    ["lastName"] = "Required",
+                },
+            });
+        }
+
+        var exists = await _beaconContext.Supporters.AsNoTracking()
+            .AnyAsync(s => s.SupporterId == id, HttpContext.RequestAborted);
+        if (!exists)
+            return NotFound();
+
+        var displayName = $"{body.FirstName.Trim()} {body.LastName.Trim()}";
+        var status = string.IsNullOrWhiteSpace(body.Status) ? "Active" : body.Status.Trim();
+
+        try
+        {
+            var n = await _beaconContext.UpdateSupporterAdminRowAsync(
+                id,
+                NullIfWhiteSpace(body.SupporterType),
+                displayName,
+                NullIfWhiteSpace(body.FirstName),
+                NullIfWhiteSpace(body.LastName),
+                NullIfWhiteSpace(body.RelationshipType),
+                NullIfWhiteSpace(body.Region),
+                NullIfWhiteSpace(body.Email),
+                NullIfWhiteSpace(body.Phone),
+                status,
+                NullIfWhiteSpace(body.AcquisitionChannel),
+                HttpContext.RequestAborted);
+            if (n == 0)
+                return NotFound();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return DatabaseMutationFailed("Could not update donor record", "UpdateSupporterAdmin: failed", ex);
+        }
+    }
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Supporters/{id:int}/Update")]
+    public Task<IActionResult> PostUpdateSupporterAdmin(int id, [FromBody] AdminCreateSupporterRequest? body)
+        => UpdateSupporterAdmin(id, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPut("Donor/{id:int}")]
+    public Task<IActionResult> UpdateDonor(int id, [FromBody] AdminCreateSupporterRequest? body)
+        => UpdateSupporterAdmin(id, body);
+
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpPost("Donor/{id:int}/Update")]
+    public Task<IActionResult> PostUpdateDonor(int id, [FromBody] AdminCreateSupporterRequest? body)
+        => UpdateSupporterAdmin(id, body);
+
     /// <summary>Admin: delete a resident and related case records (cascade per EF / DB).</summary>
     [Authorize(Policy = AuthPolicies.AdminOnly)]
     [HttpPost("Resident/{id:int}/Delete")]
@@ -875,13 +1106,17 @@ public class BeaconController : ControllerBase
             .Where(x => x.ResidentId == id)
             .Select(x => new
             {
+                x.ResidentId,
                 x.FirstName,
                 x.LastInitial,
+                x.CaseControlNo,
+                x.InternalCode,
                 x.DateOfBirth,
                 x.Sex,
                 x.CaseStatus,
                 x.SafehouseId,
                 x.LengthOfStay,
+                x.InitialRiskLevel,
                 x.CurrentRiskLevel,
             })
             .FirstOrDefault();
@@ -1062,6 +1297,11 @@ public class BeaconController : ControllerBase
 
         return Ok(new
         {
+            r.ResidentId,
+            r.FirstName,
+            r.LastInitial,
+            r.CaseControlNo,
+            r.InternalCode,
             Name = (r.FirstName ?? "") + " " + (r.LastInitial ?? ""),
             r.DateOfBirth,
             r.Sex,
@@ -1069,6 +1309,7 @@ public class BeaconController : ControllerBase
             SafehouseId = r.SafehouseId,
             SafehouseCity = safehouse?.City,
             r.LengthOfStay,
+            r.InitialRiskLevel,
             r.CurrentRiskLevel,
             educationRecords,
             healthWellbeingRecords,

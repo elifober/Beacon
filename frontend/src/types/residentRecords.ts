@@ -87,6 +87,13 @@ export interface SafehousePartnerRow {
 }
 
 export interface ResidentDetail {
+  /** Present on GET Resident (camelCase JSON). Used for admin edit modal. */
+  residentId?: number;
+  firstName?: string;
+  lastInitial?: string;
+  caseControlNo?: string;
+  internalCode?: string;
+  initialRiskLevel?: string;
   name: string;
   dateOfBirth?: string;
   sex?: string;

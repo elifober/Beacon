@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { ResidentDetail, SafehousePartnerRow } from "../types/residentRecords";
@@ -9,6 +9,8 @@ import { MentalWellbeingRecordsSection } from "../components/resident/MentalWell
 import { HomeVisitsRecordsSection } from "../components/resident/HomeVisitsRecordsSection";
 import { IncidentReportsSection } from "../components/resident/IncidentReportsSection";
 import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
+import { CreateResidentModal } from "../components/admin/AdminCreateEntityModals";
+import type { ResidentInput } from "../api/Residents";
 
 function calculateAge(dateStr: string): number {
   const dob = new Date(dateStr);
@@ -81,6 +83,7 @@ function ResidentPage() {
   const [resident, setResident] = useState<ResidentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const loadResident = useCallback(async () => {
     if (!id) return;
@@ -112,6 +115,26 @@ function ResidentPage() {
       /* keep existing data */
     }
   }, [id]);
+
+  const residentEditInitial = useMemo((): Partial<ResidentInput> | null => {
+    if (!resident || !id) return null;
+    const sex =
+      resident.sex === "M" || resident.sex === "F" ? resident.sex : "";
+    return {
+      firstName: resident.firstName ?? "",
+      lastInitial: resident.lastInitial ?? "",
+      caseControlNo: resident.caseControlNo ?? "",
+      internalCode: resident.internalCode ?? "",
+      safehouseId: resident.safehouseId ?? 0,
+      caseStatus: resident.caseStatus ?? "",
+      sex,
+      dateOfBirth: resident.dateOfBirth
+        ? resident.dateOfBirth.slice(0, 10)
+        : "",
+      initialRiskLevel: resident.initialRiskLevel ?? "",
+      currentRiskLevel: resident.currentRiskLevel ?? "",
+    };
+  }, [resident, id]);
 
   if (loading) {
     return (
@@ -151,18 +174,36 @@ function ResidentPage() {
 
   return (
     <div className="beacon-page container py-4 resident-profile-page">
+      {residentEditInitial ? (
+        <CreateResidentModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => void refetchResidentQuiet()}
+          editResidentId={Number(id)}
+          initialResident={residentEditInitial}
+        />
+      ) : null}
       <div className="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
         <Link to="/admin/all-residents" className="admin-dashboard-back">
           <i className="bi bi-arrow-left-short" aria-hidden="true" />
           <span>All residents</span>
         </Link>
-        <AdminDeleteRecordButton
-          entity="Resident"
-          id={id}
-          label="Delete resident"
-          confirmMessage={`Permanently delete this resident and related case records (resident ID ${id})? This cannot be undone.`}
-          redirectTo="/admin/all-residents"
-        />
+        <div className="d-flex flex-wrap gap-2 align-items-center">
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={() => setEditOpen(true)}
+          >
+            Edit resident
+          </button>
+          <AdminDeleteRecordButton
+            entity="Resident"
+            id={id}
+            label="Delete resident"
+            confirmMessage={`Permanently delete this resident and related case records (resident ID ${id})? This cannot be undone.`}
+            redirectTo="/admin/all-residents"
+          />
+        </div>
       </div>
       <div className="row g-4 align-items-start">
         <aside className="col-lg-4 d-flex flex-column gap-3 resident-profile-sidebar">

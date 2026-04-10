@@ -1,8 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Partner } from "../types/Partner";
 import { AdminDeleteRecordButton } from "../components/admin/AdminDeleteRecordButton";
+import {
+  CreatePartnerModal,
+  type PartnerModalInitial,
+} from "../components/admin/AdminCreateEntityModals";
+import { useAuth } from "../context/AuthContext";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -26,9 +31,12 @@ interface PartnerPageData {
 
 function PartnerPage() {
   const { id } = useParams();
+  const { authSession } = useAuth();
+  const isAdmin = authSession?.roles.includes("Admin") ?? false;
   const [data, setData] = useState<PartnerPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -41,6 +49,35 @@ function PartnerPage() {
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const reloadPartner = async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`${BASE_URL}/Partner/${id}`, {
+        credentials: "include",
+      });
+      if (!res.ok) return;
+      setData(await res.json());
+    } catch {
+      /* keep existing */
+    }
+  };
+
+  const partnerModalInitial = useMemo((): PartnerModalInitial | null => {
+    if (!data?.partner) return null;
+    const p = data.partner;
+    return {
+      partnerName: p.partnerName ?? "",
+      partnerType: p.partnerType ?? "",
+      roleType: p.roleType ?? "",
+      email: p.email ?? "",
+      phone: p.phone ?? "",
+      region: p.region ?? "",
+      status: p.status ?? "",
+      startDate: p.startDate ?? "",
+      notes: p.notes ?? "",
+    };
+  }, [data]);
 
   if (loading) {
     return (
@@ -74,18 +111,38 @@ function PartnerPage() {
 
   return (
     <div className="beacon-page container py-4">
+      {isAdmin && partnerModalInitial && id ? (
+        <CreatePartnerModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => void reloadPartner()}
+          editPartnerId={Number(id)}
+          initialPartner={partnerModalInitial}
+        />
+      ) : null}
       <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
         <div>
           <p className="landing-section__eyebrow mb-2">Partner</p>
           <h1 className="mb-0">{partner.partnerName}</h1>
         </div>
-        <AdminDeleteRecordButton
-          entity="Partner"
-          id={id}
-          label="Delete partner"
-          confirmMessage={`Delete partner "${partner.partnerName}" (ID ${id})? Safehouse assignments will be removed. This cannot be undone.`}
-          redirectTo="/admin/all-partners"
-        />
+        <div className="d-flex flex-wrap gap-2 align-items-start">
+          {isAdmin ? (
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => setEditOpen(true)}
+            >
+              Edit partner
+            </button>
+          ) : null}
+          <AdminDeleteRecordButton
+            entity="Partner"
+            id={id}
+            label="Delete partner"
+            confirmMessage={`Delete partner "${partner.partnerName}" (ID ${id})? Safehouse assignments will be removed. This cannot be undone.`}
+            redirectTo="/admin/all-partners"
+          />
+        </div>
       </div>
 
       <div className="card beacon-detail-card mb-4">

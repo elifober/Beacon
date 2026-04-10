@@ -400,6 +400,132 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             cancellationToken);
     }
 
+    /// <summary>Admin update: same narrow column set as <see cref="InsertResidentRowAsync"/> (no <c>created_at</c> change).</summary>
+    public Task<int> UpdateResidentRowAsync(
+        int residentId,
+        string? firstName,
+        string? lastInitial,
+        string? caseControlNo,
+        string? internalCode,
+        int safehouseId,
+        string? caseStatus,
+        string? sex,
+        DateOnly? dateOfBirth,
+        string? initialRiskLevel,
+        string? currentRiskLevel,
+        CancellationToken cancellationToken = default)
+    {
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
+            UPDATE residents SET
+                first_name = {firstName},
+                last_initial = {lastInitial},
+                case_control_no = {caseControlNo},
+                internal_code = {internalCode},
+                safehouse_id = {safehouseId},
+                case_status = {caseStatus},
+                sex = {sex},
+                date_of_birth = {dateOfBirth},
+                initial_risk_level = {initialRiskLevel},
+                current_risk_level = {currentRiskLevel}
+            WHERE resident_id = {residentId}",
+            cancellationToken);
+    }
+
+    public Task<int> UpdatePartnerRowAsync(
+        int partnerId,
+        string partnerName,
+        string? partnerType,
+        string? roleType,
+        string contactName,
+        string? email,
+        string? phone,
+        string? region,
+        string? status,
+        DateOnly? startDate,
+        string? notes,
+        CancellationToken cancellationToken = default)
+    {
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
+            UPDATE partners SET
+                partner_name = {partnerName},
+                partner_type = {partnerType},
+                role_type = {roleType},
+                contact_name = {contactName},
+                email = {email},
+                phone = {phone},
+                region = {region},
+                status = {status},
+                start_date = {startDate},
+                notes = {notes}
+            WHERE partner_id = {partnerId}",
+            cancellationToken);
+    }
+
+    /// <summary>Admin update; does not change <c>safehouse_code</c>.</summary>
+    public Task<int> UpdateSafehouseRowAsync(
+        int safehouseId,
+        string name,
+        string? region,
+        string? city,
+        string? province,
+        string? country,
+        DateOnly? openDate,
+        string? status,
+        int? capacityGirls,
+        int? currentOccupancy,
+        int? capacityStaff,
+        CancellationToken cancellationToken = default)
+    {
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
+            UPDATE safehouses SET
+                name = {name},
+                region = {region},
+                city = {city},
+                province = {province},
+                country = {country},
+                open_date = {openDate},
+                status = {status},
+                capacity_girls = {capacityGirls},
+                current_occupancy = {currentOccupancy},
+                capacity_staff = {capacityStaff}
+            WHERE safehouse_id = {safehouseId}",
+            cancellationToken);
+    }
+
+    public Task<int> UpdateSupporterAdminRowAsync(
+        int supporterId,
+        string? supporterType,
+        string displayName,
+        string? firstName,
+        string? lastName,
+        string? relationshipType,
+        string? region,
+        string? email,
+        string? phone,
+        string status,
+        string? acquisitionChannel,
+        CancellationToken cancellationToken = default)
+    {
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
+            UPDATE supporters SET
+                supporter_type = {supporterType},
+                display_name = {displayName},
+                first_name = {firstName},
+                last_name = {lastName},
+                relationship_type = {relationshipType},
+                region = {region},
+                email = {email},
+                phone = {phone},
+                status = {status},
+                acquisition_channel = {acquisitionChannel}
+            WHERE supporter_id = {supporterId}",
+            cancellationToken);
+    }
+
     /// <summary>
     /// Deletes a resident and known child rows with SQL (no full-row SELECT). Skips
     /// <c>resident_ml_scores</c> when that optional table is absent (common on Railway imports).

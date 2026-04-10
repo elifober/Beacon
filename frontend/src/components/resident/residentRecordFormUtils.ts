@@ -82,6 +82,19 @@ export function postBeaconJson(pathUnderBeacon: string, body: unknown): Promise<
   });
 }
 
+export function putBeaconJson(pathUnderBeacon: string, body: unknown): Promise<Response> {
+  const path = pathUnderBeacon.startsWith("/") ? pathUnderBeacon : `/${pathUnderBeacon}`;
+  return fetch(`${BASE_URL}${path}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
 export function validateResidentIdInput(raw: string): string | undefined {
   const t = raw.trim();
   if (!t) return requiredFieldMsg;

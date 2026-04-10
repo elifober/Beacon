@@ -180,17 +180,17 @@ function AdminDashboardPage() {
       <CreateResidentModal
         open={adminEntityModal === "resident"}
         onClose={() => setAdminEntityModal(null)}
-        onCreated={() => setAdminEntityModal(null)}
+        onSaved={() => setAdminEntityModal(null)}
       />
       <CreatePartnerModal
         open={adminEntityModal === "partner"}
         onClose={() => setAdminEntityModal(null)}
-        onCreated={() => setAdminEntityModal(null)}
+        onSaved={() => setAdminEntityModal(null)}
       />
       <CreateSafehouseModal
         open={adminEntityModal === "safehouse"}
         onClose={() => setAdminEntityModal(null)}
-        onCreated={() => setAdminEntityModal(null)}
+        onSaved={() => setAdminEntityModal(null)}
       />
     </div>
   );

@@ -309,63 +309,85 @@ public class BeaconController : ControllerBase
 
         var name = body.Name.Trim();
 
-        int safehouseId;
-        string safehouseCode;
-        try
+        const int maxAttempts = 8;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
-            (safehouseId, safehouseCode) = await _beaconContext.InsertSafehouseRowAsync(
-                name,
-                NullIfWhiteSpace(body.Region),
-                NullIfWhiteSpace(body.City),
-                NullIfWhiteSpace(body.Province),
-                NullIfWhiteSpace(body.Country),
-                body.OpenDate,
-                NullIfWhiteSpace(body.Status),
-                body.CapacityGirls,
-                body.CurrentOccupancy,
-                body.CapacityStaff,
-                HttpContext.RequestAborted);
-        }
-        catch (Exception ex)
-        {
-            if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+            var safehouseId = await _beaconContext.AllocateNextSafehouseIdAsync();
+            string safehouseCode;
+            try
             {
-                var detail = !string.IsNullOrWhiteSpace(pg.Detail)
-                    ? pg.Detail!
-                    : (pg.MessageText ?? "Database rejected the insert.");
-                var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
-                    ? StatusCodes.Status400BadRequest
-                    : StatusCodes.Status409Conflict;
+                (safehouseId, safehouseCode) = await _beaconContext.InsertSafehouseRowAsync(
+                    safehouseId,
+                    name,
+                    NullIfWhiteSpace(body.Region),
+                    NullIfWhiteSpace(body.City),
+                    NullIfWhiteSpace(body.Province),
+                    NullIfWhiteSpace(body.Country),
+                    body.OpenDate,
+                    NullIfWhiteSpace(body.Status),
+                    body.CapacityGirls,
+                    body.CurrentOccupancy,
+                    body.CapacityStaff,
+                    HttpContext.RequestAborted);
+            }
+            catch (Exception ex)
+            {
+                if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+                {
+                    if (attempt < maxAttempts - 1
+                        && string.Equals(pg.SqlState, PostgresErrorCodes.UniqueViolation, StringComparison.Ordinal)
+                        && IsSafehousesPrimaryKeyViolation(pg))
+                    {
+                        _logger.LogWarning(
+                            "CreateSafehouse: safehouse PK conflict on id {SafehouseId} (attempt {Attempt}); retrying. {Detail}",
+                            safehouseId,
+                            attempt + 1,
+                            pg.Detail ?? pg.MessageText);
+                        continue;
+                    }
+
+                    var detail = !string.IsNullOrWhiteSpace(pg.Detail)
+                        ? pg.Detail!
+                        : (pg.MessageText ?? "Database rejected the insert.");
+                    var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
+                        ? StatusCodes.Status400BadRequest
+                        : StatusCodes.Status409Conflict;
+                    return Problem(
+                        title: "Could not create safehouse",
+                        detail: detail,
+                        statusCode: status);
+                }
+
+                _logger.LogError(ex, "CreateSafehouse: database insert failed");
                 return Problem(
                     title: "Could not create safehouse",
-                    detail: detail,
-                    statusCode: status);
+                    detail: "The database rejected this insert. Check logs for details.",
+                    statusCode: StatusCodes.Status409Conflict);
             }
 
-            _logger.LogError(ex, "CreateSafehouse: database insert failed");
-            return Problem(
-                title: "Could not create safehouse",
-                detail: "The database rejected this insert. Check logs for details.",
-                statusCode: StatusCodes.Status409Conflict);
+            var entity = new Safehouse
+            {
+                SafehouseId = safehouseId,
+                SafehouseCode = safehouseCode,
+                Name = name,
+                Region = NullIfWhiteSpace(body.Region),
+                City = NullIfWhiteSpace(body.City),
+                Province = NullIfWhiteSpace(body.Province),
+                Country = NullIfWhiteSpace(body.Country),
+                OpenDate = body.OpenDate,
+                Status = NullIfWhiteSpace(body.Status),
+                CapacityGirls = body.CapacityGirls,
+                CapacityStaff = body.CapacityStaff,
+                CurrentOccupancy = body.CurrentOccupancy,
+                Notes = null,
+            };
+            return StatusCode(StatusCodes.Status201Created, entity);
         }
 
-        var entity = new Safehouse
-        {
-            SafehouseId = safehouseId,
-            SafehouseCode = safehouseCode,
-            Name = name,
-            Region = NullIfWhiteSpace(body.Region),
-            City = NullIfWhiteSpace(body.City),
-            Province = NullIfWhiteSpace(body.Province),
-            Country = NullIfWhiteSpace(body.Country),
-            OpenDate = body.OpenDate,
-            Status = NullIfWhiteSpace(body.Status),
-            CapacityGirls = body.CapacityGirls,
-            CapacityStaff = body.CapacityStaff,
-            CurrentOccupancy = body.CurrentOccupancy,
-            Notes = null,
-        };
-        return StatusCode(StatusCodes.Status201Created, entity);
+        return Problem(
+            title: "Could not create safehouse",
+            detail: "Could not allocate a unique safehouse id after several attempts. Try again in a moment.",
+            statusCode: StatusCodes.Status409Conflict);
     }
 
     [Authorize(Policy = AuthPolicies.AdminOnly)]
@@ -1884,6 +1906,14 @@ public class BeaconController : ControllerBase
             return true;
         var d = pg.Detail ?? string.Empty;
         return d.Contains("(partner_id)", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSafehousesPrimaryKeyViolation(PostgresException pg)
+    {
+        if (string.Equals(pg.ConstraintName, "pk_safehouses", StringComparison.OrdinalIgnoreCase))
+            return true;
+        var d = pg.Detail ?? string.Empty;
+        return d.Contains("(safehouse_id)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>

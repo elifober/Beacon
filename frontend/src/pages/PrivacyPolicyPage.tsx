@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom'
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="container mt-5 mb-5">
-      <div className="row justify-content-center">
-        <div className="col-lg-10">
-          <div className="card shadow-sm p-4 p-md-5">
+    <div className="beacon-page privacy-policy-page glass-nav-offset">
+      <div className="container py-4 py-md-5 mb-5">
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="card shadow-sm p-4 p-md-5">
             <h1 className="mb-4">Privacy Policy</h1>
             <p className="text-muted">Last updated: April 2026</p>
 
@@ -68,6 +69,7 @@ export default function PrivacyPolicyPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

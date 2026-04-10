@@ -31,6 +31,8 @@ import ImpactPage from './pages/ImpactPage.tsx'
 import AboutPage from './pages/AboutPage.tsx'
 import RiskManagementCenter from './pages/RiskManagementCenter.tsx'
 import ScrollToTop from './components/ScrollToTop.tsx'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.tsx'
+import CookieBanner from './components/CookieBanner.tsx'
 
 function RoutedMain({ children }: { children: ReactNode }) {
   const location = useLocation()
@@ -69,6 +71,7 @@ function App() {
           <RoutedMain>
           <AdminSearchProvider>
           <Routes>
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/donate" element={<DonatePage />} />
@@ -198,6 +201,7 @@ function App() {
               }
             />
           </Routes>
+          <CookieBanner />
           </AdminSearchProvider>
           </RoutedMain>
         </Router>

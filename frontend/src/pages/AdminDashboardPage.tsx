@@ -10,7 +10,6 @@ import { AddIncidentReportModal } from "../components/resident/AddIncidentReport
 import {
   CreateResidentModal,
   CreatePartnerModal,
-  CreateDonorModal,
   CreateSafehouseModal,
 } from "../components/admin/AdminCreateEntityModals";
 
@@ -39,12 +38,11 @@ const addResidentRecordLinks: { key: ResidentRecordModalKey; label: string }[] =
   { key: "incident", label: "Add incident report" },
 ];
 
-type AdminEntityModalKey = "resident" | "partner" | "donor" | "safehouse";
+type AdminEntityModalKey = "resident" | "partner" | "safehouse";
 
 const addProfileLinks: { key: AdminEntityModalKey; label: string }[] = [
   { key: "resident", label: "Add resident" },
   { key: "partner", label: "Add partner" },
-  { key: "donor", label: "Add donor" },
   { key: "safehouse", label: "Add safehouse" },
 ];
 
@@ -130,8 +128,9 @@ function AdminDashboardPage() {
                   <div className="col-12 col-lg-6 admin-dashboard__profiles-column">
                     <p className="landing-section__eyebrow mb-3">Profiles</p>
                     <p className="landing-section__body small text-muted mb-3">
-                      Create a new resident, partner, donor, or safehouse. Forms open in a modal;
-                      lists on each admin page update when you save from there.
+                      Create a new resident, partner, or safehouse. Forms open in a modal; lists on
+                      each admin page update when you save from there. New donors are added when
+                      they register their own account.
                     </p>
                     <nav className="admin-dashboard__nav" aria-label="Add profile or location">
                       {addProfileLinks.map(({ key, label }) => (
@@ -185,11 +184,6 @@ function AdminDashboardPage() {
       />
       <CreatePartnerModal
         open={adminEntityModal === "partner"}
-        onClose={() => setAdminEntityModal(null)}
-        onCreated={() => setAdminEntityModal(null)}
-      />
-      <CreateDonorModal
-        open={adminEntityModal === "donor"}
         onClose={() => setAdminEntityModal(null)}
         onCreated={() => setAdminEntityModal(null)}
       />

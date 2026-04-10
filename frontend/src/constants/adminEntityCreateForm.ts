@@ -23,35 +23,3 @@ export const PARTNER_ROLE_TYPE_OPTIONS = [
   "In-kind donor",
   "Other",
 ] as const;
-
-export const SUPPORTER_TYPE_OPTIONS = [
-  "Individual",
-  "Organization",
-  "Foundation",
-  "Church",
-  "Corporate",
-  "Anonymous",
-  "Other",
-] as const;
-
-export const SUPPORTER_RELATIONSHIP_OPTIONS = [
-  "Friend",
-  "Family",
-  "Alumni",
-  "Community member",
-  "Volunteer",
-  "Staff referral",
-  "Former resident",
-  "Other",
-] as const;
-
-export const SUPPORTER_ACQUISITION_CHANNEL_OPTIONS = [
-  "Website",
-  "Social media",
-  "Event",
-  "Referral",
-  "Direct mail",
-  "Walk-in",
-  "Phone",
-  "Other",
-] as const;

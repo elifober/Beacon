@@ -7,8 +7,6 @@ import AdminGlassFilterBar, {
   type AdminGlassFilterSection,
 } from "../components/AdminGlassFilterBar";
 import { useAdminSearch } from "../context/AdminSearchContext";
-import { CreateDonorModal } from "../components/admin/AdminCreateEntityModals";
-
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -57,9 +55,6 @@ function AdminAllDonorsPage() {
     country: "",
     relationship: "",
   });
-  const [createOpen, setCreateOpen] = useState(false);
-  const [refreshList, setRefreshList] = useState(0);
-
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -68,7 +63,7 @@ function AdminAllDonorsPage() {
       .then(setDonors)
       .catch((err) => setError((err as Error).message))
       .finally(() => setLoading(false));
-  }, [refreshList]);
+  }, []);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -215,11 +210,6 @@ function AdminAllDonorsPage() {
 
   return (
     <div className="beacon-page container py-4 admin-list-page">
-      <CreateDonorModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreated={() => setRefreshList((n) => n + 1)}
-      />
       <AdminDashboardBackLink />
       <AdminSearchInput placeholder="Search donors by name, contact, location, or status..." />
 
@@ -240,13 +230,6 @@ function AdminAllDonorsPage() {
           <h1 className="mb-0">All Donors</h1>
         </div>
         <div className="d-flex flex-wrap gap-2 align-items-center">
-          <button
-            type="button"
-            className="btn btn-success"
-            onClick={() => setCreateOpen(true)}
-          >
-            New donor
-          </button>
           <div className="btn-group">
             <button
               type="button"

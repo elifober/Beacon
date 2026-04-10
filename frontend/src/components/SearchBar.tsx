@@ -64,9 +64,13 @@ function SearchBar({ maxWidth = 400, inputClassName = "" }: SearchBarProps) {
         />
         <div className="search-bar__field flex-grow-1 position-relative min-w-0">
           <input
-            type="text"
+            id="beacon-admin-search"
+            name="beacon-admin-search"
+            type="search"
             className={`form-control ${inputClassName}`.trim()}
             placeholder="Search residents, donors, partners, safehouses..."
+            autoComplete="off"
+            aria-label="Search residents, donors, partners, and safehouses"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowDropdown(true)}

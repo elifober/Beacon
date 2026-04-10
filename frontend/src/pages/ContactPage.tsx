@@ -42,7 +42,7 @@ function ContactPage() {
 
             <div className="col-lg-6 d-flex">
               <article className="contact-page__card contact-page__card--glass w-100 h-100">
-                <h2 className="h4 mb-3">Follow + join updates</h2>
+                <h2 className="h4 mb-3">Follow and join updates</h2>
                 <p className="mb-3">
                   Stay in the loop through social media and our donor/community email thread.
                 </p>

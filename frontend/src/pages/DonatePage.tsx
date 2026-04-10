@@ -31,6 +31,7 @@ function DonatePage() {
   }, [searchParams]);
 
   const paypalUrl = paypalHref(monthly);
+  const anyLink = Boolean(paypalUrl || donateLinks.venmo || donateLinks.debitOrCard);
 
   const onSubmitDonation = async () => {
     setSubmitMessage(null);

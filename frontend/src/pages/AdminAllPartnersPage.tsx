@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import AdminSearchInput from "../components/AdminSearchInput";
 import AdminDashboardBackLink from "../components/AdminDashboardBackLink";
@@ -43,6 +44,7 @@ interface AdminPartner {
 }
 
 function AdminAllPartnersPage() {
+  const navigate = useNavigate();
   const [partners, setPartners] = useState<AdminPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -290,7 +292,20 @@ function AdminAllPartnersPage() {
               </thead>
               <tbody>
                 {visiblePartners.map((p, i) => (
-                  <tr key={`${p.partnerId}-${i}`}>
+                  <tr
+                    key={`${p.partnerId}-${i}`}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Open partner profile for ${p.partnerName}`}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/partner/${p.partnerId}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/partner/${p.partnerId}`);
+                      }
+                    }}
+                  >
                     <td>{p.partnerId}</td>
                     <td>{p.partnerName}</td>
                     <td>{p.organizationType ?? "\u2014"}</td>
@@ -311,6 +326,11 @@ function AdminAllPartnersPage() {
         <div className="row g-4">
           {visiblePartners.map((p, i) => (
             <div key={`${p.partnerId}-${i}`} className="col-sm-6 col-lg-4">
+              <Link
+                to={`/partner/${p.partnerId}`}
+                className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
+                aria-label={`Open partner profile for ${p.partnerName}`}
+              >
               <div className="admin-all-residents-card card h-100 shadow-sm">
                 <div className="card-body d-flex flex-column">
                   <h5 className="card-title mb-3">{p.partnerName}</h5>
@@ -336,6 +356,7 @@ function AdminAllPartnersPage() {
                   </dl>
                 </div>
               </div>
+              </Link>
             </div>
           ))}
         </div>

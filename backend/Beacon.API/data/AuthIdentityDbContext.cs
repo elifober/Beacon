@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Npgsql;
 
 namespace Beacon.API.Data;
 
@@ -397,6 +398,71 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                 {acquisitionChannel},
                 NULL)",
             cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes a resident and known child rows with SQL (no full-row SELECT). Skips
+    /// <c>resident_ml_scores</c> when that optional table is absent (common on Railway imports).
+    /// </summary>
+    /// <returns>Number of rows deleted from <c>residents</c> (0 if none matched).</returns>
+    public async Task<int> DeleteResidentCascadeByIdAsync(int residentId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var tx = await Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM education_records WHERE resident_id = {residentId}",
+                cancellationToken);
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM health_wellbeing_records WHERE resident_id = {residentId}",
+                cancellationToken);
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM home_visitations WHERE resident_id = {residentId}",
+                cancellationToken);
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM incident_reports WHERE resident_id = {residentId}",
+                cancellationToken);
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM intervention_plans WHERE resident_id = {residentId}",
+                cancellationToken);
+            await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM process_recordings WHERE resident_id = {residentId}",
+                cancellationToken);
+
+            try
+            {
+                await Database.ExecuteSqlInterpolatedAsync(
+                    $"DELETE FROM resident_ml_scores WHERE resident_id = {residentId}",
+                    cancellationToken);
+            }
+            catch (Exception ex) when (IsPostgresUndefinedTable(ex))
+            {
+            }
+
+            var deleted = await Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM residents WHERE resident_id = {residentId}",
+                cancellationToken);
+            await tx.CommitAsync(cancellationToken);
+            return deleted;
+        }
+        catch
+        {
+            await tx.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    private static bool IsPostgresUndefinedTable(Exception ex)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+        {
+            if (e is PostgresException pg
+                && string.Equals(pg.SqlState, PostgresErrorCodes.UndefinedTable, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

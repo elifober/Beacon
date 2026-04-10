@@ -1,11 +1,8 @@
-using System.Data;
 using Beacon.API.Models;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
 
 namespace Beacon.API.Data;
 
@@ -135,6 +132,19 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             .AsNoTracking()
             .OrderByDescending(p => p.PartnerId)
             .Select(p => p.PartnerId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    /// <summary>
+    /// Next <c>safehouse_id</c> for admin inserts (legacy/imported DBs without IDENTITY on the PK).
+    /// </summary>
+    public async Task<int> AllocateNextSafehouseIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await Safehouses
+            .AsNoTracking()
+            .OrderByDescending(s => s.SafehouseId)
+            .Select(s => s.SafehouseId)
             .FirstOrDefaultAsync(cancellationToken);
         return maxId + 1;
     }
@@ -276,9 +286,10 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
     }
 
     /// <summary>
-    /// Inserts a safehouse; assigns a temporary unique <c>safehouse_code</c>, then sets <c>SH-{id}</c>.
+    /// Inserts a safehouse with explicit <c>safehouse_id</c>; temporary <c>safehouse_code</c>, then <c>SH-{id}</c>.
     /// </summary>
     public async Task<(int SafehouseId, string SafehouseCode)> InsertSafehouseRowAsync(
+        int safehouseId,
         string name,
         string? region,
         string? city,
@@ -295,38 +306,34 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         try
         {
             var tempCode = "TMP-" + Guid.NewGuid().ToString("N");
-            var id = await ExecuteInsertReturningIntAsync(
-                """
+            await Database.ExecuteSqlInterpolatedAsync(
+                $@"
                 INSERT INTO safehouses (
+                    safehouse_id,
                     safehouse_code, name, region, city, province, country, open_date, status,
                     capacity_girls, current_occupancy, capacity_staff, notes)
                 VALUES (
-                    @code, @name, @region, @city, @province, @country, @open_date, @status,
-                    @cap_girls, @occ, @cap_staff, NULL)
-                RETURNING safehouse_id
-                """,
-                cmd =>
-                {
-                    cmd.Parameters.AddWithValue("code", tempCode);
-                    cmd.Parameters.AddWithValue("name", name);
-                    cmd.Parameters.AddWithValue("region", (object?)region ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("city", (object?)city ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("province", (object?)province ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("country", (object?)country ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("open_date", (object?)openDate ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("status", (object?)status ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("cap_girls", (object?)capacityGirls ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("occ", (object?)currentOccupancy ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("cap_staff", (object?)capacityStaff ?? DBNull.Value);
-                },
+                    {safehouseId},
+                    {tempCode},
+                    {name},
+                    {region},
+                    {city},
+                    {province},
+                    {country},
+                    {openDate},
+                    {status},
+                    {capacityGirls},
+                    {currentOccupancy},
+                    {capacityStaff},
+                    NULL)",
                 cancellationToken);
 
-            var finalCode = $"SH-{id}";
+            var finalCode = $"SH-{safehouseId}";
             await Database.ExecuteSqlInterpolatedAsync(
-                $@"UPDATE safehouses SET safehouse_code = {finalCode} WHERE safehouse_id = {id}",
+                $@"UPDATE safehouses SET safehouse_code = {finalCode} WHERE safehouse_id = {safehouseId}",
                 cancellationToken);
             await tx.CommitAsync(cancellationToken);
-            return (id, finalCode);
+            return (safehouseId, finalCode);
         }
         catch
         {
@@ -390,36 +397,6 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
                 {acquisitionChannel},
                 NULL)",
             cancellationToken);
-    }
-
-    private async Task<int> ExecuteInsertReturningIntAsync(
-        string sql,
-        Action<NpgsqlCommand> bind,
-        CancellationToken cancellationToken)
-    {
-        var conn = (NpgsqlConnection)Database.GetDbConnection();
-        var hadTransaction = Database.CurrentTransaction != null;
-        var openedHere = conn.State != ConnectionState.Open;
-        if (openedHere)
-            await Database.OpenConnectionAsync(cancellationToken);
-
-        try
-        {
-            await using var cmd = new NpgsqlCommand(sql, conn);
-            var tx = Database.CurrentTransaction?.GetDbTransaction();
-            if (tx != null)
-                cmd.Transaction = (NpgsqlTransaction)tx;
-            bind(cmd);
-            var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
-            if (scalar is null || scalar is DBNull)
-                throw new InvalidOperationException("INSERT … RETURNING did not return a value.");
-            return Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture);
-        }
-        finally
-        {
-            if (openedHere && !hadTransaction)
-                await Database.CloseConnectionAsync();
-        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

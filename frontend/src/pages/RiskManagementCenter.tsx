@@ -15,6 +15,7 @@ import heroForestImage from "../assets/forrest.jpg";
 
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
 type QuickFilter = "incident-high" | "reintegration-ready" | "supporter-high" | "supporter-low" | null;
+type BandCount = { label: string; count: number; tone: "high" | "medium" | "low"; onClick?: () => void };
 
 function tierTone(band: string | null | undefined): "high" | "medium" | "low" {
   const b = (band ?? "").toLowerCase();
@@ -199,6 +200,62 @@ export default function RiskManagementCenter() {
               tone="high"
               onClick={() => jumpToFilter("supporters", "supporter-low")}
             />
+          </div>
+
+          <div className="card beacon-detail-card risk-distribution-card mb-4">
+            <div className="card-body">
+              <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+                <h3 className="risk-distribution__title mb-0">Risk distribution snapshot</h3>
+                <span className="risk-distribution__hint">Click a segment to drill into that group</span>
+              </div>
+
+              <StackedBandRow
+                label="Incident risk (residents)"
+                bands={[
+                  {
+                    label: "High",
+                    count: countFor(summary?.residentIncidentBands, "High"),
+                    tone: "low",
+                    onClick: () => jumpToFilter("residents-incident", "incident-high"),
+                  },
+                  { label: "Medium", count: countFor(summary?.residentIncidentBands, "Medium"), tone: "medium" },
+                  { label: "Low", count: countFor(summary?.residentIncidentBands, "Low"), tone: "high" },
+                ]}
+              />
+
+              <StackedBandRow
+                label="Reintegration readiness (residents)"
+                bands={[
+                  {
+                    label: "Ready",
+                    count: countFor(summary?.residentReintegrationBands, "Ready"),
+                    tone: "high",
+                    onClick: () => jumpToFilter("residents-reintegration", "reintegration-ready"),
+                  },
+                  { label: "Developing", count: countFor(summary?.residentReintegrationBands, "Developing"), tone: "medium" },
+                  { label: "Not ready", count: countFor(summary?.residentReintegrationBands, "Not Ready"), tone: "low" },
+                ]}
+              />
+
+              <StackedBandRow
+                label="Supporter churn risk"
+                bands={[
+                  {
+                    label: "High",
+                    count: countFor(summary?.supporterChurnTiers, "High"),
+                    tone: "low",
+                    onClick: () => jumpToFilter("supporters", "supporter-high"),
+                  },
+                  { label: "Medium", count: countFor(summary?.supporterChurnTiers, "Medium"), tone: "medium" },
+                  {
+                    label: "Low",
+                    count: countFor(summary?.supporterChurnTiers, "Low"),
+                    tone: "high",
+                    onClick: () => jumpToFilter("supporters", "supporter-low"),
+                  },
+                ]}
+              />
+            </div>
           </div>
 
           {quickFilter ? (
@@ -386,6 +443,33 @@ function SummaryCard({
           </div>
         </div>
       </button>
+    </div>
+  );
+}
+
+function StackedBandRow({ label, bands }: { label: string; bands: BandCount[] }) {
+  const total = bands.reduce((acc, b) => acc + b.count, 0);
+  return (
+    <div className="risk-distribution__row">
+      <div className="risk-distribution__label">{label}</div>
+      <div className="risk-distribution__stack" role="img" aria-label={`${label}: ${bands.map((b) => `${b.label} ${b.count}`).join(", ")}`}>
+        {bands.map((b) => {
+          const pct = total > 0 ? (b.count / total) * 100 : 0;
+          return (
+            <button
+              key={b.label}
+              type="button"
+              className={`risk-distribution__segment risk-distribution__segment--${b.tone} ${b.onClick ? "risk-distribution__segment--clickable" : ""}`}
+              style={{ width: `${Math.max(pct, 4)}%` }}
+              onClick={b.onClick}
+              disabled={!b.onClick || b.count === 0}
+              title={`${b.label}: ${b.count}`}
+            >
+              <span>{b.label} {b.count}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

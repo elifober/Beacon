@@ -4748,6 +4748,19 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   float: none;
   flex: 0 0 auto;
 }
+.post-planner__checks {
+  display: grid;
+  gap: 0.78rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .post-planner__checks {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.post-planner__checks .form-check {
+  margin-bottom: 0;
+}
 
 .post-planner__form-card {
   padding: 1.35rem;
@@ -4942,6 +4955,15 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   background: linear-gradient(90deg, rgba(45, 79, 53, 0.75), rgba(45, 79, 53, 0.95));
   border-radius: inherit;
 }
+.post-planner__hour-fill--good {
+  background: linear-gradient(90deg, rgba(45, 79, 53, 0.78), rgba(45, 79, 53, 0.98));
+}
+.post-planner__hour-fill--medium {
+  background: linear-gradient(90deg, rgba(161, 98, 7, 0.78), rgba(161, 98, 7, 0.98));
+}
+.post-planner__hour-fill--bad {
+  background: linear-gradient(90deg, rgba(153, 27, 27, 0.78), rgba(153, 27, 27, 0.98));
+}
 .post-planner__hour-chart strong {
   font-size: 0.82rem;
   text-align: right;
@@ -5054,6 +5076,77 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .risk-summary-card-btn:focus-visible {
   outline: 3px solid rgba(45, 79, 53, 0.35);
   outline-offset: 2px;
+}
+
+/* Risk center distribution chart */
+.risk-distribution-card .card-body {
+  padding: 1rem 1rem 1.15rem;
+}
+.risk-distribution__title {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--beacon-text);
+}
+.risk-distribution__hint {
+  font-size: 0.8rem;
+  color: var(--beacon-text-muted);
+}
+.risk-distribution__row + .risk-distribution__row {
+  margin-top: 0.95rem;
+}
+.risk-distribution__label {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.79rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--beacon-text-muted);
+  margin-bottom: 0.35rem;
+}
+.risk-distribution__stack {
+  display: flex;
+  gap: 0.35rem;
+}
+.risk-distribution__segment {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.34rem 0.44rem;
+  min-height: 30px;
+  font-size: 0.72rem;
+  line-height: 1.1;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  opacity: 1;
+}
+.risk-distribution__segment:disabled {
+  opacity: 0.55;
+}
+.risk-distribution__segment--clickable {
+  cursor: pointer;
+}
+.risk-distribution__segment--clickable:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+.risk-distribution__segment--clickable:focus-visible {
+  outline: 3px solid rgba(45, 79, 53, 0.35);
+  outline-offset: 2px;
+}
+.risk-distribution__segment--high {
+  background: rgba(45, 79, 53, 0.92);
+}
+.risk-distribution__segment--medium {
+  background: rgba(161, 98, 7, 0.9);
+}
+.risk-distribution__segment--low {
+  background: rgba(153, 27, 27, 0.9);
+}
+@media (max-width: 768px) {
+  .risk-distribution__segment span {
+    font-size: 0.68rem;
+  }
 }
 
 /* Admin list pages — link back to main dashboard */

@@ -10,6 +10,7 @@ import { useAdminSearch } from "../context/AdminSearchContext";
 import { BASE_URL } from "../config/api";
 import { CreatePartnerModal } from "../components/admin/AdminCreateEntityModals";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
+import heroForestImage from "../assets/forrest.jpg";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -62,6 +63,7 @@ function AdminAllPartnersPage() {
   });
   const [createOpen, setCreateOpen] = useState(false);
   const [refreshList, setRefreshList] = useState(0);
+  const [heroFallback, setHeroFallback] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -219,57 +221,73 @@ function AdminAllPartnersPage() {
   }
 
   return (
-    <div className="beacon-page container py-4 admin-list-page">
-      <CreatePartnerModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSaved={() => setRefreshList((n) => n + 1)}
-      />
-      <AdminDashboardBackLink />
-      <AdminSearchInput placeholder="Search partners by name, role, safehouse, or status..." />
-
-      <AdminGlassFilterBar
-        ariaLabel="Filter partners"
-        openMenu={openFilterMenu}
-        setOpenMenu={setOpenFilterMenu}
-        values={listFilters}
-        onValueChange={(sectionId, value) =>
-          setListFilters((prev) => ({ ...prev, [sectionId]: value }))
-        }
-        sections={partnerGlassSections}
-      />
-
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-          <p className="landing-section__eyebrow mb-1">Admin</p>
-          <h1 className="mb-0">All Partners</h1>
+    <div className="admin-dashboard beacon-page">
+      <header className="admin-dashboard__hero" aria-label="Partners header">
+        <img
+          className="admin-dashboard__hero-img"
+          src={heroFallback ? heroForestImage : "/partners_page.jpg"}
+          alt=""
+          decoding="async"
+          onError={() => setHeroFallback(true)}
+        />
+        <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
+        <div className="container admin-dashboard__hero-content">
+          <p className="admin-dashboard__hero-eyebrow">Admin</p>
+          <h1 className="admin-dashboard__hero-title">All Partners</h1>
+          <p className="post-planner__lead admin-dashboard__hero-subtitle mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+            Manage partner organizations, roles, status, and safehouse assignments.
+          </p>
         </div>
-        <div className="d-flex flex-wrap gap-2 align-items-center">
-          <button
-            type="button"
-            className="btn btn-success"
-            onClick={() => setCreateOpen(true)}
-          >
-            New partner
-          </button>
-          <div className="btn-group">
-            <button
-              type="button"
-              className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
-              onClick={() => setView("table")}
-            >
-              Table
-            </button>
-            <button
-              type="button"
-              className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
-              onClick={() => setView("card")}
-            >
-              Cards
-            </button>
+      </header>
+
+      <section className="admin-dashboard__main">
+        <div className="container">
+          <CreatePartnerModal
+            open={createOpen}
+            onClose={() => setCreateOpen(false)}
+            onSaved={() => setRefreshList((n) => n + 1)}
+          />
+          <AdminDashboardBackLink />
+          <AdminSearchInput placeholder="Search partners by name, role, safehouse, or status..." />
+
+          <AdminGlassFilterBar
+            ariaLabel="Filter partners"
+            openMenu={openFilterMenu}
+            setOpenMenu={setOpenFilterMenu}
+            values={listFilters}
+            onValueChange={(sectionId, value) =>
+              setListFilters((prev) => ({ ...prev, [sectionId]: value }))
+            }
+            sections={partnerGlassSections}
+          />
+
+          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div className="d-flex flex-wrap gap-2 align-items-center">
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={() => setCreateOpen(true)}
+              >
+                New partner
+              </button>
+              <div className="btn-group">
+                <button
+                  type="button"
+                  className={`btn ${view === "table" ? "btn-primary" : "btn-outline-primary"}`}
+                  onClick={() => setView("table")}
+                >
+                  Table
+                </button>
+                <button
+                  type="button"
+                  className={`btn ${view === "card" ? "btn-primary" : "btn-outline-primary"}`}
+                  onClick={() => setView("card")}
+                >
+                  Cards
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
       {view === "table" ? (
         <div className="card beacon-detail-card">
@@ -361,13 +379,15 @@ function AdminAllPartnersPage() {
         </div>
       )}
 
-      <Pagination
-        page={currentPage}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        className="mt-4"
-      />
+          <Pagination
+            page={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            className="mt-4"
+          />
+        </div>
+      </section>
     </div>
   );
 }

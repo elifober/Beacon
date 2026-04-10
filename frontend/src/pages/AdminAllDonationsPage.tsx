@@ -9,6 +9,7 @@ import AdminGlassFilterBar, {
 } from "../components/AdminGlassFilterBar";
 import { useAdminSearch } from "../context/AdminSearchContext";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
+import heroForestImage from "../assets/forrest.jpg";
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -102,6 +103,7 @@ function AdminAllDonationsPage() {
     recurring: "",
     when: "",
   });
+  const [heroFallback, setHeroFallback] = useState(false);
 
   useEffect(() => {
     fetch(`${BASE_URL}/AllDonations`, { credentials: "include" })
@@ -240,62 +242,82 @@ function AdminAllDonationsPage() {
   }
 
   return (
-    <div className="beacon-page container py-4 admin-list-page">
-      <AdminDashboardBackLink />
-      <AdminSearchInput placeholder="Search donations by supporter, type, area, or notes..." />
-
-      <AdminGlassFilterBar
-        ariaLabel="Filter donations"
-        openMenu={openFilterMenu}
-        setOpenMenu={setOpenFilterMenu}
-        values={listFilters}
-        onValueChange={(sectionId, value) =>
-          setListFilters((prev) => ({ ...prev, [sectionId]: value }))
-        }
-        sections={donationsGlassSections}
-      />
-
-      <p className="landing-section__eyebrow mb-1">Admin</p>
-      <h1 className="mb-4">All Donations</h1>
-      <div className="card beacon-detail-card">
-        <div className="card-body table-responsive">
-          <table className="table table-striped table-hover mb-0">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Supporter</th>
-                <th>Type</th>
-                <th>Date</th>
-                <th>Recurring</th>
-                <th>Amount</th>
-                <th>Program Area</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleDonations.map((d, i) => (
-                <tr key={`${d.donationId}-${i}`}>
-                  <td>{d.donationId}</td>
-                  <td>{d.supporterName ?? "—"}</td>
-                  <td>{d.donationType ?? "—"}</td>
-                  <td>{formatDate(d.donationDate)}</td>
-                  <td>{d.isRecurring ? "Yes" : "No"}</td>
-                  <td>{formatAmount(d)}</td>
-                  <td>{d.programArea ?? "—"}</td>
-                  <td>{d.notes ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="admin-dashboard beacon-page">
+      <header className="admin-dashboard__hero" aria-label="Donations header">
+        <img
+          className="admin-dashboard__hero-img"
+          src={heroFallback ? heroForestImage : "/doantions_page.jpg"}
+          alt=""
+          decoding="async"
+          onError={() => setHeroFallback(true)}
+        />
+        <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
+        <div className="container admin-dashboard__hero-content">
+          <p className="admin-dashboard__hero-eyebrow">Admin</p>
+          <h1 className="admin-dashboard__hero-title">All Donations</h1>
+          <p className="post-planner__lead admin-dashboard__hero-subtitle mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+            Monitor donations by type, program area, and recurring patterns.
+          </p>
         </div>
-      </div>
-      <Pagination
-        page={currentPage}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        className="mt-4"
-      />
+      </header>
+
+      <section className="admin-dashboard__main">
+        <div className="container">
+          <AdminDashboardBackLink />
+          <AdminSearchInput placeholder="Search donations by supporter, type, area, or notes..." />
+
+          <AdminGlassFilterBar
+            ariaLabel="Filter donations"
+            openMenu={openFilterMenu}
+            setOpenMenu={setOpenFilterMenu}
+            values={listFilters}
+            onValueChange={(sectionId, value) =>
+              setListFilters((prev) => ({ ...prev, [sectionId]: value }))
+            }
+            sections={donationsGlassSections}
+          />
+
+          <div className="card beacon-detail-card">
+            <div className="card-body table-responsive">
+              <table className="table table-striped table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Supporter</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Recurring</th>
+                    <th>Amount</th>
+                    <th>Program Area</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleDonations.map((d, i) => (
+                    <tr key={`${d.donationId}-${i}`}>
+                      <td>{d.donationId}</td>
+                      <td>{d.supporterName ?? "—"}</td>
+                      <td>{d.donationType ?? "—"}</td>
+                      <td>{formatDate(d.donationDate)}</td>
+                      <td>{d.isRecurring ? "Yes" : "No"}</td>
+                      <td>{formatAmount(d)}</td>
+                      <td>{d.programArea ?? "—"}</td>
+                      <td>{d.notes ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <Pagination
+            page={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            className="mt-4"
+          />
+        </div>
+      </section>
     </div>
   );
 }

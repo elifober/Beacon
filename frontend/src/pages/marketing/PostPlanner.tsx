@@ -50,6 +50,13 @@ function riskTone(band: string): "high" | "medium" | "low" {
   return "low";
 }
 
+function formatHour12(hour24: number): string {
+  const h = ((hour24 % 24) + 24) % 24;
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:00 ${suffix}`;
+}
+
 export default function PostPlanner() {
   const [req, setReq] = useState<PostPredictionRequest>(defaultReq);
   const [result, setResult] = useState<PostPredictionResponse | null>(null);
@@ -143,7 +150,8 @@ export default function PostPlanner() {
                   <NumberInput label="# Hashtags" value={req.numHashtags} onChange={(v) => update("numHashtags", v)} />
                   <NumberInput label="# Mentions" value={req.mentionsCount} onChange={(v) => update("mentionsCount", v)} />
                   <NumberInput label="Caption Length" value={req.captionLength} onChange={(v) => update("captionLength", v)} />
-
+                </div>
+                <div className="post-planner__checks mt-3">
                   <Checkbox id="pp-peak" label="Peak hour" checked={req.isPeakHour} onChange={(v) => update("isPeakHour", v)} />
                   <Checkbox id="pp-video" label="Video" checked={req.isVideo} onChange={(v) => update("isVideo", v)} />
                   <Checkbox id="pp-campaign" label="Part of campaign" checked={req.hasCampaign} onChange={(v) => update("hasCampaign", v)} />
@@ -189,10 +197,16 @@ export default function PostPlanner() {
                       <ul className="post-planner__hour-chart">
                         {hourPreview.map((p) => (
                           <li key={p.hour}>
-                            <span className="post-planner__hour-label">{String(p.hour).padStart(2, "0")}:00</span>
+                            <span className="post-planner__hour-label">{formatHour12(p.hour)}</span>
                             <span className="post-planner__hour-bar">
                               <span
-                                className="post-planner__hour-fill"
+                                className={`post-planner__hour-fill ${
+                                  p.probability < 0.35
+                                    ? "post-planner__hour-fill--bad"
+                                    : p.probability < 0.6
+                                      ? "post-planner__hour-fill--medium"
+                                      : "post-planner__hour-fill--good"
+                                }`}
                                 style={{ width: `${Math.round(p.probability * 100)}%` }}
                               />
                             </span>

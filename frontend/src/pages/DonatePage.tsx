@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  donateDisplay,
-  donateLinks,
-  hasAnyPaymentLink,
-  paypalHref,
-} from "../config/donate";
+import { donateDisplay, donateLinks, paypalHref } from "../config/donate";
+import { useAuth } from "../context/AuthContext";
+import { submitMonetaryDonation } from "../api/donorMonetaryDonation";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250];
 
@@ -15,9 +12,14 @@ const PRESET_AMOUNTS = [25, 50, 100, 250];
  */
 function DonatePage() {
   const [searchParams] = useSearchParams();
+  const { authSession, isLoading: authLoading } = useAuth();
   const [amount, setAmount] = useState<string>("");
   const [monthly, setMonthly] = useState(false);
   const [fromLandingNote, setFromLandingNote] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<{ type: "ok" | "err"; text: string } | null>(
+    null
+  );
 
   useEffect(() => {
     const a = searchParams.get("amount");
@@ -29,7 +31,34 @@ function DonatePage() {
   }, [searchParams]);
 
   const paypalUrl = paypalHref(monthly);
-  const anyLink = hasAnyPaymentLink();
+
+  const onSubmitDonation = async () => {
+    setSubmitMessage(null);
+    const parsed = Number.parseFloat(amount);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setSubmitMessage({ type: "err", text: "Enter a valid donation amount." });
+      return;
+    }
+    if (!authSession?.isAuthenticated) {
+      setSubmitMessage({
+        type: "err",
+        text: "Sign in with your donor account to record this donation in our system.",
+      });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await submitMonetaryDonation({ amount: parsed, isRecurring: monthly });
+      setSubmitMessage({
+        type: "ok",
+        text: "Thank you — your donation has been recorded.",
+      });
+    } catch (e) {
+      setSubmitMessage({ type: "err", text: (e as Error).message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="donate-external">
@@ -137,6 +166,28 @@ function DonatePage() {
           )}
 
           <div className="donate-external__actions">
+            <button
+              type="button"
+              className="donate-external__btn donate-external__btn--card"
+              disabled={authLoading || submitting}
+              onClick={() => void onSubmitDonation()}
+            >
+              {submitting ? "Submitting…" : "Submit donation"}
+            </button>
+            {submitMessage && (
+              <p
+                className={`mb-0 small ${submitMessage.type === "ok" ? "text-success" : "text-danger"}`}
+                role="status"
+              >
+                {submitMessage.text}
+                {submitMessage.type === "err" && !authSession?.isAuthenticated && (
+                  <>
+                    {" "}
+                    <Link to="/login">Sign in</Link>
+                  </>
+                )}
+              </p>
+            )}
             {paypalUrl && (
               <a
                 href={paypalUrl}

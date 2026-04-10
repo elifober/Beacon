@@ -60,7 +60,9 @@
 }
 
 @media (max-width: 576px) {
-  .announcement-bar__text { display: none; }
+  .announcement-bar__text {
+    display: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -136,7 +138,9 @@
    ADMIN — ALL RESIDENTS (hover swell)
    ═══════════════════════════════════════════════ */
 .admin-all-residents-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
   transform-origin: center center;
 }
 
@@ -182,8 +186,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
     transition: none;
   }
   .admin-list-page .admin-all-residents-card:hover,
-  .admin-list-page a.admin-all-residents-card-link:hover .admin-all-residents-card,
-  .admin-list-page a.admin-all-residents-card-link:focus-visible .admin-all-residents-card,
+  .admin-list-page
+    a.admin-all-residents-card-link:hover
+    .admin-all-residents-card,
+  .admin-list-page
+    a.admin-all-residents-card-link:focus-visible
+    .admin-all-residents-card,
   .admin-list-page .admin-hub-summary-card:hover,
   .admin-list-page .post-planner__form-card:hover,
   .admin-list-page .post-planner__aside:hover,
@@ -204,8 +212,11 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .beacon-navbar {
   z-index: 1030;
   padding: 0.42rem 0;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease,
-    box-shadow 0.4s ease, padding 0.4s ease;
+  transition:
+    background 0.4s ease,
+    backdrop-filter 0.4s ease,
+    box-shadow 0.4s ease,
+    padding 0.4s ease;
 }
 
 /* Landing only: overlay hero and stay visible while scrolling */
@@ -304,7 +315,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   transform: translateX(-50%);
   padding: 0.22rem 0.38rem;
   border-radius: 50px;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease,
+  transition:
+    background 0.4s ease,
+    backdrop-filter 0.4s ease,
+    border-color 0.4s ease,
     box-shadow 0.4s ease;
 }
 .beacon-navbar__center a {
@@ -314,7 +328,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-decoration: none;
   padding: 0.36rem 0.82rem;
   border-radius: 50px;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 .beacon-navbar--glass .beacon-navbar__center {
   background: rgba(255, 255, 255, 0.38);
@@ -383,13 +399,17 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-decoration: none;
   padding: 0.36rem 0.82rem;
   border-radius: 50px;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 /* No second glass panel — readable on hero without duplicating the center pill */
 .beacon-navbar--glass .beacon-navbar__right > a:not(.beacon-navbar__cta) {
   color: #f4f7f4;
   font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 0 12px rgba(0, 0, 0, 0.35);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.75),
+    0 0 12px rgba(0, 0, 0, 0.35);
   background: transparent;
   border: none;
   box-shadow: none;
@@ -405,7 +425,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .beacon-navbar--solid .beacon-navbar__right > a:not(.beacon-navbar__cta) {
   color: #3d4f42;
 }
-.beacon-navbar--scrolled .beacon-navbar__right > a:not(.beacon-navbar__cta):hover,
+.beacon-navbar--scrolled
+  .beacon-navbar__right
+  > a:not(.beacon-navbar__cta):hover,
 .beacon-navbar--solid .beacon-navbar__right > a:not(.beacon-navbar__cta):hover {
   color: #fff;
   background: var(--beacon-primary);
@@ -420,7 +442,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-weight: 600 !important;
   font-size: 0.875rem !important;
   border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s,
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s,
+    color 0.2s,
     backdrop-filter 0.2s !important;
 }
 /* Match center nav glass pill */
@@ -459,15 +486,23 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__center a {
   color: #3d4f42;
 }
-.beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__center a:hover,
-.beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__center a.active {
+.beacon-navbar--auth-overlay.beacon-navbar--scrolled
+  .beacon-navbar__center
+  a:hover,
+.beacon-navbar--auth-overlay.beacon-navbar--scrolled
+  .beacon-navbar__center
+  a.active {
   color: #fff;
   background: var(--beacon-primary);
 }
-.beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__right > a:not(.beacon-navbar__cta) {
+.beacon-navbar--auth-overlay.beacon-navbar--scrolled
+  .beacon-navbar__right
+  > a:not(.beacon-navbar__cta) {
   color: #3d4f42;
 }
-.beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__right > a:not(.beacon-navbar__cta):hover {
+.beacon-navbar--auth-overlay.beacon-navbar--scrolled
+  .beacon-navbar__right
+  > a:not(.beacon-navbar__cta):hover {
   color: #fff;
   background: var(--beacon-primary);
 }
@@ -499,7 +534,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   width: 22px;
   height: 2px;
   border-radius: 2px;
-  transition: transform 0.3s, opacity 0.3s;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
 }
 .beacon-navbar--glass .beacon-navbar__toggle span {
   background: #fff;
@@ -519,12 +556,18 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 /* Mobile drawer */
-.beacon-navbar__mobile { display: none; }
+.beacon-navbar__mobile {
+  display: none;
+}
 
 @media (max-width: 768px) {
   .beacon-navbar__center,
-  .beacon-navbar__right { display: none; }
-  .beacon-navbar__toggle { display: flex; }
+  .beacon-navbar__right {
+    display: none;
+  }
+  .beacon-navbar__toggle {
+    display: flex;
+  }
   .beacon-navbar__mobile {
     display: flex;
     flex-direction: column;
@@ -573,15 +616,23 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
     background: var(--beacon-bg-card);
     border-top: 1px solid var(--beacon-border);
   }
-  .beacon-navbar--auth-overlay.beacon-navbar--scrolled .beacon-navbar__mobile a {
+  .beacon-navbar--auth-overlay.beacon-navbar--scrolled
+    .beacon-navbar__mobile
+    a {
     color: var(--beacon-text);
     border-bottom-color: var(--beacon-border);
   }
 }
 
 @keyframes navSlideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -742,7 +793,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   max-width: 400px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2), 0 2px 8px rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.2),
+    0 2px 8px rgba(15, 23, 42, 0.08);
   padding: clamp(1.25rem, 3vw, 1.75rem);
   text-align: left;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -781,7 +834,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-weight: 600;
   color: #334155;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s;
 }
 .hero-donate-card__freq:hover {
   border-color: #cbd5e1;
@@ -808,7 +864,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-weight: 600;
   color: #334155;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 .hero-donate-card__amt:hover {
   background: #e2e8f0;
@@ -827,7 +886,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 0.5rem 0.65rem;
   margin-bottom: 0.75rem;
   cursor: text;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .hero-donate-card__other:focus-within {
   border-color: var(--beacon-primary);
@@ -893,7 +954,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 0.85rem 1rem;
   border-radius: 999px;
   text-decoration: none !important;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
   border: none;
   cursor: pointer;
 }
@@ -911,7 +975,8 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   flex-wrap: wrap;
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
@@ -931,7 +996,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 0.5rem 1.35rem;
   border-radius: 50px;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 .hero__btn--primary {
   background: var(--beacon-primary);
@@ -958,9 +1026,17 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 @media (max-width: 576px) {
-  .hero__content { padding-bottom: 2rem; }
-  .hero__actions { flex-direction: column; gap: 0.75rem; }
-  .hero__btn { width: 100%; text-align: center; }
+  .hero__content {
+    padding-bottom: 2rem;
+  }
+  .hero__actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .hero__btn {
+    width: 100%;
+    text-align: center;
+  }
   .hero-donate-card__grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1084,7 +1160,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-section--dark {
   background: var(--beacon-primary);
-  color: #F2F4F0;
+  color: #f2f4f0;
 }
 .landing-section--accent {
   background: var(--beacon-oat-light);
@@ -1096,10 +1172,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   overflow: hidden;
 }
 #impact.landing-section--dark::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
-  background-image: url("/philippines_dotted.png");
+  background-image: url('/philippines_dotted.png');
   background-repeat: no-repeat;
   /* Make the shape read clearly within the section */
   background-position: center;
@@ -1136,7 +1212,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   margin-bottom: 1rem;
 }
 .landing-section__heading--light {
-  color: #F2F4F0;
+  color: #f2f4f0;
 }
 
 .landing-section__heading--what-we-do {
@@ -1167,7 +1243,11 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 .mission-image-placeholder {
-  background: linear-gradient(135deg, var(--beacon-sage-light) 0%, var(--beacon-oat-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--beacon-sage-light) 0%,
+    var(--beacon-oat-light) 100%
+  );
   border-radius: var(--beacon-radius);
   height: 360px;
   display: flex;
@@ -1177,7 +1257,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   gap: 0.75rem;
   color: var(--beacon-primary);
 }
-.mission-image-placeholder i { font-size: 3rem; }
+.mission-image-placeholder i {
+  font-size: 3rem;
+}
 .mission-image-placeholder span {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-style: italic;
@@ -1188,7 +1270,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
    IMPACT STATS
    ═══════════════════════════════════════════════ */
 .landing-impact-stats__lead {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   color: rgba(242, 244, 240, 0.68);
   max-width: 36rem;
@@ -1241,7 +1323,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 .impact-stat__value-num {
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
 }
 /* Suffix (+, etc.) — lighter weight so the digit reads as the hero */
 .impact-stat__value-suffix {
@@ -1315,12 +1399,18 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   overflow: hidden;
   text-decoration: none !important;
   color: inherit;
-  box-shadow: 0 8px 32px rgba(27, 38, 29, 0.12), 0 2px 8px rgba(27, 38, 29, 0.06);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  box-shadow:
+    0 8px 32px rgba(27, 38, 29, 0.12),
+    0 2px 8px rgba(27, 38, 29, 0.06);
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 .involve-photo-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 48px rgba(27, 38, 29, 0.18), 0 4px 16px rgba(27, 38, 29, 0.08);
+  box-shadow:
+    0 20px 48px rgba(27, 38, 29, 0.18),
+    0 4px 16px rgba(27, 38, 29, 0.08);
 }
 .involve-photo-card:focus-visible {
   outline: 3px solid var(--beacon-primary);
@@ -1398,7 +1488,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .involve-photo-card--contact:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(27, 38, 29, 0.16), 0 2px 10px rgba(27, 38, 29, 0.07);
+  box-shadow:
+    0 16px 40px rgba(27, 38, 29, 0.16),
+    0 2px 10px rgba(27, 38, 29, 0.07);
 }
 .involve-photo-card--contact .involve-photo-card__glass {
   justify-content: flex-start;
@@ -1414,7 +1506,11 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
    CTA BANNER
    ═══════════════════════════════════════════════ */
 .landing-cta {
-  background: linear-gradient(135deg, var(--beacon-primary) 0%, var(--beacon-primary-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--beacon-primary) 0%,
+    var(--beacon-primary-dark) 100%
+  );
   padding: 5rem 0;
 }
 .landing-cta__heading {
@@ -1505,7 +1601,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.92);
   color: #0f172a !important;
-  transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    background 0.15s ease;
 }
 .landing-cta-video__btn:hover {
   transform: translateY(-1px);
@@ -1535,7 +1634,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
    FOOTER
    ═══════════════════════════════════════════════ */
 .landing-footer {
-  background: #1B261D;
+  background: #1b261d;
   padding: clamp(2.75rem, 5vw, 4rem) 0 2rem;
   border-top: 1px solid rgba(242, 244, 240, 0.06);
 }
@@ -1553,7 +1652,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   line-height: 0;
   text-decoration: none;
   border-radius: 0.35rem;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .landing-footer__brand-link:hover {
   opacity: 0.92;
@@ -1596,7 +1697,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #F2F4F0;
+  color: #f2f4f0;
   margin-bottom: 0.75rem;
 }
 .landing-footer__heading {
@@ -1617,7 +1718,9 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   padding: 0;
   margin: 0;
 }
-.landing-footer__list li { margin-bottom: 0.4rem; }
+.landing-footer__list li {
+  margin-bottom: 0.4rem;
+}
 .landing-footer__list a {
   color: rgba(242, 244, 240, 0.6);
   text-decoration: none;
@@ -1671,9 +1774,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   justify-content: center;
   background: rgba(242, 244, 240, 0.08);
   border: 1px solid rgba(242, 244, 240, 0.16);
-  color: #F2F4F0 !important;
+  color: #f2f4f0 !important;
   text-decoration: none !important;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 .landing-footer__social-link i {
   font-size: 1rem;
@@ -1718,7 +1824,11 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   background: var(--beacon-primary);
   color: #fff;
   border: 2px solid var(--beacon-primary);
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s,
+    border-color 0.2s;
 }
 .intro-tagline__link:hover {
   background: var(--beacon-primary-dark);
@@ -1743,7 +1853,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__title {
   margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(2rem, 4.8vw, 3rem);
   line-height: 1.06;
   font-weight: 600;
@@ -1771,14 +1881,14 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__day-name {
   display: block;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.72rem;
   font-weight: 500;
   color: #222222;
 }
 .landing-events__day {
   display: block;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.75rem, 2.3vw, 2.05rem);
   font-weight: 500;
   color: #121212;
@@ -1786,7 +1896,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__month {
   display: block;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.76rem;
   font-weight: 500;
   color: #2b2b2b;
@@ -1797,7 +1907,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__event-title {
   margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.3rem, 2.4vw, 2rem);
   line-height: 1.15;
   font-weight: 500;
@@ -1805,7 +1915,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__event-dates {
   margin: 0.24rem 0 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.05rem, 1.85vw, 1.72rem);
   line-height: 1.2;
   font-weight: 500;
@@ -1813,7 +1923,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .landing-events__event-price {
   margin: 0.12rem 0 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.1rem, 2vw, 1.85rem);
   line-height: 1.15;
   font-weight: 500;
@@ -1897,7 +2007,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 .admin-dashboard__hero-eyebrow {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.78rem;
@@ -1907,7 +2017,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 
 .admin-dashboard__hero-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   font-size: clamp(1.85rem, 3.5vw, 2.6rem);
   line-height: 1.15;
@@ -1978,7 +2088,10 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
 }
 .admin-kpi--link:hover {
   transform: translateY(-2px);
@@ -1990,7 +2103,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   outline-offset: 2px;
 }
 .admin-kpi__value {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--beacon-text);
@@ -1999,7 +2112,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .admin-kpi__label {
   margin-top: 0.35rem;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.86rem;
   color: var(--beacon-text-muted);
   font-weight: 600;
@@ -2022,7 +2135,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   font-size: 0.73rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   color: var(--beacon-text-muted);
 }
@@ -2043,13 +2156,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background:
-    conic-gradient(
-      rgba(45, 79, 53, 0.92) 0 calc(var(--mix-a)),
-      rgba(161, 98, 7, 0.9) calc(var(--mix-a)) calc(var(--mix-a) + var(--mix-b)),
-      rgba(153, 27, 27, 0.9) calc(var(--mix-a) + var(--mix-b)) calc(var(--mix-a) + var(--mix-b) + var(--mix-c)),
-      rgba(71, 85, 105, 0.9) calc(var(--mix-a) + var(--mix-b) + var(--mix-c)) 100%
-    );
+  background: conic-gradient(
+    rgba(45, 79, 53, 0.92) 0 calc(var(--mix-a)),
+    rgba(161, 98, 7, 0.9) calc(var(--mix-a)) calc(var(--mix-a) + var(--mix-b)),
+    rgba(153, 27, 27, 0.9) calc(var(--mix-a) + var(--mix-b))
+      calc(var(--mix-a) + var(--mix-b) + var(--mix-c)),
+    rgba(71, 85, 105, 0.9) calc(var(--mix-a) + var(--mix-b) + var(--mix-c)) 100%
+  );
 }
 .admin-overview__mix-center {
   width: 54px;
@@ -2209,7 +2322,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   gap: 0.6rem;
 }
 .admin-overview__needs-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -2223,7 +2336,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border-radius: 999px;
   display: inline-grid;
   place-items: center;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 800;
   color: #fff;
@@ -2254,7 +2367,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   background: rgba(153, 27, 27, 0.08);
 }
 .admin-overview__needs-link::before {
-  content: "";
+  content: '';
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
@@ -2273,8 +2386,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border-radius: var(--beacon-radius);
   padding: 2rem 1.5rem;
   min-height: 280px;
-  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.05), 0 1px 2px rgba(27, 38, 29, 0.03);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow:
+    0 1px 4px rgba(27, 38, 29, 0.05),
+    0 1px 2px rgba(27, 38, 29, 0.03);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .admin-dashboard__panel:hover {
@@ -2289,8 +2407,13 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border-radius: var(--beacon-radius);
   padding: 1.75rem 1.35rem;
   height: 100%;
-  box-shadow: 0 1px 4px rgba(27, 38, 29, 0.05), 0 1px 2px rgba(27, 38, 29, 0.03);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow:
+    0 1px 4px rgba(27, 38, 29, 0.05),
+    0 1px 2px rgba(27, 38, 29, 0.03);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 .admin-dashboard__nav-card--compact {
   padding: 1.3rem 1rem;
@@ -2311,7 +2434,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 }
 .admin-dashboard__actions-title {
   margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--beacon-text);
@@ -2329,7 +2452,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   position: relative;
 }
 .admin-dashboard__action-group::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0.75rem;
   right: 0.75rem;
@@ -2345,7 +2468,7 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   background: rgba(71, 85, 105, 0.28);
 }
 .admin-dashboard__action-group-kicker {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2364,10 +2487,14 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   text-align: left;
   background: #fff;
   color: var(--beacon-text);
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 .admin-dashboard__action-btn:hover {
   border-color: rgba(45, 79, 53, 0.35);
@@ -2405,14 +2532,17 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
 .admin-dashboard__nav-link {
   display: block;
   padding: 0.7rem 1rem;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--beacon-text);
   text-decoration: none;
   border-radius: calc(var(--beacon-radius) - 2px);
   border: 1px solid transparent;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .admin-dashboard:not(.donor-dashboard) .admin-dashboard__nav-link {
@@ -2450,7 +2580,9 @@ button.admin-dashboard__nav-link {
 }
 
 .admin-dashboard__search-wrap input.form-control {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-dashboard__search-wrap input.form-control:hover {
@@ -2458,7 +2590,9 @@ button.admin-dashboard__nav-link {
 }
 
 .admin-dashboard__search-wrap .list-group-item {
-  transition: background-color 0.16s ease, transform 0.16s ease;
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s ease;
 }
 
 .admin-dashboard__search-wrap .list-group-item:hover {
@@ -2468,7 +2602,9 @@ button.admin-dashboard__nav-link {
 
 /* Admin list hub — All Residents / Donors / … + Risk + Post Planner */
 .admin-list-page .beacon-detail-card .table tbody tr {
-  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .admin-list-page .beacon-detail-card .table tbody tr:hover {
@@ -2476,19 +2612,29 @@ button.admin-dashboard__nav-link {
 }
 
 .admin-list-page .admin-all-residents-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .admin-list-page .admin-all-residents-card:hover,
-.admin-list-page a.admin-all-residents-card-link:hover .admin-all-residents-card,
-.admin-list-page a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
+.admin-list-page
+  a.admin-all-residents-card-link:hover
+  .admin-all-residents-card,
+.admin-list-page
+  a.admin-all-residents-card-link:focus-visible
+  .admin-all-residents-card {
   transform: translateY(-5px);
   box-shadow: 0 14px 36px rgba(45, 79, 53, 0.12);
   border-color: rgba(45, 79, 53, 0.22);
 }
 
 .admin-list-page .admin-hub-summary-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .admin-list-page .admin-hub-summary-card:hover {
@@ -2499,7 +2645,10 @@ button.admin-dashboard__nav-link {
 
 .admin-list-page .post-planner__form-card,
 .admin-list-page .post-planner__aside {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .admin-list-page .post-planner__form-card:hover,
@@ -2510,7 +2659,9 @@ button.admin-dashboard__nav-link {
 }
 
 .admin-list-page .admin-hub-search .form-control {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-list-page .admin-hub-search .form-control:hover {
@@ -2518,7 +2669,9 @@ button.admin-dashboard__nav-link {
 }
 
 .admin-list-page .admin-dashboard-back {
-  transition: color 0.18s ease, transform 0.18s ease;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .admin-list-page .admin-dashboard-back:hover {
@@ -2548,7 +2701,7 @@ button.admin-dashboard__nav-link {
   padding: 1rem 1rem 0.95rem;
 }
 .admin-resident-card__name {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.28rem;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -2586,7 +2739,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   transform: scale(1.04);
 }
 .admin-safehouse-card__kicker {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -2616,7 +2769,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   padding: 1rem 1rem 0.95rem;
 }
 .admin-partner-card__name {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.24rem;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -2640,7 +2793,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   padding: 1rem 1rem 0.95rem;
 }
 .admin-donor-card__name {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.24rem;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -2662,7 +2815,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   margin-bottom: 0;
 }
 .donations-table-card .table th {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.73rem;
@@ -2681,7 +2834,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 
 /* Resident profile (/resident/:id) — detail + record preview cards */
 .resident-profile-page .beacon-detail-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .resident-profile-page .beacon-detail-card:hover {
@@ -2691,7 +2847,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 }
 
 .resident-profile-page .resident-record-preview-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .resident-profile-page .resident-record-preview-card:hover {
@@ -2725,7 +2884,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(45, 79, 53, 0.14);
-  background: linear-gradient(135deg, rgba(248, 250, 249, 0.98) 0%, rgba(255, 255, 255, 0.96) 55%);
+  background: linear-gradient(
+    135deg,
+    rgba(248, 250, 249, 0.98) 0%,
+    rgba(255, 255, 255, 0.96) 55%
+  );
   box-shadow: 0 6px 22px rgba(45, 79, 53, 0.06);
   transition:
     transform 0.18s ease,
@@ -2740,7 +2903,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 .resident-profile-page .resident-metric-tile__accent {
   width: 5px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(45, 79, 53, 0.55), rgba(52, 140, 89, 0.45));
+  background: linear-gradient(
+    180deg,
+    rgba(45, 79, 53, 0.55),
+    rgba(52, 140, 89, 0.45)
+  );
 }
 
 .resident-profile-page .resident-metric-tile__body {
@@ -2846,28 +3013,40 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 @keyframes resident-risk-pulse-high {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(200, 54, 54, 0.35), 0 4px 14px rgba(200, 54, 54, 0.12);
+    box-shadow:
+      0 0 0 0 rgba(200, 54, 54, 0.35),
+      0 4px 14px rgba(200, 54, 54, 0.12);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(200, 54, 54, 0.12), 0 8px 26px rgba(200, 54, 54, 0.22);
+    box-shadow:
+      0 0 0 6px rgba(200, 54, 54, 0.12),
+      0 8px 26px rgba(200, 54, 54, 0.22);
   }
 }
 @keyframes resident-risk-pulse-medium {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(200, 150, 30, 0.28), 0 4px 14px rgba(200, 150, 30, 0.1);
+    box-shadow:
+      0 0 0 0 rgba(200, 150, 30, 0.28),
+      0 4px 14px rgba(200, 150, 30, 0.1);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(200, 150, 30, 0.1), 0 8px 26px rgba(200, 150, 30, 0.18);
+    box-shadow:
+      0 0 0 6px rgba(200, 150, 30, 0.1),
+      0 8px 26px rgba(200, 150, 30, 0.18);
   }
 }
 @keyframes resident-risk-pulse-low {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(52, 140, 89, 0.28), 0 4px 14px rgba(52, 140, 89, 0.08);
+    box-shadow:
+      0 0 0 0 rgba(52, 140, 89, 0.28),
+      0 4px 14px rgba(52, 140, 89, 0.08);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(52, 140, 89, 0.1), 0 8px 26px rgba(52, 140, 89, 0.16);
+    box-shadow:
+      0 0 0 6px rgba(52, 140, 89, 0.1),
+      0 8px 26px rgba(52, 140, 89, 0.16);
   }
 }
 
@@ -2881,12 +3060,47 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 
 .donor-dashboard {
   background:
-    radial-gradient(circle at 12% 22%, rgba(114, 159, 147, 0.12), transparent 40%),
-    radial-gradient(circle at 88% 11%, rgba(225, 181, 129, 0.12), transparent 36%),
+    radial-gradient(
+      circle at 12% 22%,
+      rgba(114, 159, 147, 0.12),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 88% 11%,
+      rgba(225, 181, 129, 0.12),
+      transparent 36%
+    ),
     linear-gradient(180deg, #f5f7f4 0%, #edf2ec 100%);
 }
 .donor-dashboard .admin-dashboard__hero {
   margin-top: 0;
+  position: relative;
+}
+
+/* Admin donor page: back links below hero (standard text links) */
+.donor-dashboard__admin-below-hero .admin-dashboard-back {
+  color: var(--beacon-text-muted);
+}
+
+.donor-dashboard__admin-below-hero .admin-dashboard-back:hover {
+  color: var(--beacon-primary);
+}
+
+.donor-dashboard .donor-dashboard__stat-card--drilldown {
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.donor-dashboard .donor-dashboard__stat-card--drilldown:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(39, 58, 46, 0.14) !important;
+}
+
+.donor-dashboard .donor-dashboard__stat-card--drilldown:focus {
+  outline: 2px solid var(--beacon-primary);
+  outline-offset: 2px;
 }
 .donor-dashboard .admin-dashboard__hero-overlay {
   background: linear-gradient(
@@ -2904,11 +3118,18 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 }
 .donor-dashboard__glass-panel {
   border: 1px solid rgba(255, 255, 255, 0.65) !important;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(246, 249, 246, 0.72)) !important;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(246, 249, 246, 0.72)
+  ) !important;
   box-shadow: 0 12px 30px rgba(39, 58, 46, 0.08) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 .donor-dashboard .admin-dashboard__panel.donor-dashboard__glass-panel:hover,
 .donor-dashboard .admin-dashboard__nav-card.donor-dashboard__glass-panel:hover {
@@ -2932,14 +3153,14 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   box-shadow: 0 4px 16px rgba(45, 79, 53, 0.1);
 }
 .donor-dashboard .beacon-stat-value {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.35rem, 2.1vw, 1.95rem);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
 .donor-dashboard .donor-overview-profile-eyebrow {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -2956,7 +3177,9 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.62);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .donor-dashboard .donor-overview-meta:hover {
   border-color: rgba(45, 79, 53, 0.2);
@@ -3054,7 +3277,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   max-width: 145px;
 }
 .donor-dashboard .donor-mix-chart__callout::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   width: 18px;
@@ -3089,7 +3312,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   display: grid;
   place-items: center;
   border: 1px solid rgba(59, 82, 69, 0.16);
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
   cursor: default;
 }
 .donor-dashboard .donor-allocation-chart:hover .donor-allocation-chart__ring {
@@ -3132,7 +3358,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   border-radius: 10px;
   padding: 0.45rem 0.65rem;
   background: rgba(255, 255, 255, 0.45);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 .donor-dashboard .donor-allocation-chart__legend-row:hover {
   transform: translateY(-2px);
@@ -3144,7 +3374,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   border: 1px solid var(--beacon-border);
   border-radius: 12px;
   background: #fff;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .donor-dashboard .donor-mini-grid--clean .donor-mini-grid__item:hover {
   transform: translateY(-3px);
@@ -3160,7 +3393,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
     rgba(255, 255, 255, 0.92) 0%,
     rgba(248, 251, 248, 0.88) 100%
   );
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 .donor-dashboard .donor-trend:hover {
   border-color: rgba(45, 79, 53, 0.2);
@@ -3182,7 +3418,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   background-position: bottom;
   border: 1px solid rgba(45, 79, 53, 0.06);
   overflow: hidden;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 .donor-dashboard .donor-trend:hover .donor-trend__chart {
   transform: scale(1.015);
@@ -3223,7 +3462,9 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   letter-spacing: 0.05em;
 }
 .donor-dashboard .donor-trend__labels span {
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 .donor-dashboard .donor-trend:hover .donor-trend__labels span {
   color: var(--beacon-text);
@@ -3262,7 +3503,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   border-radius: 12px;
   border: 1px solid rgba(59, 82, 69, 0.16);
   background: rgba(255, 255, 255, 0.55);
-  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
 }
 .donor-dashboard .donor-events__item:hover {
   transform: translateY(-3px);
@@ -3295,14 +3540,22 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   padding: 0.55rem 0.95rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.7);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.75), rgba(241, 246, 241, 0.6));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.75),
+    rgba(241, 246, 241, 0.6)
+  );
   color: var(--beacon-primary);
   font-weight: 700;
   font-size: 0.86rem;
   box-shadow: 0 8px 20px rgba(39, 58, 46, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.22s ease, border-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 .donor-dashboard .donor-community-actions__btn:hover {
   border-color: rgba(59, 82, 69, 0.34);
@@ -3311,7 +3564,10 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   box-shadow: 0 14px 32px rgba(39, 58, 46, 0.14);
 }
 .donor-dashboard .beacon-stat-card {
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 .donor-dashboard .beacon-stat-card:hover {
   transform: translateY(-6px);
@@ -3336,7 +3592,8 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
     transition: none;
   }
   .donor-dashboard .admin-dashboard__panel.donor-dashboard__glass-panel:hover,
-  .donor-dashboard .admin-dashboard__nav-card.donor-dashboard__glass-panel:hover,
+  .donor-dashboard
+    .admin-dashboard__nav-card.donor-dashboard__glass-panel:hover,
   .donor-dashboard .admin-dashboard__nav-link:hover,
   .donor-dashboard .donor-allocation-chart:hover .donor-allocation-chart__ring,
   .donor-dashboard .donor-allocation-chart__legend-row:hover,
@@ -3354,7 +3611,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 @media (max-width: 992px) {
   .donor-dashboard {
     margin-top: calc(
-      -1 * (var(--beacon-fixed-nav-clearance) + 1rem + env(safe-area-inset-top, 0px))
+      -1 *
+        (
+          var(--beacon-fixed-nav-clearance) + 1rem +
+            env(safe-area-inset-top, 0px)
+        )
     );
   }
   .donor-dashboard .donor-mix-chart__callout {
@@ -3389,7 +3650,9 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   height: 100%;
   position: relative;
   border: 1px solid var(--beacon-border);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .pillar-card:hover {
   transform: translateY(-6px);
@@ -3513,10 +3776,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
     display: none;
   }
   .campaign-media::before {
-    content: "";
+    content: '';
     display: block;
     aspect-ratio: 4 / 3;
-    background: var(--beacon-sage-light) url("/BackwardsJump.jpg") center / cover no-repeat;
+    background: var(--beacon-sage-light) url('/BackwardsJump.jpg') center /
+      cover no-repeat;
   }
 }
 .campaign-media__caption {
@@ -3536,7 +3800,11 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
 .landing-programs {
   /* Move the “green moment” here for stronger section contrast */
   background:
-    radial-gradient(900px 500px at 50% 0%, rgba(242, 244, 240, 0.14) 0%, rgba(242, 244, 240, 0) 62%),
+    radial-gradient(
+      900px 500px at 50% 0%,
+      rgba(242, 244, 240, 0.14) 0%,
+      rgba(242, 244, 240, 0) 62%
+    ),
     var(--beacon-primary);
   padding-top: clamp(4.5rem, 9vw, 6.5rem);
   padding-bottom: clamp(4.5rem, 9vw, 6.5rem);
@@ -3552,7 +3820,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   font-size: clamp(1.85rem, 4vw, 2.65rem);
   font-weight: 750;
   line-height: 1.2;
-  color: #F2F4F0;
+  color: #f2f4f0;
   letter-spacing: -0.02em;
   margin: 0.35rem 0 1rem;
 }
@@ -3599,10 +3867,14 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   position: relative;
   aspect-ratio: 5 / 4;
   overflow: hidden;
-  background: linear-gradient(165deg, var(--beacon-sage-light) 0%, #e8efe9 100%);
+  background: linear-gradient(
+    165deg,
+    var(--beacon-sage-light) 0%,
+    #e8efe9 100%
+  );
 }
 .program-card__media::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -3657,7 +3929,7 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   text-align: left;
 }
 .program-card__list li::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 0.5em;
@@ -3708,14 +3980,20 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   border: 1px solid var(--beacon-border);
   overflow: hidden;
   height: 100%;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .story-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(27, 38, 29, 0.08);
 }
 .story-card__image {
-  background: linear-gradient(135deg, var(--beacon-sage-light) 0%, var(--beacon-oat-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--beacon-sage-light) 0%,
+    var(--beacon-oat-light) 100%
+  );
   height: 180px;
   overflow: hidden;
 }
@@ -3726,7 +4004,9 @@ a.admin-all-residents-card-link:focus-visible .admin-safehouse-card__media {
   object-position: center;
   display: block;
 }
-.story-card__body { padding: 1.5rem; }
+.story-card__body {
+  padding: 1.5rem;
+}
 .story-card__date {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.75rem;
@@ -3792,7 +4072,9 @@ header a {
   color: var(--beacon-text-muted);
   padding: 0.4rem 0.75rem;
   border-radius: var(--beacon-radius);
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 header a:hover,
 header a.active {
@@ -3805,7 +4087,9 @@ header a.active {
   background: var(--beacon-bg-card);
   border-radius: var(--beacon-radius);
   box-shadow: 0 1px 4px rgba(27, 38, 29, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .beacon-stat-card:hover {
   transform: translateY(-4px);
@@ -3829,7 +4113,9 @@ header a.active {
   font-size: 1.05rem;
 }
 
-.beacon-detail-card .card-body { padding: 1.5rem; }
+.beacon-detail-card .card-body {
+  padding: 1.5rem;
+}
 .beacon-detail-card .table th {
   width: 40%;
   padding: 0.6rem 0.75rem;
@@ -3862,9 +4148,21 @@ header a.active {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 18% 24%, rgba(241, 205, 127, 0.18), transparent 46%),
-    radial-gradient(circle at 84% 14%, rgba(255, 220, 139, 0.12), transparent 40%),
-    linear-gradient(180deg, rgba(6, 10, 17, 0.32) 0%, rgba(6, 10, 17, 0.74) 100%);
+    radial-gradient(
+      circle at 18% 24%,
+      rgba(241, 205, 127, 0.18),
+      transparent 46%
+    ),
+    radial-gradient(
+      circle at 84% 14%,
+      rgba(255, 220, 139, 0.12),
+      transparent 40%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(6, 10, 17, 0.32) 0%,
+      rgba(6, 10, 17, 0.74) 100%
+    );
 }
 .donor-dashboard-glass__content {
   position: relative;
@@ -3885,11 +4183,14 @@ header a.active {
   text-align: center;
   padding: 0.9rem 1rem;
   z-index: 4;
-  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0.55s ease;
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease,
+    visibility 0.55s ease;
   overflow: hidden;
 }
 .donor-dashboard-glass__welcome::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -3939,16 +4240,19 @@ header a.active {
   border-right: 2px solid rgba(248, 250, 252, 0.72);
   filter: drop-shadow(0 0 14px rgba(125, 211, 252, 0.26));
 }
-.donor-dashboard-glass__welcome.is-visible .donor-dashboard-glass__welcome-kicker {
+.donor-dashboard-glass__welcome.is-visible
+  .donor-dashboard-glass__welcome-kicker {
   animation: donorWelcomeKickerIn 460ms ease 120ms forwards;
 }
-.donor-dashboard-glass__welcome.is-visible .donor-dashboard-glass__welcome-name-text {
+.donor-dashboard-glass__welcome.is-visible
+  .donor-dashboard-glass__welcome-name-text {
   animation:
     donorWelcomeType 1100ms steps(var(--welcome-chars, 12)) 320ms forwards,
     donorWelcomeCaret 620ms steps(1) 320ms 3,
     donorWelcomeGlow 1600ms ease 320ms forwards;
 }
-.donor-dashboard-glass__welcome.is-hidden .donor-dashboard-glass__welcome-name-text {
+.donor-dashboard-glass__welcome.is-hidden
+  .donor-dashboard-glass__welcome-name-text {
   border-right-color: transparent;
 }
 .donor-dashboard-glass__donate-btn {
@@ -3958,19 +4262,30 @@ header a.active {
   padding: 0.55rem 1rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.35);
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.26), rgba(168, 85, 247, 0.3));
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.26),
+    rgba(168, 85, 247, 0.3)
+  );
   color: #f8fafc;
   font-weight: 700;
   font-size: 0.9rem;
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 .donor-dashboard-glass__donate-btn:hover {
   color: #f8fafc;
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.55);
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.34), rgba(168, 85, 247, 0.36));
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.34),
+    rgba(168, 85, 247, 0.36)
+  );
 }
 .donor-analytics-card {
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -4185,50 +4500,76 @@ header a.active {
 }
 
 .beacon-footer {
-  background: #1B261D;
+  background: #1b261d;
   color: rgba(242, 244, 240, 0.7);
   padding: 3rem 0 2rem;
 }
-.beacon-footer a { color: var(--beacon-oat); }
-.beacon-footer a:hover { color: var(--beacon-oat-light); }
+.beacon-footer a {
+  color: var(--beacon-oat);
+}
+.beacon-footer a:hover {
+  color: var(--beacon-oat-light);
+}
 
 /* ═══════════════════════════════════════════════
    THIRD-PARTY DONATE (PayPal-style shell)
    ═══════════════════════════════════════════════ */
 /* Non-landing routes: keep page content below fixed navbar (see App.tsx main class) */
 main#main-content.main-below-fixed-nav {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + env(safe-area-inset-top, 0px));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + env(safe-area-inset-top, 0px)
+  );
 }
 main#main-content.main-below-fixed-nav.main-below-fixed-nav--tight {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + env(safe-area-inset-top, 0px));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + env(safe-area-inset-top, 0px)
+  );
 }
 
 /* Fixed top donate strip from App (non-home, non-admin): clear nav + announcement */
 main.main-with-site-announcement .impact-page__hero {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
 main.main-with-site-announcement .about-page__hero {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
 main.main-with-site-announcement .contact-page__hero {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
 main.main-with-site-announcement .admin-dashboard__hero {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
 main.main-with-site-announcement .donate-external {
-  padding: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)) 1rem 1.5rem;
+  padding: calc(
+      var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+    )
+    1rem 1.5rem;
 }
 main.main-with-site-announcement .glass-nav-offset {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
 main.main-with-site-announcement .login-page.beacon-page--auth,
 main.main-with-site-announcement .register-page.beacon-page--auth,
 main.main-with-site-announcement .logout-page.beacon-page--auth {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
 }
-main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.register-page):not(.logout-page) {
-  padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+main.main-with-site-announcement
+  .beacon-page--auth:not(.login-page):not(.register-page):not(.logout-page) {
+  padding-top: calc(
+    var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+  );
   padding-bottom: clamp(1rem, 3vh, 2rem);
 }
 
@@ -4287,7 +4628,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   background: linear-gradient(160deg, #141f18 0%, #1f3328 45%, #16261c 100%);
 }
 .logout-page__bg::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -4349,7 +4690,14 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   box-sizing: border-box;
   padding: var(--beacon-fixed-nav-clearance) 1rem 1.5rem;
   background: #141f18;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4371,7 +4719,11 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .donate-external__bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.58));
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.38),
+    rgba(15, 23, 42, 0.58)
+  );
 }
 .donate-external h1 {
   font-family: inherit;
@@ -4388,7 +4740,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 8px 32px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(15, 23, 42, 0.06);
   padding: 1.45rem 1.15rem 1.25rem;
   text-align: center;
 }
@@ -4477,7 +4831,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   font-weight: 600;
   color: #334155;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 .donate-external__preset:hover {
   background: #f1f5f9;
@@ -4512,7 +4868,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   font-weight: 600;
   color: #1e3a5f;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .donate-external__toggle-btn--active {
   background: #1e3a5f;
@@ -4552,7 +4910,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   text-decoration: none !important;
   border: none;
   cursor: pointer;
-  transition: filter 0.15s, transform 0.1s;
+  transition:
+    filter 0.15s,
+    transform 0.1s;
 }
 .donate-external__btn:hover {
   filter: brightness(0.97);
@@ -4605,7 +4965,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
     padding-bottom: 2rem;
   }
   main.main-with-site-announcement .donate-external {
-    padding-top: calc(var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h));
+    padding-top: calc(
+      var(--beacon-fixed-nav-clearance) + var(--beacon-site-announcement-h)
+    );
   }
   .donate-external__bg-video {
     object-position: 70% center;
@@ -4631,17 +4993,21 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .contact-page__hero-bg {
   position: absolute;
   inset: -12%;
-  background: url("/land.jpg") center 38% / cover no-repeat;
+  background: url('/land.jpg') center 38% / cover no-repeat;
   filter: brightness(0.62) saturate(0.92);
   z-index: 0;
 }
 .contact-page__hero::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(0deg, rgba(19, 31, 26, 0.7) 0%, rgba(19, 31, 26, 0.22) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(19, 31, 26, 0.7) 0%,
+    rgba(19, 31, 26, 0.22) 100%
+  );
 }
 .contact-page__hero .container {
   position: relative;
@@ -4765,7 +5131,10 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 @media (prefers-reduced-motion: reduce) {
   .contact-page__social {
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
   }
   .contact-page__social:hover {
     animation: none;
@@ -4856,14 +5225,16 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border-radius: 8px;
   background: var(--beacon-primary);
   color: #fff !important;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: underline;
   text-underline-offset: 0.15em;
-  transition: filter 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    filter 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .donate-inline-banner__btn:hover,
 .donate-inline-banner__btn:focus-visible {
@@ -4873,7 +5244,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 .donate-inline-banner__text {
   flex: 1 1 280px;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.95rem;
   line-height: 1.45;
   color: rgba(27, 38, 29, 0.82);
@@ -4905,17 +5276,21 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   box-sizing: border-box;
 }
 .impact-page__hero::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: -14%;
   z-index: 0;
-  background: url("/little_girl_and_baby.jpg") center 38% / cover no-repeat;
+  background: url('/little_girl_and_baby.jpg') center 38% / cover no-repeat;
 }
 .impact-page__hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(19, 31, 26, 0.72) 0%, rgba(19, 31, 26, 0.18) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(19, 31, 26, 0.72) 0%,
+    rgba(19, 31, 26, 0.18) 100%
+  );
 }
 .impact-page__hero-inner {
   position: relative;
@@ -4949,7 +5324,11 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .impact-page__feature-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(19, 31, 26, 0.1) 25%, rgba(19, 31, 26, 0.66) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(19, 31, 26, 0.1) 25%,
+    rgba(19, 31, 26, 0.66) 100%
+  );
 }
 .impact-page__feature-copy {
   position: absolute;
@@ -4973,11 +5352,15 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   flex-direction: column;
   justify-content: flex-start;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .impact-page__stat:hover {
   transform: translateY(-2px);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 10px 24px rgba(39, 58, 46, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 10px 24px rgba(39, 58, 46, 0.08);
 }
 @media (prefers-reduced-motion: reduce) {
   .impact-page__stat {
@@ -5002,7 +5385,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   color: var(--beacon-primary);
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
 }
 .impact-page__stat-value-num {
   line-height: 0.95;
@@ -5067,17 +5452,21 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   box-sizing: border-box;
 }
 .about-page__hero::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: -12%;
   z-index: 0;
-  background: url("/HoldingHandsAtBeach.jpg") center 40% / cover no-repeat;
+  background: url('/HoldingHandsAtBeach.jpg') center 40% / cover no-repeat;
 }
 .about-page__hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(19, 31, 26, 0.72) 0%, rgba(19, 31, 26, 0.18) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(19, 31, 26, 0.72) 0%,
+    rgba(19, 31, 26, 0.18) 100%
+  );
 }
 .about-page__hero-inner {
   position: relative;
@@ -5114,7 +5503,11 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   padding: 1.2rem 1.15rem;
 }
 .about-page__card--glass {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(246, 249, 246, 0.76));
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.88),
+    rgba(246, 249, 246, 0.76)
+  );
 }
 .about-page__member {
   border: 1px solid rgba(59, 82, 69, 0.12);
@@ -5218,12 +5611,12 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 
 .beacon-site-main .h4,
 .beacon-site-main .h5 {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--beacon-text);
 }
 
 .beacon-site-main .card-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
 }
 
@@ -5233,7 +5626,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .beacon-site-main .btn-group .btn {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
 }
 
@@ -5257,7 +5650,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .post-planner__lead {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--beacon-text-muted);
   font-size: 1.05rem;
   line-height: 1.65;
@@ -5278,9 +5671,8 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   }
 }
 
-
 .post-planner__form-grid label > div:first-child {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -5357,7 +5749,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .post-planner__reminders summary::after {
-  content: "▸";
+  content: '▸';
   float: right;
   transition: transform 0.2s ease;
 }
@@ -5371,10 +5763,15 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 @keyframes reminders-slide {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 
 .post-planner__aside {
   padding: 1.35rem;
@@ -5393,7 +5790,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 
 .post-planner__aside h3,
 .post-planner__aside h4 {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.08rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
@@ -5413,7 +5810,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .post-planner__score {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1.1;
@@ -5494,7 +5891,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 .post-planner__form-head h3 {
   margin: 0 0 0.2rem;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--beacon-text);
@@ -5524,7 +5921,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   margin-bottom: 0.2rem;
 }
 .post-planner__weekly-suggestion-main strong {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.95rem;
   color: var(--beacon-text);
 }
@@ -5566,17 +5963,33 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .post-planner__hour-fill {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, rgba(45, 79, 53, 0.75), rgba(45, 79, 53, 0.95));
+  background: linear-gradient(
+    90deg,
+    rgba(45, 79, 53, 0.75),
+    rgba(45, 79, 53, 0.95)
+  );
   border-radius: inherit;
 }
 .post-planner__hour-fill--good {
-  background: linear-gradient(90deg, rgba(45, 79, 53, 0.78), rgba(45, 79, 53, 0.98));
+  background: linear-gradient(
+    90deg,
+    rgba(45, 79, 53, 0.78),
+    rgba(45, 79, 53, 0.98)
+  );
 }
 .post-planner__hour-fill--medium {
-  background: linear-gradient(90deg, rgba(161, 98, 7, 0.78), rgba(161, 98, 7, 0.98));
+  background: linear-gradient(
+    90deg,
+    rgba(161, 98, 7, 0.78),
+    rgba(161, 98, 7, 0.98)
+  );
 }
 .post-planner__hour-fill--bad {
-  background: linear-gradient(90deg, rgba(153, 27, 27, 0.78), rgba(153, 27, 27, 0.98));
+  background: linear-gradient(
+    90deg,
+    rgba(153, 27, 27, 0.78),
+    rgba(153, 27, 27, 0.98)
+  );
 }
 .post-planner__hour-chart strong {
   font-size: 0.82rem;
@@ -5617,19 +6030,27 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border-radius: 8px;
   background: transparent;
   color: var(--beacon-text);
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
   padding: 0.55rem 0.8rem;
-  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 .risk-tabs__btn:hover {
   background: rgba(45, 79, 53, 0.08);
   border-color: rgba(45, 79, 53, 0.18);
 }
 .risk-tabs__btn--active {
-  background: linear-gradient(180deg, rgba(45, 79, 53, 0.95), rgba(45, 79, 53, 0.86));
+  background: linear-gradient(
+    180deg,
+    rgba(45, 79, 53, 0.95),
+    rgba(45, 79, 53, 0.86)
+  );
   border-color: rgba(45, 79, 53, 0.95);
   color: #fff;
   box-shadow: 0 6px 16px rgba(45, 79, 53, 0.22);
@@ -5652,7 +6073,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   margin-bottom: 0;
 }
 .risk-center-table-card .table th {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.73rem;
@@ -5680,7 +6101,10 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border: 1px solid var(--beacon-border);
   background: var(--beacon-bg-card);
   border-radius: 12px;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease;
 }
 .risk-summary-card-btn:hover {
   transform: translateY(-2px);
@@ -5697,7 +6121,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   padding: 1rem 1rem 1.15rem;
 }
 .risk-distribution__title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: var(--beacon-text);
@@ -5715,7 +6139,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .risk-distribution__totals {
   font-size: 0.75rem;
   color: var(--beacon-text-muted);
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .risk-distribution__totals strong {
   color: var(--beacon-text);
@@ -5724,7 +6148,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   margin-top: 0.95rem;
 }
 .risk-distribution__label {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.79rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -5746,12 +6170,12 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background:
-    conic-gradient(
-      rgba(45, 79, 53, 0.92) 0 calc(var(--risk-high)),
-      rgba(161, 98, 7, 0.9) calc(var(--risk-high)) calc(var(--risk-high) + var(--risk-medium)),
-      rgba(153, 27, 27, 0.9) calc(var(--risk-high) + var(--risk-medium)) 100%
-    );
+  background: conic-gradient(
+    rgba(45, 79, 53, 0.92) 0 calc(var(--risk-high)),
+    rgba(161, 98, 7, 0.9) calc(var(--risk-high))
+      calc(var(--risk-high) + var(--risk-medium)),
+    rgba(153, 27, 27, 0.9) calc(var(--risk-high) + var(--risk-medium)) 100%
+  );
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 .risk-distribution__donut-center {
@@ -5816,7 +6240,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   text-align: left;
 }
 .risk-distribution__legend-count {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.86rem;
   font-weight: 700;
   line-height: 1;
@@ -5858,7 +6282,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   display: inline-flex;
   align-items: center;
   gap: 0.05rem;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--beacon-text-muted);
@@ -5903,7 +6327,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .beacon-pagination__btn {
   border: none;
   background: transparent;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--beacon-text-muted);
@@ -5911,7 +6335,10 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border-radius: 50px;
   line-height: 1.2;
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .beacon-pagination__btn:hover:not(:disabled) {
@@ -5952,7 +6379,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .beacon-pagination__summary {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.74rem;
   font-weight: 500;
   color: var(--beacon-text-muted);
@@ -6006,7 +6433,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 .admin-residents-filter__tab {
   border: none;
   background: transparent;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--beacon-text-muted);
@@ -6016,7 +6443,9 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   align-items: center;
   gap: 0.22rem;
   line-height: 1.2;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
   white-space: nowrap;
 }
 
@@ -6119,7 +6548,8 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   line-height: 1.3;
 }
 
-.admin-residents-filter__option.is-selected .admin-residents-filter__option-title {
+.admin-residents-filter__option.is-selected
+  .admin-residents-filter__option-title {
   color: #fff;
 }
 
@@ -6143,7 +6573,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .resident-record-accordion .accordion-button {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.95rem;
   box-shadow: none !important;
   background-color: var(--beacon-bg-card);
@@ -6233,7 +6663,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .resident-record-modal-dialog .resident-record-modal-header h2 {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .resident-record-modal-body {
@@ -6263,7 +6693,7 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
 }
 
 .resident-inline-disclosure__trigger {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--beacon-primary) !important;

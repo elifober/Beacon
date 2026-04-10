@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { BASE_URL } from "../config/api";
 import type { Supporter } from "../types/Supporter";
 import type { DonorDashboard } from "../types/DonorDashboard";
@@ -11,7 +11,6 @@ import {
 import { useAuth } from "../context/AuthContext";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import { DonorDashboardLayout } from "../components/donor/DonorDashboardLayout";
-import AdminDashboardBackLink from "../components/AdminDashboardBackLink";
 
 interface DonorFullHistoryItem {
   donationType?: string;
@@ -137,28 +136,39 @@ function DonorPage() {
       <DonorDashboardLayout
         mode={isAdmin ? "admin" : "donor"}
         data={dashboardData}
-        headerSlot={
+        adminBelowHeroBar={
           isAdmin ? (
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
-              <AdminDashboardBackLink />
-              <div className="d-flex flex-wrap gap-2 align-items-center">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={() => setEditOpen(true)}
-                >
-                  Edit donor
-                </button>
-                <AdminDeleteRecordButton
-                  entity="Donor"
-                  id={id}
-                  label="Delete donor record"
-                  confirmMessage={`Delete donor "${name}" (ID ${id})? Donation rows linked to this supporter may be removed too. This cannot be undone.`}
-                  redirectTo="/admin/all-donors"
-                />
-              </div>
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 w-100">
+              <Link to="/admin" className="admin-dashboard-back">
+                <i className="bi bi-arrow-left-short" aria-hidden="true" />
+                <span>Dashboard</span>
+              </Link>
+              <Link to="/admin/all-donors" className="admin-dashboard-back">
+                <i className="bi bi-arrow-left-short" aria-hidden="true" />
+                <span>All donors</span>
+              </Link>
             </div>
-          ) : null
+          ) : undefined
+        }
+        footerSlot={
+          isAdmin ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => setEditOpen(true)}
+              >
+                Edit donor
+              </button>
+              <AdminDeleteRecordButton
+                entity="Donor"
+                id={id}
+                label="Delete donor record"
+                confirmMessage={`Delete donor "${name}" (ID ${id})? Donation rows linked to this supporter may be removed too. This cannot be undone.`}
+                redirectTo="/admin/all-donors"
+              />
+            </>
+          ) : undefined
         }
       />
     </>

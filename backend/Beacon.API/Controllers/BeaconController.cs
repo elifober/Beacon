@@ -2813,4 +2813,88 @@ public class BeaconController : ControllerBase
 
         return Ok(new { supporter, donationHistory = history });
     }
+
+    /// <summary>
+    /// Logged-in donor (or admin linked to a supporter): record a monetary donation row and a single allocation
+    /// so donor dashboards and admin donation lists continue to work (they join <c>donation_allocations</c>).
+    /// </summary>
+    [Authorize(Policy = AuthPolicies.DonorOnly)]
+    [HttpPost("DonorSelf/MonetaryDonation")]
+    public async Task<IActionResult> SubmitMonetaryDonation([FromBody] SubmitMonetaryDonationRequest? body)
+    {
+        if (body is null)
+        {
+            return BadRequest(new { message = "Request body required." });
+        }
+
+        if (body.Amount <= 0m)
+        {
+            return BadRequest(new { message = "Amount must be greater than zero." });
+        }
+
+        var supporterId = await GetCurrentSupporterIdAsync();
+        if (supporterId is null)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Your account is not linked to a donor profile. Complete sign-in or profile setup, then try again."
+            });
+        }
+
+        var safehouseId = await _beaconContext.Safehouses
+            .AsNoTracking()
+            .OrderBy(s => s.SafehouseId)
+            .Select(s => (int?)s.SafehouseId)
+            .FirstOrDefaultAsync();
+
+        if (safehouseId is null)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+            {
+                message = "No safehouses are configured; cannot record a donation allocation."
+            });
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        try
+        {
+            var donationId = await _beaconContext.InsertMonetaryDonationForSupporterAsync(
+                supporterId.Value,
+                safehouseId.Value,
+                body.Amount,
+                body.IsRecurring,
+                today,
+                HttpContext.RequestAborted);
+
+            return Ok(new { donationId });
+        }
+        catch (Exception ex)
+        {
+            var pg = FindPostgresException(ex);
+            _logger.LogError(ex, "SubmitMonetaryDonation failed for supporter {SupporterId}", supporterId.Value);
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = pg?.MessageText
+                    ?? ex.GetBaseException().Message
+                    ?? "Could not save the donation. If this continues, contact support with the time you tried.",
+                sqlState = pg?.SqlState,
+                detail = pg?.Detail,
+                constraintName = pg?.ConstraintName,
+            });
+        }
+    }
+
+    private static PostgresException? FindPostgresException(Exception? ex)
+    {
+        for (; ex != null; ex = ex.InnerException)
+        {
+            if (ex is PostgresException p)
+            {
+                return p;
+            }
+        }
+
+        return null;
+    }
 }

@@ -8,25 +8,31 @@ function formatDate(dateStr: string): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
-interface NonMonetaryDonationHistoryProps {
-  history: DonorHistoryItem[];
+function filterNonMonetary(history: DonorHistoryItem[]): DonorHistoryItem[] {
+  return history.filter((item) => item.donationType?.toLowerCase() !== "monetary");
 }
 
-function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps) {
-  const nonMonetary = history.filter(
-    (item) => item.donationType?.toLowerCase() !== "monetary"
-  );
+export interface NonMonetaryDonationHistoryProps {
+  history: DonorHistoryItem[];
+  /**
+   * When set, renders only the table (no card/title). Rows should already be non-monetary
+   * and typically a single page slice.
+   */
+  embeddedTableRows?: DonorHistoryItem[];
+}
 
-  if (nonMonetary.length === 0) {
-    return (
-      <div className="alert alert-secondary">No non-monetary donations found.</div>
-    );
-  }
+function NonMonetaryDonationHistory({
+  history,
+  embeddedTableRows,
+}: NonMonetaryDonationHistoryProps) {
+  const nonMonetary = embeddedTableRows ?? filterNonMonetary(history);
+  const embedded = embeddedTableRows != null;
 
-  return (
-    <div className="card beacon-detail-card">
-      <div className="card-body">
-        <h2 className="card-title h5 mb-3">Non-Monetary Donations</h2>
+  const inner =
+    nonMonetary.length === 0 ? (
+      <div className="alert alert-secondary mb-0">No non-monetary donations found.</div>
+    ) : (
+      <div className="table-responsive">
         <table className="table table-striped table-hover mb-0">
           <thead>
             <tr>
@@ -38,7 +44,7 @@ function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps
           </thead>
           <tbody>
             {nonMonetary.map((item, i) => (
-              <tr key={i}>
+              <tr key={`${item.donationDate}-${i}`}>
                 <td>{formatDate(item.donationDate)}</td>
                 <td>{item.donationType ?? "N/A"}</td>
                 <td>
@@ -51,6 +57,18 @@ function NonMonetaryDonationHistory({ history }: NonMonetaryDonationHistoryProps
             ))}
           </tbody>
         </table>
+      </div>
+    );
+
+  if (embedded) {
+    return inner;
+  }
+
+  return (
+    <div className="card beacon-detail-card">
+      <div className="card-body">
+        <h2 className="card-title h5 mb-3">Non-Monetary Donations</h2>
+        {inner}
       </div>
     </div>
   );

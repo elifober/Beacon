@@ -56,6 +56,8 @@ export default function PostPlanner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heroFallback, setHeroFallback] = useState(false);
+  const [hourPreview, setHourPreview] = useState<{ hour: number; probability: number }[]>([]);
+  const [hourPreviewLoading, setHourPreviewLoading] = useState(false);
 
   const debouncedReq = useDebounced(req, 500);
 
@@ -67,6 +69,30 @@ export default function PostPlanner() {
       .catch((e) => !cancelled && setError(e.message))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
+  }, [debouncedReq]);
+
+  useEffect(() => {
+    const sampleHours = [8, 11, 14, 17, 20];
+    let cancelled = false;
+    setHourPreviewLoading(true);
+    Promise.all(
+      sampleHours.map(async (hour) => {
+        const r = await predictPostSuccess({ ...debouncedReq, postHour: hour });
+        return { hour, probability: r.successProbability };
+      }),
+    )
+      .then((points) => {
+        if (!cancelled) setHourPreview(points);
+      })
+      .catch(() => {
+        if (!cancelled) setHourPreview([]);
+      })
+      .finally(() => {
+        if (!cancelled) setHourPreviewLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedReq]);
 
   const update = <K extends keyof PostPredictionRequest,>(
@@ -129,48 +155,68 @@ export default function PostPlanner() {
             </div>
 
             <div className="col-lg-6">
-              <aside className="post-planner__aside h-100">
+              <aside className="post-planner__aside">
                 <h3>Predicted Success</h3>
                 {loading && <p className="mb-0">Scoring…</p>}
                 {error && <p className="text-danger mb-0">{error}</p>}
                 {result && tone && (
                   <>
-                    <div className={`post-planner__score post-planner__gauge--${tone}`}>
-                      {(result.successProbability * 100).toFixed(0)}%
+                    <div className="post-planner__result-head">
+                      <div className={`post-planner__score post-planner__gauge--${tone}`}>
+                        {(result.successProbability * 100).toFixed(0)}%
+                      </div>
+                      <div className={`post-planner__badge post-planner__badge--${tone}`}>
+                        {result.riskBand} confidence
+                      </div>
                     </div>
-                    <div className={`post-planner__badge post-planner__badge--${tone}`}>
-                      {result.riskBand} confidence
-                    </div>
-                    <p className="mt-3">{result.interpretation}</p>
+
+                    <p className="post-planner__interpretation">{result.interpretation}</p>
+
                     <hr className="border-opacity-25 my-3" />
                     <h4>Top drivers of success</h4>
-                    <ul>
-                      <li>Fundraising appeals (4.3× odds)</li>
-                      <li>Emotional tone (3.2×)</li>
-                      <li>Impact stories (3.1×)</li>
-                      <li>YouTube platform (2.8×)</li>
+                    <ul className="post-planner__drivers">
+                      <li><span>Fundraising appeals</span><strong>4.3×</strong></li>
+                      <li><span>Emotional tone</span><strong>3.2×</strong></li>
+                      <li><span>Impact stories</span><strong>3.1×</strong></li>
+                      <li><span>YouTube platform</span><strong>2.8×</strong></li>
                     </ul>
+
+                    <hr className="border-opacity-25 my-3" />
+                    <h4>Best posting windows</h4>
+                    {hourPreviewLoading ? (
+                      <p className="mb-0">Checking time slots…</p>
+                    ) : (
+                      <ul className="post-planner__hour-chart">
+                        {hourPreview.map((p) => (
+                          <li key={p.hour}>
+                            <span className="post-planner__hour-label">{String(p.hour).padStart(2, "0")}:00</span>
+                            <span className="post-planner__hour-bar">
+                              <span
+                                className="post-planner__hour-fill"
+                                style={{ width: `${Math.round(p.probability * 100)}%` }}
+                              />
+                            </span>
+                            <strong>{Math.round(p.probability * 100)}%</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </>
                 )}
-              </aside>
-            </div>
-          </div>
 
-          {/* Full-width Helpful Reminders dropdown below both columns */}
-          <div className="row mt-4">
-            <div className="col-12">
-              <details className="post-planner__reminders post-planner__form-card">
-                <summary>Helpful reminders</summary>
-                <ul className="mt-3 mb-0">
-                  <li><strong>Peak hours</strong> are roughly 11am–1pm and 6pm–9pm — check "Peak hour" if your post time falls in these windows.</li>
-                  <li><strong>Emotional tone + impact stories</strong> consistently outperform informational content for donation referrals.</li>
-                  <li><strong>3–5 hashtags</strong> tends to be the sweet spot — too few hurts reach, too many looks spammy.</li>
-                  <li><strong>Call to action</strong> (e.g. "Donate today") significantly boosts conversion — leave it checked when relevant.</li>
-                  <li><strong>Avoid</strong> thank-you posts and pure event promotions as standalone fundraising tools — their odds are very low (~0.04–0.06×).</li>
-                  <li><strong>Resident stories</strong> should be told with dignity and consent — high impact, but handle with care.</li>
-                  <li>Boosting a post amplifies whatever signal it has — boost your <em>best</em> drafts, not your average ones.</li>
-                </ul>
-              </details>
+                <details className="post-planner__reminders post-planner__form-card post-planner__reminders--inline mt-4">
+                  <summary>Helpful reminders</summary>
+                  <ul className="mt-3 mb-0">
+                    <li><strong>Peak hours</strong> are roughly 11am–1pm and 6pm–9pm — check "Peak hour" if your post time falls in these windows.</li>
+                    <li><strong>Emotional tone + impact stories</strong> consistently outperform informational content for donation referrals.</li>
+                    <li><strong>3–5 hashtags</strong> tends to be the sweet spot — too few hurts reach, too many looks spammy.</li>
+                    <li><strong>Call to action</strong> (e.g. "Donate today") significantly boosts conversion — leave it checked when relevant.</li>
+                    <li><strong>Avoid</strong> thank-you posts and pure event promotions as standalone fundraising tools — their odds are very low (~0.04–0.06×).</li>
+                    <li><strong>Resident stories</strong> should be told with dignity and consent — high impact, but handle with care.</li>
+                    <li>Boosting a post amplifies whatever signal it has — boost your <em>best</em> drafts, not your average ones.</li>
+                  </ul>
+                </details>
+              </aside>
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import heroForestImage from "../assets/forrest.jpg";
 
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
+type QuickFilter = "incident-high" | "reintegration-ready" | "supporter-high" | "supporter-low" | null;
 
 function tierTone(band: string | null | undefined): "high" | "medium" | "low" {
   const b = (band ?? "").toLowerCase();
@@ -49,6 +50,7 @@ export default function RiskManagementCenter() {
   const [error, setError] = useState<string | null>(null);
   const [heroFallback, setHeroFallback] = useState(false);
   const [tab, setTab] = useState<Tab>("residents-incident");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   const [incidentPage, setIncidentPage] = useState(1);
   const [reintegrationPage, setReintegrationPage] = useState(1);
   const [supporterPage, setSupporterPage] = useState(1);
@@ -59,7 +61,7 @@ export default function RiskManagementCenter() {
     setIncidentPage(1);
     setReintegrationPage(1);
     setSupporterPage(1);
-    }, [tab]);
+  }, [tab, quickFilter]);
 
   useEffect(() => {
     Promise.all([getRiskSummary(), getResidentRisks(), getSupporterRisks()])
@@ -95,6 +97,31 @@ export default function RiskManagementCenter() {
       ),
     [supporters],
   );
+
+  const residentsIncidentDisplay = useMemo(() => {
+    if (quickFilter !== "incident-high") return residentsByIncident;
+    return residentsByIncident.filter((r) => (r.incidentRiskBand ?? "").toLowerCase() === "high");
+  }, [quickFilter, residentsByIncident]);
+
+  const residentsReintegrationDisplay = useMemo(() => {
+    if (quickFilter !== "reintegration-ready") return residentsByReintegration;
+    return residentsByReintegration.filter((r) => (r.reintegrationBand ?? "").toLowerCase() === "ready");
+  }, [quickFilter, residentsByReintegration]);
+
+  const supportersDisplay = useMemo(() => {
+    if (quickFilter === "supporter-high") {
+      return supportersByChurn.filter((s) => (s.riskTier ?? "").toLowerCase() === "high");
+    }
+    if (quickFilter === "supporter-low") {
+      return supportersByChurn.filter((s) => (s.riskTier ?? "").toLowerCase() === "low");
+    }
+    return supportersByChurn;
+  }, [quickFilter, supportersByChurn]);
+
+  const jumpToFilter = (targetTab: Tab, targetFilter: QuickFilter) => {
+    setTab(targetTab);
+    setQuickFilter(targetFilter);
+  };
 
   if (loading) {
     return (
@@ -152,23 +179,39 @@ export default function RiskManagementCenter() {
               label="High incident risk residents"
               value={countFor(summary?.residentIncidentBands, "High")}
               tone="low"
+              onClick={() => jumpToFilter("residents-incident", "incident-high")}
             />
             <SummaryCard
               label="Residents ready for reintegration"
               value={countFor(summary?.residentReintegrationBands, "Ready")}
               tone="high"
+              onClick={() => jumpToFilter("residents-reintegration", "reintegration-ready")}
             />
             <SummaryCard
               label="High churn risk supporters"
               value={countFor(summary?.supporterChurnTiers, "High")}
               tone="low"
+              onClick={() => jumpToFilter("supporters", "supporter-high")}
             />
             <SummaryCard
               label="Low churn risk supporters"
               value={countFor(summary?.supporterChurnTiers, "Low")}
               tone="high"
+              onClick={() => jumpToFilter("supporters", "supporter-low")}
             />
           </div>
+
+          {quickFilter ? (
+            <div className="mb-3">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setQuickFilter(null)}
+              >
+                Show all
+              </button>
+            </div>
+          ) : null}
 
           {/* Tab switcher */}
           <div className="risk-tabs mb-3" role="tablist" aria-label="Risk view tabs">
@@ -207,7 +250,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByIncident
+                {residentsIncidentDisplay
                     .slice((incidentPage - 1) * pageSize, incidentPage * pageSize)
                     .map((r) => (
                   <tr key={r.residentId}>
@@ -226,7 +269,7 @@ export default function RiskManagementCenter() {
           <Pagination
             page={incidentPage}
             pageSize={pageSize}
-            totalCount={residentsByIncident.length}
+            totalCount={residentsIncidentDisplay.length}
             onPageChange={setIncidentPage}
             className="mt-3 d-flex justify-content-center"
             />
@@ -247,7 +290,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByReintegration
+                {residentsReintegrationDisplay
                     .slice((reintegrationPage - 1) * pageSize, reintegrationPage * pageSize)
                     .map((r) => (
                   <tr key={r.residentId}>
@@ -266,7 +309,7 @@ export default function RiskManagementCenter() {
           <Pagination
             page={reintegrationPage}
             pageSize={pageSize}
-            totalCount={residentsByReintegration.length}
+            totalCount={residentsReintegrationDisplay.length}
             onPageChange={setReintegrationPage}
             className="mt-3 d-flex justify-content-center"
             />
@@ -287,7 +330,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {supportersByChurn
+                {supportersDisplay
                     .slice((supporterPage - 1) * pageSize, supporterPage * pageSize)
                     .map((s) => (
                   <tr key={s.supporterId}>
@@ -306,7 +349,7 @@ export default function RiskManagementCenter() {
           <Pagination
             page={supporterPage}
             pageSize={pageSize}
-            totalCount={supportersByChurn.length}
+            totalCount={supportersDisplay.length}
             onPageChange={setSupporterPage}
             className="mt-3 d-flex justify-content-center"
           />
@@ -322,21 +365,27 @@ function SummaryCard({
   label,
   value,
   tone,
+  onClick,
 }: {
   label: string;
   value: number;
   tone: "high" | "medium" | "low";
+  onClick: () => void;
 }) {
   return (
     <div className="col-sm-6 col-lg-3">
-      <div className="card h-100 shadow-sm admin-hub-summary-card">
+      <button
+        type="button"
+        onClick={onClick}
+        className="card h-100 shadow-sm admin-hub-summary-card risk-summary-card-btn text-start w-100"
+      >
         <div className="card-body">
           <p className="landing-section__eyebrow mb-2">{label}</p>
           <div className={`post-planner__score post-planner__gauge--${tone}`}>
             {value}
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 }

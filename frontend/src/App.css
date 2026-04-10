@@ -1838,6 +1838,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   margin-top: 0.55rem;
   text-align: left;
 }
+.post-planner__lead.admin-dashboard__hero-subtitle {
+  margin-inline: 0;
+  margin-left: 0;
+  max-width: 44ch;
+  text-align: left;
+}
 
 .admin-dashboard__main {
   padding: 3rem 0 4.5rem;
@@ -4725,14 +4731,22 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   border: 1px solid rgba(45, 79, 53, 0.14);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.78);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 52px;
 }
 .post-planner__form-grid .form-check .form-check-label {
   font-size: 0.92rem;
   font-weight: 500;
   color: var(--beacon-text);
+  margin: 0;
+  line-height: 1.25;
 }
 .post-planner__form-grid .form-check .form-check-input {
-  margin-top: 0.18rem;
+  margin: 0;
+  float: none;
+  flex: 0 0 auto;
 }
 
 .post-planner__form-card {
@@ -4813,12 +4827,20 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   margin-top: 1rem;
 }
 
+.post-planner__result-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
 .post-planner__score {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .post-planner__gauge--high {
@@ -4841,6 +4863,11 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   font-weight: 600;
   color: #fff;
 }
+.post-planner__interpretation {
+  margin: 0.25rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
 
 .post-planner__badge--high {
   background: var(--beacon-primary);
@@ -4860,6 +4887,74 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   padding-left: 1.05rem;
   margin-bottom: 0;
   line-height: 1.55;
+}
+.post-planner__drivers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.48rem;
+}
+.post-planner__drivers li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px dashed rgba(45, 79, 53, 0.18);
+  padding-bottom: 0.32rem;
+}
+.post-planner__drivers li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.post-planner__drivers strong {
+  color: var(--beacon-text);
+  font-weight: 700;
+}
+
+.post-planner__hour-chart {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.46rem;
+}
+.post-planner__hour-chart li {
+  display: grid;
+  grid-template-columns: 56px 1fr 42px;
+  align-items: center;
+  gap: 0.55rem;
+}
+.post-planner__hour-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--beacon-text-muted);
+}
+.post-planner__hour-bar {
+  height: 0.52rem;
+  background: rgba(45, 79, 53, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.post-planner__hour-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(45, 79, 53, 0.75), rgba(45, 79, 53, 0.95));
+  border-radius: inherit;
+}
+.post-planner__hour-chart strong {
+  font-size: 0.82rem;
+  text-align: right;
+  color: var(--beacon-text);
+}
+
+.post-planner__reminders--inline {
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.68);
+}
+.post-planner__reminders--inline summary {
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .post-planner__aside p {
@@ -4944,6 +5039,21 @@ main.main-with-site-announcement .beacon-page--auth:not(.login-page):not(.regist
   font-size: 0.66rem;
   padding: 0.19rem 0.44rem;
   letter-spacing: 0.01em;
+}
+.risk-summary-card-btn {
+  border: 1px solid var(--beacon-border);
+  background: var(--beacon-bg-card);
+  border-radius: 12px;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+.risk-summary-card-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45, 79, 53, 0.28);
+  box-shadow: 0 12px 24px rgba(27, 38, 29, 0.11);
+}
+.risk-summary-card-btn:focus-visible {
+  outline: 3px solid rgba(45, 79, 53, 0.35);
+  outline-offset: 2px;
 }
 
 /* Admin list pages — link back to main dashboard */

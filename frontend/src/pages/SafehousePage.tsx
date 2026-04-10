@@ -16,8 +16,12 @@ function SafehousePage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`${BASE_URL}/Safehouse/${id}`)
+    fetch(`${BASE_URL}/Safehouse/${id}`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
       .then((res) => {
+        if (res.status === 401) throw new Error("Sign in as an admin to view this safehouse.");
         if (!res.ok) throw new Error("Safehouse not found");
         return res.json();
       })

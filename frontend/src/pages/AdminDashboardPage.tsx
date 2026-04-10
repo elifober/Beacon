@@ -56,6 +56,7 @@ function AdminDashboardPage() {
   const [adminHeroFallback, setAdminHeroFallback] = useState(false);
   const [overviewStats, setOverviewStats] = useState<AdminOverviewStats | null>(null);
   const [overviewError, setOverviewError] = useState(false);
+  const [tiltStyle, setTiltStyle] = useState<React.CSSProperties | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,6 +73,22 @@ function AdminDashboardPage() {
       cancelled = true;
     };
   }, []);
+
+  const onOverviewMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width; // 0..1
+    const py = (e.clientY - r.top) / r.height; // 0..1
+    const rotY = (px - 0.5) * 6; // degrees
+    const rotX = (0.5 - py) * 4; // degrees
+    setTiltStyle({
+      transform: `perspective(900px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`,
+    });
+  };
+
+  const onOverviewLeave: React.MouseEventHandler<HTMLDivElement> = () => {
+    setTiltStyle(undefined);
+  };
 
   type NeedItem = { key: string; label: string; to: string };
   const needs: NeedItem[] = [];
@@ -124,37 +141,42 @@ function AdminDashboardPage() {
 
           <div className="row g-4 align-items-stretch">
             <div className="col-lg-8">
-              <div className="admin-dashboard__panel h-100">
+              <div
+                className="admin-dashboard__panel h-100 admin-overview__panel"
+                onMouseMove={onOverviewMove}
+                onMouseLeave={onOverviewLeave}
+                style={tiltStyle}
+              >
                 <p className="landing-section__eyebrow mb-2">Overview</p>
                 <h2 className="landing-section__heading mb-3">At a glance</h2>
 
                 {overviewStats ? (
                   <>
                     <div className="admin-overview__kpis" role="list" aria-label="Key metrics">
-                      <div className="admin-kpi" role="listitem">
+                      <Link to="/admin/all-residents" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.currentResidents}</div>
                         <div className="admin-kpi__label">Current residents</div>
-                      </div>
-                      <div className="admin-kpi" role="listitem">
+                      </Link>
+                      <Link to="/admin/all-safehouses" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.activeSafehouses}</div>
                         <div className="admin-kpi__label">Active safehouses</div>
-                      </div>
-                      <div className="admin-kpi" role="listitem">
+                      </Link>
+                      <Link to="/admin/all-residents" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.totalResidentsServed}</div>
                         <div className="admin-kpi__label">Residents served</div>
-                      </div>
-                      <div className="admin-kpi" role="listitem">
+                      </Link>
+                      <Link to="/admin/all-donors" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.totalSupporters}</div>
                         <div className="admin-kpi__label">Supporters</div>
-                      </div>
-                      <div className="admin-kpi" role="listitem">
+                      </Link>
+                      <Link to="/admin/all-partners" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.totalPartners}</div>
                         <div className="admin-kpi__label">Partners</div>
-                      </div>
-                      <div className="admin-kpi" role="listitem">
+                      </Link>
+                      <Link to="/admin/all-donations" className="admin-kpi admin-kpi--link" role="listitem">
                         <div className="admin-kpi__value">{overviewStats.donationsLast30Days}</div>
                         <div className="admin-kpi__label">Donations (30 days)</div>
-                      </div>
+                      </Link>
                     </div>
 
                     <div className="admin-overview__needs" aria-label="Needs attention">
@@ -175,7 +197,7 @@ function AdminDashboardPage() {
                 ) : (
                   <p className="landing-section__body mb-0">
                     {overviewError
-                      ? "Stats are unavailable right now. Use the links to manage residents, safehouses, partners, donors, and donations."
+                      ? "Stats are unavailable right now (API not reachable or you may need to re-sign in). Use the links to manage residents, safehouses, partners, donors, and donations."
                       : "Loading overview stats…"}
                   </p>
                 )}

@@ -11,6 +11,7 @@ import {
 import AdminDashboardBackLink from "../components/AdminDashboardBackLink";
 import Pagination from "../components/Pagination";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
+import heroForestImage from "../assets/forrest.jpg";
 
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
 
@@ -46,6 +47,7 @@ export default function RiskManagementCenter() {
   const [supporters, setSupporters] = useState<SupporterRisk[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [heroFallback, setHeroFallback] = useState(false);
   const [tab, setTab] = useState<Tab>("residents-incident");
   const [incidentPage, setIncidentPage] = useState(1);
   const [reintegrationPage, setReintegrationPage] = useState(1);
@@ -119,51 +121,60 @@ export default function RiskManagementCenter() {
     )?.count ?? 0;
 
   return (
-    <div className="beacon-page container py-4 admin-list-page">
-      <AdminDashboardBackLink />
-      {/* Centered header */}
-      <div className="row justify-content-center text-center mb-4">
-        <div className="col-lg-8">
-          <p className="landing-section__eyebrow mb-2">Admin</p>
-          <h1>Risk Management Center</h1>
-          <p className="post-planner__lead mb-0">
-            Predictive risk scores for residents and supporters, powered by
-            the Beacon ML pipelines.
+    <div className="admin-dashboard beacon-page">
+      <header className="admin-dashboard__hero" aria-label="Risk management header">
+        <img
+          className="admin-dashboard__hero-img"
+          src={heroFallback ? heroForestImage : "/newadmindashboard.jpg"}
+          alt=""
+          decoding="async"
+          onError={() => setHeroFallback(true)}
+        />
+        <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
+        <div className="container admin-dashboard__hero-content">
+          <p className="admin-dashboard__hero-eyebrow">Admin</p>
+          <h1 className="admin-dashboard__hero-title">Risk Management Center</h1>
+          <p className="post-planner__lead mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+            Predictive risk scores for residents and supporters, powered by the Beacon ML pipelines.
           </p>
         </div>
-      </div>
-      <div className="text-center mb-4">
-        <Link to="/admin/post-planner" className="btn btn-primary btn-sm">
-          Open Post Planner
-        </Link>
-      </div>
+      </header>
 
-      {/* Summary cards */}
-      <div className="row g-3 mb-4">
-        <SummaryCard
-            label="High incident risk residents"
-            value={countFor(summary?.residentIncidentBands, "High")}
-            tone="low"
-        />
-        <SummaryCard
-            label="Residents ready for reintegration"
-            value={countFor(summary?.residentReintegrationBands, "Ready")}
-            tone="high"
-        />
-        <SummaryCard
-            label="High churn risk supporters"
-            value={countFor(summary?.supporterChurnTiers, "High")}
-            tone="low"
-        />
-        <SummaryCard
-            label="Low churn risk supporters"
-            value={countFor(summary?.supporterChurnTiers, "Low")}
-            tone="high"
-        />
-      </div>
+      <section className="admin-dashboard__main">
+        <div className="container">
+          <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <AdminDashboardBackLink />
+            <Link to="/admin/post-planner" className="btn btn-primary btn-sm">
+              Open Post Planner
+            </Link>
+          </div>
 
-      {/* Tab switcher */}
-      <div className="btn-group btn-group-sm flex-wrap mb-3 w-100 w-md-auto" role="tablist">
+          {/* Summary cards */}
+          <div className="row g-3 mb-4">
+            <SummaryCard
+              label="High incident risk residents"
+              value={countFor(summary?.residentIncidentBands, "High")}
+              tone="low"
+            />
+            <SummaryCard
+              label="Residents ready for reintegration"
+              value={countFor(summary?.residentReintegrationBands, "Ready")}
+              tone="high"
+            />
+            <SummaryCard
+              label="High churn risk supporters"
+              value={countFor(summary?.supporterChurnTiers, "High")}
+              tone="low"
+            />
+            <SummaryCard
+              label="Low churn risk supporters"
+              value={countFor(summary?.supporterChurnTiers, "Low")}
+              tone="high"
+            />
+          </div>
+
+          {/* Tab switcher */}
+          <div className="btn-group btn-group-sm flex-wrap mb-3 w-100 w-md-auto" role="tablist">
         <button
           className={`btn ${tab === "residents-incident" ? "btn-primary" : "btn-outline-primary"}`}
           onClick={() => setTab("residents-incident")}
@@ -297,6 +308,8 @@ export default function RiskManagementCenter() {
           </div>
         </div>
       )}
+        </div>
+      </section>
     </div>
   );
 }

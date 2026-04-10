@@ -34,6 +34,17 @@ import ScrollToTop from './components/ScrollToTop.tsx'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.tsx'
 import CookieBanner from './components/CookieBanner.tsx'
 
+/**
+ * Frontend shell / routing layer.
+ *
+ * High-level architecture:
+ * - This React SPA controls client-side routing and UI composition.
+ * - Authentication + RBAC is enforced in two places:
+ *   - UI: route guards like `RequireAuth` / `RequireRole` decide what to render.
+ *   - API: the backend also enforces policies (never rely on the UI alone).
+ * - Cross-cutting UI behavior (navbar, announcements, scroll restoration, cookie banner)
+ *   lives here so it applies consistently across routes.
+ */
 function RoutedMain({ children }: { children: ReactNode }) {
   const location = useLocation()
   const globalAnnouncement = showGlobalSiteAnnouncement(location.pathname)
@@ -60,6 +71,7 @@ function App() {
   return (
     <>
       <AuthProvider>
+        {/* `Router` owns client-side URLs; server always serves `index.html` and React picks the view. */}
         <Router>
           <ScrollToTop />
           <a href="#main-content" className="visually-hidden-focusable position-absolute top-0 start-0 z-3 m-2 btn btn-sm btn-primary">
@@ -70,6 +82,7 @@ function App() {
           <ProfileCompletionRedirect />
           <RoutedMain>
           <AdminSearchProvider>
+          {/* Route guards prevent unauthorized UI access; API still re-checks auth/roles per request. */}
           <Routes>
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/" element={<LandingPage />} />

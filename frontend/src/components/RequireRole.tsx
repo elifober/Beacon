@@ -2,6 +2,14 @@ import type { ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
 import RequireAuth from './RequireAuth';
 
+/**
+ * UI RBAC gate (client-side).
+ *
+ * Architecture notes:
+ * - Wraps `RequireAuth` so we always verify a session exists first.
+ * - Uses roles returned by `/api/auth/me` to decide what to render.
+ * - The backend must still enforce the same policy on the matching API routes.
+ */
 export default function RequireRole({
   anyOf,
   children,

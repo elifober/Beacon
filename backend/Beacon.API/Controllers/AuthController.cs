@@ -11,6 +11,11 @@ using Beacon.API.Services;
 
 namespace Beacon.API.Controllers;
 
+// Authentication surface area:
+// - `/api/auth/*` endpoints support session introspection (`me`), local login/register,
+//   and external login (Google OAuth) initiation/callback.
+// - User profile completion is tracked via a claim and used by the SPA to route users.
+
 public sealed class RegisterWithProfileRequest
 {
     public string Email { get; set; } = string.Empty;

@@ -8,6 +8,14 @@ import {
 import AdminDashboardBackLink from "../../components/AdminDashboardBackLink";
 import heroForestImage from "../../assets/forrest.jpg";
 
+/**
+ * Post Planner (admin tool).
+ *
+ * Architecture notes:
+ * - Uses a debounced form state to avoid spamming the prediction endpoint while typing.
+ * - Calls `/api/marketing/predict-post` (AdminOnly) and renders a human-readable interpretation.
+ * - This is an analytics UX feature; the backend still enforces auth/roles on the endpoint.
+ */
 const PLATFORMS = ["Facebook", "Instagram", "Twitter", "TikTok", "YouTube"];
 const POST_TYPES = ["Organic", "Paid", "Story", "Reel"];
 const MEDIA_TYPES = ["Image", "Video", "Carousel", "Text"];

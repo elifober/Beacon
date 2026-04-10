@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom'
 
+/**
+ * Privacy policy page.
+ *
+ * Architecture notes:
+ * - Publicly accessible (no auth required) to meet transparency requirements.
+ * - Cross-references the Cookie Policy so users can view/adjust optional preference storage.
+ */
 export default function PrivacyPolicyPage() {
   return (
     <div className="beacon-page privacy-policy-page glass-nav-offset">

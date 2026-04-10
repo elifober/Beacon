@@ -13,6 +13,14 @@ import { CreateResidentModal } from "../components/admin/AdminCreateEntityModals
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
 import heroForestImage from "../assets/forrest.jpg";
 
+/**
+ * Admin residents list.
+ *
+ * Architecture notes:
+ * - Uses a server-backed list (`/Beacon/AllResidents`) and then applies client-side filtering,
+ *   search, and pagination for responsiveness.
+ * - All data shown here is admin-only; backend enforces AdminOnly regardless of what the UI renders.
+ */
 function calculateAge(dateStr: string): number {
   const dob = new Date(dateStr);
   const today = new Date();

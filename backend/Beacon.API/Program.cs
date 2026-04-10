@@ -21,6 +21,16 @@ var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecr
 
 builder.Services.AddControllers();
 
+// Backend startup / middleware pipeline.
+//
+// Architecture notes:
+// - Hosted behind a reverse proxy (Railway/Vercel rewrites). We trust forwarded headers so
+//   redirect URIs and cookies reflect the public HTTPS host.
+// - ASP.NET Identity provides cookie-based sessions + roles. The SPA calls `/api/auth/me`
+//   to hydrate the current user + roles for UI route guards, but authorization is enforced here.
+// - CORS is limited to allowed origins; cookies are marked SameSite=None when cross-site
+//   SPA → API fetch is needed.
+
 // Railway (and most PaaS) run behind a reverse proxy that terminates TLS.
 // Respect X-Forwarded-Proto so OAuth redirect_uri becomes https://... instead of http://...
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -36,6 +46,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
+    // Password policy: intentionally stricter than Identity defaults for IS414 requirements.
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;

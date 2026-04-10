@@ -9,6 +9,11 @@ namespace Beacon.API.Controllers;
 [ApiController]
 public class RiskController : ControllerBase
 {
+    // Risk Center API surface.
+    //
+    // Architecture notes:
+    // - Kept under `/Risk/*` (separate from `/Beacon/*`) so risk/ML reporting endpoints are isolated.
+    // - All endpoints are AdminOnly because they aggregate resident/supporter data and ML scores.
     private readonly AuthIdentityDbContext _db;
 
     public RiskController(AuthIdentityDbContext db)

@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
+/**
+ * Cookie consent banner (UI + preference persistence).
+ *
+ * Architecture notes:
+ * - Stores a consent choice in `localStorage` so users aren't prompted every visit.
+ * - Does not (and cannot) directly manage HttpOnly auth cookies; those are set by the backend.
+ * - The Cookie Policy page documents the categories and how to change preferences.
+ */
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false)
 

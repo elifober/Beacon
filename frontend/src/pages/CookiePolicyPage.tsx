@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import { useCookieConsent } from "../context/CookieConsentContext";
 
+/**
+ * Cookie policy page.
+ *
+ * Architecture notes:
+ * - This documents what we store in the browser (cookies + `localStorage`) and why.
+ * - The preference center controls optional browser storage only; auth cookies are set
+ *   by the backend when a user signs in.
+ */
 function OpenCookiePreferencesInline() {
   const { openCookiePreferences } = useCookieConsent();
   return (

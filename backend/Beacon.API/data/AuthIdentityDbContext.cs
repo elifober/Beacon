@@ -127,6 +127,19 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
     }
 
     /// <summary>
+    /// Next <c>partner_id</c> for admin inserts. Imported DBs often have integer PKs without PG IDENTITY.
+    /// </summary>
+    public async Task<int> AllocateNextPartnerIdAsync(CancellationToken cancellationToken = default)
+    {
+        var maxId = await Partners
+            .AsNoTracking()
+            .OrderByDescending(p => p.PartnerId)
+            .Select(p => p.PartnerId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return maxId + 1;
+    }
+
+    /// <summary>
     /// Inserts a supporter row with an explicit <c>supporter_id</c>. Uses SQL so the key is never omitted
     /// (some legacy DBs have NOT NULL <c>supporter_id</c> without IDENTITY; EF can still omit the column).
     /// </summary>
@@ -223,9 +236,10 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
 
     /// <summary>
     /// Inserts a partner row with only columns used by admin create (avoids schema drift on imported DBs).
-    /// <c>contact_name</c> is set server-side (same as partner name when not collected on the form).
+    /// Uses an explicit <c>partner_id</c> so legacy DBs without IDENTITY behave like <see cref="InsertResidentRowAsync"/>.
     /// </summary>
-    public async Task<int> InsertPartnerRowAsync(
+    public Task InsertPartnerRowAsync(
+        int partnerId,
         string partnerName,
         string? partnerType,
         string? roleType,
@@ -238,29 +252,26 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         string? notes,
         CancellationToken cancellationToken = default)
     {
-        return await ExecuteInsertReturningIntAsync(
-            """
+        return Database.ExecuteSqlInterpolatedAsync(
+            $@"
             INSERT INTO partners (
+                partner_id,
                 partner_name, partner_type, role_type, contact_name, email, phone, region, status,
                 start_date, end_date, notes, identity_user_id)
             VALUES (
-                @name, @ptype, @rtype, @contact, @email, @phone, @region, @status,
-                @start_date, NULL, @notes, NULL)
-            RETURNING partner_id
-            """,
-            cmd =>
-            {
-                cmd.Parameters.AddWithValue("name", partnerName);
-                cmd.Parameters.AddWithValue("ptype", (object?)partnerType ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("rtype", (object?)roleType ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("contact", contactName);
-                cmd.Parameters.AddWithValue("email", (object?)email ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("phone", (object?)phone ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("region", (object?)region ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("status", (object?)status ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("start_date", (object?)startDate ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("notes", (object?)notes ?? DBNull.Value);
-            },
+                {partnerId},
+                {partnerName},
+                {partnerType},
+                {roleType},
+                {contactName},
+                {email},
+                {phone},
+                {region},
+                {status},
+                {startDate},
+                NULL,
+                {notes},
+                NULL)",
             cancellationToken);
     }
 

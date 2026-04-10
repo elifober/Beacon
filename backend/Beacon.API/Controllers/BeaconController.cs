@@ -219,61 +219,83 @@ public class BeaconController : ControllerBase
         var partnerName = body.PartnerName.Trim();
         var contactName = partnerName;
 
-        int partnerId;
-        try
+        const int maxAttempts = 8;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
-            partnerId = await _beaconContext.InsertPartnerRowAsync(
-                partnerName,
-                NullIfWhiteSpace(body.PartnerType),
-                NullIfWhiteSpace(body.RoleType),
-                contactName,
-                NullIfWhiteSpace(body.Email),
-                NullIfWhiteSpace(body.Phone),
-                NullIfWhiteSpace(body.Region),
-                NullIfWhiteSpace(body.Status),
-                body.StartDate,
-                NullIfWhiteSpace(body.Notes),
-                HttpContext.RequestAborted);
-        }
-        catch (Exception ex)
-        {
-            if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+            var partnerId = await _beaconContext.AllocateNextPartnerIdAsync();
+            try
             {
-                var detail = !string.IsNullOrWhiteSpace(pg.Detail)
-                    ? pg.Detail!
-                    : (pg.MessageText ?? "Database rejected the insert.");
-                var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
-                    ? StatusCodes.Status400BadRequest
-                    : StatusCodes.Status409Conflict;
+                await _beaconContext.InsertPartnerRowAsync(
+                    partnerId,
+                    partnerName,
+                    NullIfWhiteSpace(body.PartnerType),
+                    NullIfWhiteSpace(body.RoleType),
+                    contactName,
+                    NullIfWhiteSpace(body.Email),
+                    NullIfWhiteSpace(body.Phone),
+                    NullIfWhiteSpace(body.Region),
+                    NullIfWhiteSpace(body.Status),
+                    body.StartDate,
+                    NullIfWhiteSpace(body.Notes),
+                    HttpContext.RequestAborted);
+            }
+            catch (Exception ex)
+            {
+                if (TryGetPostgresException(ex, out var pgEx) && pgEx is { } pg)
+                {
+                    if (attempt < maxAttempts - 1
+                        && string.Equals(pg.SqlState, PostgresErrorCodes.UniqueViolation, StringComparison.Ordinal)
+                        && IsPartnersPrimaryKeyViolation(pg))
+                    {
+                        _logger.LogWarning(
+                            "CreatePartner: partner PK conflict on id {PartnerId} (attempt {Attempt}); retrying. {Detail}",
+                            partnerId,
+                            attempt + 1,
+                            pg.Detail ?? pg.MessageText);
+                        continue;
+                    }
+
+                    var detail = !string.IsNullOrWhiteSpace(pg.Detail)
+                        ? pg.Detail!
+                        : (pg.MessageText ?? "Database rejected the insert.");
+                    var status = string.Equals(pg.SqlState, PostgresErrorCodes.ForeignKeyViolation, StringComparison.Ordinal)
+                        ? StatusCodes.Status400BadRequest
+                        : StatusCodes.Status409Conflict;
+                    return Problem(
+                        title: "Could not create partner",
+                        detail: detail,
+                        statusCode: status);
+                }
+
+                _logger.LogError(ex, "CreatePartner: database insert failed");
                 return Problem(
                     title: "Could not create partner",
-                    detail: detail,
-                    statusCode: status);
+                    detail: "The database rejected this insert. Check logs for details.",
+                    statusCode: StatusCodes.Status409Conflict);
             }
 
-            _logger.LogError(ex, "CreatePartner: database insert failed");
-            return Problem(
-                title: "Could not create partner",
-                detail: "The database rejected this insert. Check logs for details.",
-                statusCode: StatusCodes.Status409Conflict);
+            var entity = new Partner
+            {
+                PartnerId = partnerId,
+                PartnerName = partnerName,
+                PartnerType = NullIfWhiteSpace(body.PartnerType),
+                RoleType = NullIfWhiteSpace(body.RoleType),
+                ContactName = contactName,
+                Email = NullIfWhiteSpace(body.Email),
+                Phone = NullIfWhiteSpace(body.Phone),
+                Region = NullIfWhiteSpace(body.Region),
+                Status = NullIfWhiteSpace(body.Status),
+                StartDate = body.StartDate,
+                EndDate = null,
+                Notes = NullIfWhiteSpace(body.Notes),
+            };
+            return StatusCode(StatusCodes.Status201Created, entity);
         }
 
-        var entity = new Partner
-        {
-            PartnerId = partnerId,
-            PartnerName = partnerName,
-            PartnerType = NullIfWhiteSpace(body.PartnerType),
-            RoleType = NullIfWhiteSpace(body.RoleType),
-            ContactName = contactName,
-            Email = NullIfWhiteSpace(body.Email),
-            Phone = NullIfWhiteSpace(body.Phone),
-            Region = NullIfWhiteSpace(body.Region),
-            Status = NullIfWhiteSpace(body.Status),
-            StartDate = body.StartDate,
-            EndDate = null,
-            Notes = NullIfWhiteSpace(body.Notes),
-        };
-        return StatusCode(StatusCodes.Status201Created, entity);
+        return Problem(
+            title: "Could not create partner",
+            detail: "Could not allocate a unique partner id after several attempts. Try again in a moment.",
+            statusCode: StatusCodes.Status409Conflict);
     }
 
     [Authorize(Policy = AuthPolicies.AdminOnly)]
@@ -1854,6 +1876,14 @@ public class BeaconController : ControllerBase
             return true;
         var d = pg.Detail ?? string.Empty;
         return d.Contains("(supporter_id)", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsPartnersPrimaryKeyViolation(PostgresException pg)
+    {
+        if (string.Equals(pg.ConstraintName, "pk_partners", StringComparison.OrdinalIgnoreCase))
+            return true;
+        var d = pg.Detail ?? string.Empty;
+        return d.Contains("(partner_id)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> MergeDistinctStrings(IEnumerable<string> fromDb, IEnumerable<string> defaults) =>

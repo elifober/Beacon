@@ -117,12 +117,14 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
           </label>
           <input
             id="create-res-id"
+            name="create-res-id"
             type="text"
             className="form-control"
             readOnly
             disabled
             value=""
             placeholder="Assigned on save"
+            autoComplete="off"
             aria-describedby="create-res-id-help"
           />
           <div id="create-res-id-help" className="form-text">
@@ -137,6 +139,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <input
               id="create-res-fn"
+              name="create-res-fn"
               className="form-control"
               autoComplete="given-name"
               value={form.firstName}
@@ -151,6 +154,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <input
               id="create-res-li"
+              name="create-res-li"
               className="form-control"
               autoComplete="family-name"
               maxLength={8}
@@ -169,6 +173,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <input
               id="create-res-cc"
+              name="create-res-cc"
               className="form-control"
               autoComplete="off"
               value={form.caseControlNo}
@@ -183,6 +188,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <input
               id="create-res-ic"
+              name="create-res-ic"
               className="form-control"
               autoComplete="off"
               value={form.internalCode}
@@ -199,6 +205,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
           </label>
           <select
             id="create-res-sh"
+            name="create-res-sh"
             className="form-select"
             required
             value={form.safehouseId || ""}
@@ -222,6 +229,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
           </label>
           <select
             id="create-res-cs"
+            name="create-res-cs"
             className="form-select"
             required
             value={form.caseStatus}
@@ -246,9 +254,9 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             <div className="form-check">
               <input
                 id="create-res-sex-m"
+                name="create-res-sex"
                 type="radio"
                 className="form-check-input"
-                name="create-res-sex"
                 checked={form.sex === "M"}
                 onChange={() => setForm((f) => ({ ...f, sex: "M" }))}
               />
@@ -259,9 +267,9 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             <div className="form-check">
               <input
                 id="create-res-sex-f"
+                name="create-res-sex"
                 type="radio"
                 className="form-check-input"
-                name="create-res-sex"
                 checked={form.sex === "F"}
                 onChange={() => setForm((f) => ({ ...f, sex: "F" }))}
               />
@@ -278,8 +286,10 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
           </label>
           <input
             id="create-res-dob"
+            name="create-res-dob"
             type="date"
             className="form-control"
+            autoComplete="bday"
             value={form.dateOfBirth?.slice(0, 10) ?? ""}
             onChange={(e) =>
               setForm((f) => ({ ...f, dateOfBirth: e.target.value }))
@@ -294,6 +304,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <select
               id="create-res-risk-i"
+              name="create-res-risk-i"
               className="form-select"
               value={form.initialRiskLevel}
               onChange={(e) =>
@@ -314,6 +325,7 @@ export function CreateResidentModal({ open, onClose, onCreated }: ModalShellProp
             </label>
             <select
               id="create-res-risk-c"
+              name="create-res-risk-c"
               className="form-select"
               value={form.currentRiskLevel}
               onChange={(e) =>
@@ -419,12 +431,14 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
           </label>
           <input
             id="create-par-id"
+            name="create-par-id"
             type="text"
             className="form-control"
             readOnly
             disabled
             value=""
             placeholder="Assigned on save"
+            autoComplete="off"
           />
           <div className="form-text">The database assigns the next partner id when you save.</div>
         </div>
@@ -434,8 +448,10 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
           </label>
           <input
             id="create-par-name"
+            name="create-par-name"
             className="form-control"
             required
+            autoComplete="organization"
             value={partnerName}
             onChange={(e) => setPartnerName(e.target.value)}
           />
@@ -448,6 +464,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <select
               id="create-par-ptype"
+              name="create-par-ptype"
               className="form-select"
               value={partnerType}
               onChange={(e) => setPartnerType(e.target.value)}
@@ -466,6 +483,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <select
               id="create-par-role"
+              name="create-par-role"
               className="form-select"
               value={roleType}
               onChange={(e) => setRoleType(e.target.value)}
@@ -486,8 +504,10 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <input
               id="create-par-email"
+              name="create-par-email"
               type="email"
               className="form-control"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -498,7 +518,9 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <input
               id="create-par-phone"
+              name="create-par-phone"
               className="form-control"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
@@ -511,7 +533,9 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <input
               id="create-par-region"
+              name="create-par-region"
               className="form-control"
+              autoComplete="address-level1"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
             />
@@ -522,6 +546,7 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
             </label>
             <select
               id="create-par-status"
+              name="create-par-status"
               className="form-select"
               required
               value={status}
@@ -544,8 +569,10 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
           </label>
           <input
             id="create-par-start"
+            name="create-par-start"
             type="date"
             className="form-control"
+            autoComplete="off"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
@@ -556,8 +583,10 @@ export function CreatePartnerModal({ open, onClose, onCreated }: ModalShellProps
           </label>
           <textarea
             id="create-par-notes"
+            name="create-par-notes"
             className="form-control"
             rows={2}
+            autoComplete="off"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -669,12 +698,14 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
           </label>
           <input
             id="create-sh-id"
+            name="create-sh-id"
             type="text"
             className="form-control"
             readOnly
             disabled
             value=""
             placeholder="Assigned on save"
+            autoComplete="off"
           />
           <div className="form-text">
             Safehouse code is assigned on save (e.g. SH-12 for id 12).
@@ -686,8 +717,10 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
           </label>
           <input
             id="create-sh-name"
+            name="create-sh-name"
             className="form-control"
             required
+            autoComplete="organization"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -699,7 +732,9 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-region"
+              name="create-sh-region"
               className="form-control"
+              autoComplete="address-level1"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
             />
@@ -710,7 +745,9 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-city"
+              name="create-sh-city"
               className="form-control"
+              autoComplete="address-level2"
               value={city}
               onChange={(e) => setCity(e.target.value)}
             />
@@ -723,7 +760,9 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-prov"
+              name="create-sh-prov"
               className="form-control"
+              autoComplete="address-level1"
               value={province}
               onChange={(e) => setProvince(e.target.value)}
             />
@@ -734,7 +773,9 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-country"
+              name="create-sh-country"
               className="form-control"
+              autoComplete="country-name"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
             />
@@ -747,8 +788,10 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-open"
+              name="create-sh-open"
               type="date"
               className="form-control"
+              autoComplete="off"
               value={openDate}
               onChange={(e) => setOpenDate(e.target.value)}
             />
@@ -759,6 +802,7 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <select
               id="create-sh-status"
+              name="create-sh-status"
               className="form-select"
               required
               value={status}
@@ -782,8 +826,10 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-capg"
+              name="create-sh-capg"
               inputMode="numeric"
               className="form-control"
+              autoComplete="off"
               value={capacityGirls}
               onChange={(e) => setCapacityGirls(e.target.value)}
             />
@@ -794,8 +840,10 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-caps"
+              name="create-sh-caps"
               inputMode="numeric"
               className="form-control"
+              autoComplete="off"
               value={capacityStaff}
               onChange={(e) => setCapacityStaff(e.target.value)}
             />
@@ -806,8 +854,10 @@ export function CreateSafehouseModal({ open, onClose, onCreated }: ModalShellPro
             </label>
             <input
               id="create-sh-occ"
+              name="create-sh-occ"
               inputMode="numeric"
               className="form-control"
+              autoComplete="off"
               value={currentOccupancy}
               onChange={(e) => setCurrentOccupancy(e.target.value)}
             />
@@ -906,12 +956,14 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
           </label>
           <input
             id="create-don-id"
+            name="create-don-id"
             type="text"
             className="form-control"
             readOnly
             disabled
             value=""
             placeholder="Assigned on save"
+            autoComplete="off"
           />
           <div className="form-text">
             Display name is saved as first + last name. <code>created_at</code> is set on the server.
@@ -924,8 +976,10 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <input
               id="create-don-fn"
+              name="create-don-fn"
               className="form-control"
               required
+              autoComplete="given-name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
@@ -936,8 +990,10 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <input
               id="create-don-ln"
+              name="create-don-ln"
               className="form-control"
               required
+              autoComplete="family-name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
@@ -950,6 +1006,7 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <select
               id="create-don-stype"
+              name="create-don-stype"
               className="form-select"
               value={supporterType}
               onChange={(e) => setSupporterType(e.target.value)}
@@ -968,6 +1025,7 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <select
               id="create-don-rel"
+              name="create-don-rel"
               className="form-select"
               value={relationshipType}
               onChange={(e) => setRelationshipType(e.target.value)}
@@ -987,7 +1045,9 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
           </label>
           <input
             id="create-don-region"
+            name="create-don-region"
             className="form-control"
+            autoComplete="address-level1"
             value={region}
             onChange={(e) => setRegion(e.target.value)}
           />
@@ -999,8 +1059,10 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <input
               id="create-don-email"
+              name="create-don-email"
               type="email"
               className="form-control"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -1011,7 +1073,9 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <input
               id="create-don-phone"
+              name="create-don-phone"
               className="form-control"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
@@ -1024,6 +1088,7 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <select
               id="create-don-status"
+              name="create-don-status"
               className="form-select"
               required
               value={status}
@@ -1042,6 +1107,7 @@ export function CreateDonorModal({ open, onClose, onCreated }: ModalShellProps) 
             </label>
             <select
               id="create-don-acq"
+              name="create-don-acq"
               className="form-select"
               value={acquisitionChannel}
               onChange={(e) => setAcquisitionChannel(e.target.value)}

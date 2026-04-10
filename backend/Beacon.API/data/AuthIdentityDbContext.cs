@@ -167,44 +167,32 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         DateOnly donationDate,
         CancellationToken cancellationToken = default)
     {
-        try
+        // Try every layout: RETURNING (SERIAL/IDENTITY), explicit MAX+1 (legacy), then OVERRIDING SYSTEM VALUE.
+        // Outer catches must not assume an unwrapped PostgresException — EF/Npgsql often wrap the real error.
+        Exception? last = null;
+        foreach (var strategy in (MonetaryDonationInsertStrategy[])
+                 [MonetaryDonationInsertStrategy.Returning,
+                     MonetaryDonationInsertStrategy.ExplicitPk,
+                     MonetaryDonationInsertStrategy.ExplicitPkOverriding])
         {
-            return await InsertMonetaryDonationWithStrategyAsync(
-                supporterId,
-                safehouseId,
-                amount,
-                isRecurring,
-                donationDate,
-                MonetaryDonationInsertStrategy.Returning,
-                cancellationToken);
-        }
-        catch (PostgresException)
-        {
-            // Try legacy / explicit-key layouts.
+            try
+            {
+                return await InsertMonetaryDonationWithStrategyAsync(
+                    supporterId,
+                    safehouseId,
+                    amount,
+                    isRecurring,
+                    donationDate,
+                    strategy,
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                last = ex;
+            }
         }
 
-        try
-        {
-            return await InsertMonetaryDonationWithStrategyAsync(
-                supporterId,
-                safehouseId,
-                amount,
-                isRecurring,
-                donationDate,
-                MonetaryDonationInsertStrategy.ExplicitPk,
-                cancellationToken);
-        }
-        catch (PostgresException ex) when (ShouldRetryMonetaryDonationWithOverriding(ex))
-        {
-            return await InsertMonetaryDonationWithStrategyAsync(
-                supporterId,
-                safehouseId,
-                amount,
-                isRecurring,
-                donationDate,
-                MonetaryDonationInsertStrategy.ExplicitPkOverriding,
-                cancellationToken);
-        }
+        throw last ?? new InvalidOperationException("Donation insert failed for an unknown reason.");
     }
 
     /// <summary>
@@ -770,19 +758,6 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         ExplicitPkOverriding,
     }
 
-    private static bool ShouldRetryMonetaryDonationWithOverriding(PostgresException ex)
-    {
-        if (ex.SqlState is "428C9" or "55000")
-        {
-            return true;
-        }
-
-        var msg = ex.MessageText;
-        return msg.Contains("identity", StringComparison.OrdinalIgnoreCase)
-            || msg.Contains("GENERATED", StringComparison.OrdinalIgnoreCase)
-            || msg.Contains("generated column", StringComparison.OrdinalIgnoreCase);
-    }
-
     private async Task<int> InsertMonetaryDonationWithStrategyAsync(
         int supporterId,
         int safehouseId,
@@ -1032,6 +1007,11 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         cmd.CommandText = sql;
         bind(cmd);
         var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
+        if (scalar is null || scalar is DBNull)
+        {
+            throw new InvalidOperationException("INSERT … RETURNING donation_id produced no value.");
+        }
+
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
     }
 

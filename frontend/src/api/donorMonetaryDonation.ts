@@ -14,6 +14,10 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
     if (data && typeof data === "object") {
       const o = data as Record<string, unknown>;
       const sqlState = typeof o.sqlState === "string" ? o.sqlState : null;
+      const constraint =
+        typeof o.constraintName === "string" && o.constraintName.length > 0
+          ? o.constraintName
+          : null;
       const base =
         (typeof o.message === "string" && o.message.length > 0
           ? o.message
@@ -22,7 +26,10 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
             : typeof o.title === "string" && o.title.length > 0
               ? o.title
               : null) ?? fallback;
-      return sqlState ? `${base} (SQL ${sqlState})` : base;
+      const extra = [sqlState ? `SQL ${sqlState}` : null, constraint ? `constraint ${constraint}` : null]
+        .filter(Boolean)
+        .join(" · ");
+      return extra.length > 0 ? `${base} (${extra})` : base;
     }
   } catch {
     /* ignore */

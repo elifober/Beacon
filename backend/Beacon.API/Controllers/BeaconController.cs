@@ -5,6 +5,7 @@ using Beacon.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using System.Security.Claims;
 
 namespace Beacon.API.Controllers;
 
@@ -20,6 +21,24 @@ public class BeaconController : ControllerBase
     {
         _beaconContext = temp;
         _logger = logger;
+    }
+
+    private bool IsAdminUser() =>
+        User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == AuthRoles.Admin);
+
+    private async Task<int?> GetCurrentSupporterIdAsync()
+    {
+        var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(identityUserId))
+        {
+            return null;
+        }
+
+        return await _beaconContext.Supporters
+            .AsNoTracking()
+            .Where(s => s.IdentityUserId == identityUserId)
+            .Select(s => (int?)s.SupporterId)
+            .FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -2304,8 +2323,17 @@ public class BeaconController : ControllerBase
     //GET SINGLE DONOR WITH FULL DONATION HISTORY
     [Authorize(Policy = AuthPolicies.DonorOnly)]
     [HttpGet("Donor/{id}")]
-    public IActionResult GetDonor(int id)
+    public async Task<IActionResult> GetDonor(int id)
     {
+        if (!IsAdminUser())
+        {
+            var supporterId = await GetCurrentSupporterIdAsync();
+            if (supporterId is null || supporterId.Value != id)
+            {
+                return Forbid();
+            }
+        }
+
         var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
         if (supporter == null) return NotFound();
 
@@ -2493,8 +2521,17 @@ public class BeaconController : ControllerBase
     //GET DONOR DASHBOARD: personal info + donation history with program areas
     [Authorize(Policy = AuthPolicies.DonorOnly)]
     [HttpGet("DonorDashboard/{id}")]
-    public IActionResult GetDonorDashboard(int id)
+    public async Task<IActionResult> GetDonorDashboard(int id)
     {
+        if (!IsAdminUser())
+        {
+            var supporterId = await GetCurrentSupporterIdAsync();
+            if (supporterId is null || supporterId.Value != id)
+            {
+                return Forbid();
+            }
+        }
+
         var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
         if (supporter == null) return NotFound();
 

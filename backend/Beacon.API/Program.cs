@@ -30,7 +30,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
         | ForwardedHeaders.XForwardedProto
         | ForwardedHeaders.XForwardedHost;
     // Trust proxy headers (common in container/PaaS environments).
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 

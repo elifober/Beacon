@@ -32,7 +32,7 @@ function LogoutPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshAuthSession]);
 
   return (
     <div className="beacon-page beacon-page--auth logout-page">

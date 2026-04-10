@@ -5,7 +5,7 @@ import { useCountUp } from "../hooks/useCountUp";
 
 const impactPosts = [
   {
-    title: "Highs and Lows of Lighthouse",
+    title: "Highs and Lows at Beacon",
     date: "May 11, 2025",
     image: "/highsandlows.jpg",
     summary:
@@ -141,7 +141,7 @@ function ImpactPage() {
           </p>
           <h1 className="impact-page__title mb-3">Stories of healing, justice, and hope</h1>
           <p className="impact-page__lead mb-0">
-            A look at milestones and reflections from the Lighthouse Sanctuary blog,
+            A look at milestones and reflections from the Beacon blog,
             reimagined in Beacon&apos;s updated visual style.
           </p>
         </div>

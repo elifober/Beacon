@@ -7,7 +7,7 @@ import { submitMonetaryDonation } from "../api/donorMonetaryDonation";
 const PRESET_AMOUNTS = [25, 50, 100, 250];
 
 /**
- * PayPal / Lighthouse-style third-party checkout: amount, frequency, then
+ * PayPal-style third-party checkout: amount, frequency, then
  * outbound links to your processor (configure URLs in env).
  */
 function DonatePage() {
@@ -150,6 +150,20 @@ function DonatePage() {
               </button>
             </div>
           </div>
+
+          {!anyLink && (
+            <div className="donate-external__setup-note" role="status">
+              <p>
+                Payment buttons will appear here once your team adds third-party
+                donate links (for example PayPal hosted donate URLs) to the frontend
+                environment variables. See <code>.env.example</code>.
+              </p>
+              <p className="mb-0">
+                Questions?{" "}
+                <a href="mailto:info@beacon.org">info@beacon.org</a>
+              </p>
+            </div>
+          )}
 
           <div className="donate-external__actions">
             <button

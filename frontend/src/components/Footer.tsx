@@ -41,26 +41,26 @@ function Footer() {
             <h6 className="landing-footer__heading">Contact</h6>
             <p className="landing-footer__text">
               Have questions? Reach out to us at{" "}
-              <a href="mailto:info@beaconsanctuary.org">info@beaconsanctuary.org</a>
+              <a href="mailto:info@beacon.org">info@beacon.org</a>
             </p>
             <div className="landing-footer__socials" aria-label="Beacon social media links">
               <a
                 className="landing-footer__social-link"
-                href="https://www.youtube.com/@LighthouseSanctuary"
+                href="https://www.youtube.com/@Beacon"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Opens Lighthouse Sanctuary on YouTube in a new browser tab."
-                aria-label="Visit Lighthouse Sanctuary on YouTube"
+                title="Opens Beacon on YouTube in a new browser tab."
+                aria-label="Visit Beacon on YouTube"
               >
                 <i className="bi bi-youtube" aria-hidden="true" />
               </a>
               <a
                 className="landing-footer__social-link"
-                href="https://www.facebook.com/LighthouseSanctuary"
+                href="https://www.facebook.com/beacon"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Opens Lighthouse Sanctuary on Facebook in a new browser tab."
-                aria-label="Visit Lighthouse Sanctuary on Facebook"
+                title="Opens Beacon on Facebook in a new browser tab."
+                aria-label="Visit Beacon on Facebook"
               >
                 <i className="bi bi-facebook" aria-hidden="true" />
               </a>
@@ -69,7 +69,7 @@ function Footer() {
         </div>
         <hr className="landing-footer__rule" />
         <p className="landing-footer__copy">
-          &copy; {new Date().getFullYear()} Beacon Sanctuary. All rights reserved. | <Link to="/privacy-policy">Privacy Policy</Link>
+          &copy; {new Date().getFullYear()} Beacon. All rights reserved. | <Link to="/privacy-policy">Privacy Policy</Link>
         </p>
       </div>
     </footer>

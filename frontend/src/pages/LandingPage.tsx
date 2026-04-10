@@ -458,7 +458,7 @@ function LandingPage() {
           <blockquote className="quote-section__quote">
             &ldquo;Beacon is a safe place, where we are treated as family.&rdquo;
           </blockquote>
-          <p className="quote-section__caption">— Beacon Sanctuary Motto</p>
+          <p className="quote-section__caption">— Beacon Motto</p>
           <p className="quote-section__sub">
             We are Beacon: full of hope, love, and new beginnings. Our focus is
             progress in all aspects of life. We treat each other as family where

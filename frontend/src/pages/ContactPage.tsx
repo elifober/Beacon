@@ -1,9 +1,9 @@
 import Footer from "../components/Footer";
 
 const fbTooltip =
-  "Opens Lighthouse Sanctuary on Facebook in a new browser tab.";
+  "Opens Beacon on Facebook in a new browser tab.";
 const ytTooltip =
-  "Opens Lighthouse Sanctuary on YouTube in a new browser tab.";
+  "Opens Beacon on YouTube in a new browser tab.";
 
 function ContactPage() {
   return (
@@ -32,7 +32,7 @@ function ContactPage() {
                 </p>
                 <p className="mb-2">
                   <strong>Email:</strong>{" "}
-                  <a href="mailto:info@lighthousesanctuary.org">info@lighthousesanctuary.org</a>
+                  <a href="mailto:info@beacon.org">info@beacon.org</a>
                 </p>
                 <p className="mb-0">
                   <strong>EIN:</strong> 81-3220618
@@ -49,7 +49,7 @@ function ContactPage() {
                 <div className="contact-page__socials mb-0">
                   <a
                     className="contact-page__social contact-page__social--facebook"
-                    href="https://www.facebook.com/LighthouseSanctuary"
+                    href="https://www.facebook.com/beacon"
                     target="_blank"
                     rel="noopener noreferrer"
                     title={fbTooltip}
@@ -59,7 +59,7 @@ function ContactPage() {
                   </a>
                   <a
                     className="contact-page__social contact-page__social--youtube"
-                    href="https://www.youtube.com/@LighthouseSanctuary"
+                    href="https://www.youtube.com/@Beacon"
                     target="_blank"
                     rel="noopener noreferrer"
                     title={ytTooltip}

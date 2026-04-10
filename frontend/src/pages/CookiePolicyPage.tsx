@@ -43,7 +43,7 @@ export default function CookiePolicyPage() {
             <OpenCookiePreferencesInline />
 
             <p>
-              This Cookie Policy describes how Beacon Sanctuary (&quot;Beacon,&quot; &quot;we,&quot;
+              This Cookie Policy describes how Beacon (&quot;Beacon,&quot; &quot;we,&quot;
               &quot;us&quot;) uses cookies and similar technologies in connection with our web
               application. It should be read together with our{" "}
               <Link to="/privacy-policy">Privacy Policy</Link>.
@@ -163,7 +163,7 @@ export default function CookiePolicyPage() {
 
             <p className="mt-4 mb-0">
               Questions? Contact{" "}
-              <a href="mailto:info@beaconsanctuary.org">info@beaconsanctuary.org</a>.
+              <a href="mailto:info@beacon.org">info@beacon.org</a>.
             </p>
 
             <CookieChoiceReset />

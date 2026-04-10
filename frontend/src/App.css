@@ -2209,7 +2209,26 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   border: 1px solid rgba(59, 82, 69, 0.12);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.76);
+  padding: 0;
+}
+.admin-overview__mix-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.36rem 0.48rem;
+  text-decoration: none;
+  color: inherit;
+  border-radius: inherit;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.admin-overview__mix-link:hover {
+  background: rgba(45, 79, 53, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(45, 79, 53, 0.16);
+}
+.admin-overview__mix-link:focus-visible {
+  outline: 2px solid rgba(45, 79, 53, 0.45);
+  outline-offset: 2px;
 }
 .admin-overview__mix-legend li strong {
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -5512,6 +5531,20 @@ main.main-with-site-announcement
   font-size: 0.9rem;
   color: var(--beacon-text);
   line-height: 1.45;
+}
+.about-page__testimonial-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 800;
+  color: rgba(45, 79, 53, 0.95);
+  background: rgba(45, 79, 53, 0.12);
+  border: 1px solid rgba(45, 79, 53, 0.2);
+  border-radius: 999px;
+  padding: 0.16rem 0.48rem;
 }
 .about-page__testimonial-age {
   font-size: 0.78rem;

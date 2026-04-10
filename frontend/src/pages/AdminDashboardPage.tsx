@@ -14,6 +14,7 @@ import {
   CreatePartnerModal,
   CreateSafehouseModal,
 } from "../components/admin/AdminCreateEntityModals";
+import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
   { to: "/admin/all-residents", label: "Residents" },
@@ -49,6 +50,7 @@ const addProfileLinks: { key: AdminEntityModalKey; label: string }[] = [
 ];
 
 function AdminDashboardPage() {
+  const { authSession } = useAuth();
   const [residentRecordModal, setResidentRecordModal] = useState<ResidentRecordModalKey | null>(
     null,
   );
@@ -100,10 +102,30 @@ function AdminDashboardPage() {
   }
   const serviceMix = overviewStats
     ? [
-        { label: "Residents", value: overviewStats.currentResidents, tone: "high" as const },
-        { label: "Safehouses", value: overviewStats.activeSafehouses, tone: "medium" as const },
-        { label: "Partners", value: overviewStats.totalPartners, tone: "low" as const },
-        { label: "Supporters", value: overviewStats.totalSupporters, tone: "neutral" as const },
+        {
+          label: "Residents",
+          value: overviewStats.currentResidents,
+          tone: "high" as const,
+          to: "/admin/all-residents",
+        },
+        {
+          label: "Safehouses",
+          value: overviewStats.activeSafehouses,
+          tone: "medium" as const,
+          to: "/admin/all-safehouses",
+        },
+        {
+          label: "Partners",
+          value: overviewStats.totalPartners,
+          tone: "low" as const,
+          to: "/admin/all-partners",
+        },
+        {
+          label: "Supporters",
+          value: overviewStats.totalSupporters,
+          tone: "neutral" as const,
+          to: "/admin/all-donors",
+        },
       ]
     : [];
   const attentionMix = overviewStats
@@ -132,6 +154,14 @@ function AdminDashboardPage() {
       ]
     : [];
   const totalAttention = attentionMix.reduce((sum, item) => sum + item.value, 0);
+  const adminFirstName = (() => {
+    const raw = (authSession?.userName ?? "").trim();
+    if (!raw) return "";
+    const withoutDomain = raw.split("@")[0] ?? raw;
+    const firstToken = withoutDomain.split(/[.\s_-]+/).filter(Boolean)[0] ?? "";
+    if (!firstToken) return "";
+    return firstToken.charAt(0).toUpperCase() + firstToken.slice(1).toLowerCase();
+  })();
 
   return (
     <div className="admin-dashboard beacon-page">
@@ -147,6 +177,12 @@ function AdminDashboardPage() {
         <div className="container admin-dashboard__hero-content">
           <p className="admin-dashboard__hero-eyebrow">Beacon admin</p>
           <h1 className="admin-dashboard__hero-title">Dashboard</h1>
+          <p
+            className="post-planner__lead admin-dashboard__hero-subtitle mb-0"
+            style={{ color: "rgba(242, 244, 240, 0.88)" }}
+          >
+            {adminFirstName ? `Welcome back, ${adminFirstName}.` : "Welcome back."}
+          </p>
         </div>
       </header>
 
@@ -199,9 +235,11 @@ function AdminDashboardPage() {
                           <ul className="admin-overview__mix-legend">
                             {serviceMix.map((item) => (
                               <li key={item.label}>
-                                <span className={`admin-overview__legend-dot admin-overview__legend-dot--${item.tone}`} />
-                                <span>{item.label}</span>
-                                <strong>{item.value}</strong>
+                                <Link to={item.to} className="admin-overview__mix-link">
+                                  <span className={`admin-overview__legend-dot admin-overview__legend-dot--${item.tone}`} />
+                                  <span>{item.label}</span>
+                                  <strong>{item.value}</strong>
+                                </Link>
                               </li>
                             ))}
                           </ul>

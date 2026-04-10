@@ -15,7 +15,7 @@ export const donateLinks = {
 };
 
 export const donateDisplay = {
-  orgName: env("VITE_DONATE_ORG_NAME") || "Beacon Sanctuary",
+  orgName: env("VITE_DONATE_ORG_NAME") || "Beacon",
   currencyCode: env("VITE_DONATE_CURRENCY_CODE") || "USD",
   /** Shown next to the amount (e.g. $, ₱) */
   currencySymbol: env("VITE_DONATE_CURRENCY_SYMBOL") || "$",

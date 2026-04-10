@@ -82,7 +82,7 @@ function AboutPage() {
           </article>
 
           <article className="about-page__feature-block mb-4">
-            <h2 className="h4 mb-3">Life at Lighthouse</h2>
+            <h2 className="h4 mb-3">Life at Beacon</h2>
             <div className="impact-page__feature-media about-page__feature-media mb-0">
               <video
                 className="impact-page__feature-video"
@@ -100,21 +100,29 @@ function AboutPage() {
             </div>
           </article>
 
-          <article className="about-page__card">
-            <h2 className="h4 mb-1">Beacon board</h2>
+          <article className="about-page__card mb-4">
+            <h2 className="h4 mb-1">Voices from the girls we serve</h2>
             <p className="about-page__board-sub mb-3">
-              The leaders guiding strategy, stewardship, and long-term care for survivors.
+              These testimonials are from survivors in Beacon care, not from board members.
             </p>
-            <div className="row g-3 mb-4">
+            <div className="row g-3">
               {testimonials.map((item) => (
                 <div className="col-12 col-lg-4" key={item.quote}>
                   <article className="about-page__testimonial-card">
+                    <p className="about-page__testimonial-tag mb-2">Survivor voice</p>
                     <p className="about-page__testimonial-quote mb-2">"{item.quote}"</p>
                     <p className="about-page__testimonial-age mb-0">{item.age}</p>
                   </article>
                 </div>
               ))}
             </div>
+          </article>
+
+          <article className="about-page__card">
+            <h2 className="h4 mb-1">Beacon board</h2>
+            <p className="about-page__board-sub mb-3">
+              The leaders guiding strategy, stewardship, and long-term care for survivors.
+            </p>
             <div className="row g-4">
               {boardMembers.map((member) => (
                 <div className="col-sm-6 col-lg-3" key={member.name}>

@@ -322,45 +322,28 @@ function AdminAllDonorsPage() {
         <div className="row g-4 admin-donors-grid">
           {visibleDonors.map((d) => (
             <div key={d.donorId} className="col-sm-6 col-lg-4">
-              <div className="admin-all-residents-card admin-donor-card--enhanced card h-100 shadow-sm">
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title admin-donor-card__name mb-3">{d.displayName ?? "Unknown"}</h5>
-                  <dl className="row small mb-0 flex-grow-1">
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Status</dt>
-                    <dd className="col-7 mb-2 admin-donor-card__status">{d.status ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Relationship</dt>
-                    <dd className="col-7 mb-2">{d.relationship ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Region</dt>
-                    <dd className="col-7 mb-2">{d.region ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Country</dt>
-                    <dd className="col-7 mb-2">{d.country ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Email</dt>
-                    <dd className="col-7 mb-2">{d.email ?? "\u2014"}</dd>
-                    <dt className="col-5 text-muted fw-normal admin-donor-card__dt">First gift</dt>
-                    <dd className="col-7 mb-0">
-                      {d.firstDonation ? formatDate(d.firstDonation) : "\u2014"}
-                    </dd>
-                  </dl>
               <Link
                 to={`/donor/${d.donorId}`}
                 className="admin-all-residents-card-link text-decoration-none text-reset d-block h-100"
                 aria-label={`Open donor profile for ${d.displayName ?? "donor " + d.donorId}`}
               >
-                <div className="admin-all-residents-card card h-100 shadow-sm">
+                <div className="admin-all-residents-card admin-donor-card--enhanced card h-100 shadow-sm">
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title mb-3">{d.displayName ?? "Unknown"}</h5>
+                    <h5 className="card-title admin-donor-card__name mb-3">
+                      {d.displayName ?? "Unknown"}
+                    </h5>
                     <dl className="row small mb-0 flex-grow-1">
-                      <dt className="col-5 text-muted fw-normal">Status</dt>
-                      <dd className="col-7 mb-2">{d.status ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">Relationship</dt>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Status</dt>
+                      <dd className="col-7 mb-2 admin-donor-card__status">{d.status ?? "\u2014"}</dd>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Relationship</dt>
                       <dd className="col-7 mb-2">{d.relationship ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">Region</dt>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Region</dt>
                       <dd className="col-7 mb-2">{d.region ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">Country</dt>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Country</dt>
                       <dd className="col-7 mb-2">{d.country ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">Email</dt>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">Email</dt>
                       <dd className="col-7 mb-2">{d.email ?? "\u2014"}</dd>
-                      <dt className="col-5 text-muted fw-normal">First gift</dt>
+                      <dt className="col-5 text-muted fw-normal admin-donor-card__dt">First gift</dt>
                       <dd className="col-7 mb-0">
                         {d.firstDonation ? formatDate(d.firstDonation) : "\u2014"}
                       </dd>

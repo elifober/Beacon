@@ -1598,6 +1598,12 @@ a.admin-all-residents-card-link:focus-visible .admin-all-residents-card {
   margin: 0 auto 2.5rem;
 }
 
+.search-bar__logo,
+.admin-hub-search__logo {
+  object-fit: contain;
+  border-radius: 10px;
+}
+
 .admin-dashboard__panel {
   background: var(--beacon-bg-card);
   border: 1px solid var(--beacon-border);

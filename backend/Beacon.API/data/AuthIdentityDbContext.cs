@@ -1,9 +1,12 @@
 using System.Data;
+using System.Data.Common;
+using System.Globalization;
 using Beacon.API.Models;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql;
 
 namespace Beacon.API.Data;
@@ -152,9 +155,9 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
     }
 
     /// <summary>
-    /// Inserts <c>donations</c> and one <c>donation_allocations</c> row using explicit PKs. Production DBs
-    /// imported without PostgreSQL IDENTITY on these columns reject EF-generated INSERTs (500); this matches
-    /// the manual-key pattern used for residents and supporters.
+    /// Inserts <c>donations</c> and one <c>donation_allocations</c> row. Tries, in order:
+    /// DB-generated PKs (<c>RETURNING</c>), explicit <c>MAX(id)+1</c>, then explicit keys with
+    /// <c>OVERRIDING SYSTEM VALUE</c> for strict IDENTITY columns — so both legacy imports and stock PostgreSQL work.
     /// </summary>
     public async Task<int> InsertMonetaryDonationForSupporterAsync(
         int supporterId,
@@ -164,84 +167,43 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         DateOnly donationDate,
         CancellationToken cancellationToken = default)
     {
-        await using var tx = await Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         try
         {
-            var maxDonationId = await Donations
-                .AsNoTracking()
-                .OrderByDescending(d => d.DonationId)
-                .Select(d => d.DonationId)
-                .FirstOrDefaultAsync(cancellationToken);
-            var donationId = maxDonationId + 1;
-
-            var maxAllocationId = await DonationAllocations
-                .AsNoTracking()
-                .OrderByDescending(a => a.AllocationId)
-                .Select(a => a.AllocationId)
-                .FirstOrDefaultAsync(cancellationToken);
-            var allocationId = maxAllocationId + 1;
-
-            await Database.ExecuteSqlInterpolatedAsync(
-                $@"
-                INSERT INTO donations (
-                    donation_id,
-                    supporter_id,
-                    donation_type,
-                    donation_date,
-                    is_recurring,
-                    campaign_name,
-                    channel_source,
-                    currency_code,
-                    amount,
-                    estimated_value,
-                    impact_unit,
-                    notes,
-                    referral_post_id
-                ) VALUES (
-                    {donationId},
-                    {supporterId},
-                    {"monetary"},
-                    {donationDate},
-                    {isRecurring},
-                    NULL,
-                    {"direct"},
-                    {"PHP"},
-                    {amount},
-                    {amount},
-                    {"pesos"},
-                    NULL,
-                    NULL
-                )",
+            return await InsertMonetaryDonationWithStrategyAsync(
+                supporterId,
+                safehouseId,
+                amount,
+                isRecurring,
+                donationDate,
+                MonetaryDonationInsertStrategy.Returning,
                 cancellationToken);
-
-            await Database.ExecuteSqlInterpolatedAsync(
-                $@"
-                INSERT INTO donation_allocations (
-                    allocation_id,
-                    donation_id,
-                    safehouse_id,
-                    program_area,
-                    amount_allocated,
-                    allocation_date,
-                    allocation_notes
-                ) VALUES (
-                    {allocationId},
-                    {donationId},
-                    {safehouseId},
-                    NULL,
-                    {amount},
-                    {donationDate},
-                    NULL
-                )",
-                cancellationToken);
-
-            await tx.CommitAsync(cancellationToken);
-            return donationId;
         }
-        catch
+        catch (PostgresException)
         {
-            await tx.RollbackAsync(cancellationToken);
-            throw;
+            // Try legacy / explicit-key layouts.
+        }
+
+        try
+        {
+            return await InsertMonetaryDonationWithStrategyAsync(
+                supporterId,
+                safehouseId,
+                amount,
+                isRecurring,
+                donationDate,
+                MonetaryDonationInsertStrategy.ExplicitPk,
+                cancellationToken);
+        }
+        catch (PostgresException ex) when (ShouldRetryMonetaryDonationWithOverriding(ex))
+        {
+            return await InsertMonetaryDonationWithStrategyAsync(
+                supporterId,
+                safehouseId,
+                amount,
+                isRecurring,
+                donationDate,
+                MonetaryDonationInsertStrategy.ExplicitPkOverriding,
+                cancellationToken);
         }
     }
 
@@ -799,6 +761,278 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
         }
 
         return false;
+    }
+
+    private enum MonetaryDonationInsertStrategy
+    {
+        Returning,
+        ExplicitPk,
+        ExplicitPkOverriding,
+    }
+
+    private static bool ShouldRetryMonetaryDonationWithOverriding(PostgresException ex)
+    {
+        if (ex.SqlState is "428C9" or "55000")
+        {
+            return true;
+        }
+
+        var msg = ex.MessageText;
+        return msg.Contains("identity", StringComparison.OrdinalIgnoreCase)
+            || msg.Contains("GENERATED", StringComparison.OrdinalIgnoreCase)
+            || msg.Contains("generated column", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<int> InsertMonetaryDonationWithStrategyAsync(
+        int supporterId,
+        int safehouseId,
+        decimal amount,
+        bool isRecurring,
+        DateOnly donationDate,
+        MonetaryDonationInsertStrategy strategy,
+        CancellationToken cancellationToken)
+    {
+        await using var tx = await Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var conn = Database.GetDbConnection();
+            if (conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync(cancellationToken);
+            }
+
+            if (tx is not IInfrastructure<DbTransaction> infra)
+            {
+                throw new InvalidOperationException("A relational database transaction is required.");
+            }
+
+            var dbTx = infra.GetInfrastructure()
+                ?? throw new InvalidOperationException("Underlying DbTransaction is not available.");
+
+            if (conn is not NpgsqlConnection npgConn)
+            {
+                throw new InvalidOperationException("PostgreSQL connection required to record donations.");
+            }
+
+            var npgTx = (NpgsqlTransaction)dbTx;
+
+            int donationId;
+
+            switch (strategy)
+            {
+                case MonetaryDonationInsertStrategy.Returning:
+                    donationId = await ExecuteNpgsqlScalarIntAsync(
+                        npgConn,
+                        npgTx,
+                        """
+                        INSERT INTO donations (
+                            supporter_id,
+                            donation_type,
+                            donation_date,
+                            is_recurring,
+                            campaign_name,
+                            channel_source,
+                            currency_code,
+                            amount,
+                            estimated_value,
+                            impact_unit,
+                            notes,
+                            referral_post_id
+                        ) VALUES (
+                            @supporter_id,
+                            @donation_type,
+                            @donation_date,
+                            @is_recurring,
+                            NULL,
+                            @channel_source,
+                            @currency_code,
+                            @amount,
+                            @estimated_value,
+                            @impact_unit,
+                            NULL,
+                            NULL
+                        ) RETURNING donation_id
+                        """,
+                        cmd =>
+                        {
+                            cmd.Parameters.AddWithValue("supporter_id", supporterId);
+                            cmd.Parameters.AddWithValue("donation_type", "monetary");
+                            cmd.Parameters.AddWithValue("donation_date", donationDate);
+                            cmd.Parameters.AddWithValue("is_recurring", isRecurring);
+                            cmd.Parameters.AddWithValue("channel_source", "direct");
+                            cmd.Parameters.AddWithValue("currency_code", "PHP");
+                            cmd.Parameters.AddWithValue("amount", amount);
+                            cmd.Parameters.AddWithValue("estimated_value", amount);
+                            cmd.Parameters.AddWithValue("impact_unit", "pesos");
+                        },
+                        cancellationToken);
+
+                    await ExecuteNpgsqlNonQueryAsync(
+                        npgConn,
+                        npgTx,
+                        """
+                        INSERT INTO donation_allocations (
+                            donation_id,
+                            safehouse_id,
+                            program_area,
+                            amount_allocated,
+                            allocation_date,
+                            allocation_notes
+                        ) VALUES (
+                            @donation_id,
+                            @safehouse_id,
+                            NULL,
+                            @amount,
+                            @allocation_date,
+                            NULL
+                        )
+                        """,
+                        cmd =>
+                        {
+                            cmd.Parameters.AddWithValue("donation_id", donationId);
+                            cmd.Parameters.AddWithValue("safehouse_id", safehouseId);
+                            cmd.Parameters.AddWithValue("amount", amount);
+                            cmd.Parameters.AddWithValue("allocation_date", donationDate);
+                        },
+                        cancellationToken);
+                    break;
+
+                case MonetaryDonationInsertStrategy.ExplicitPk:
+                case MonetaryDonationInsertStrategy.ExplicitPkOverriding:
+                    var maxDonationId = await Donations
+                        .OrderByDescending(d => d.DonationId)
+                        .Select(d => d.DonationId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                    donationId = maxDonationId + 1;
+
+                    var maxAllocationId = await DonationAllocations
+                        .OrderByDescending(a => a.AllocationId)
+                        .Select(a => a.AllocationId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                    var allocationId = maxAllocationId + 1;
+
+                    var overriding = strategy == MonetaryDonationInsertStrategy.ExplicitPkOverriding;
+                    var overrideClause = overriding ? "OVERRIDING SYSTEM VALUE " : "";
+
+                    await ExecuteNpgsqlNonQueryAsync(
+                        npgConn,
+                        npgTx,
+                        $"""
+                        INSERT INTO donations (
+                            donation_id,
+                            supporter_id,
+                            donation_type,
+                            donation_date,
+                            is_recurring,
+                            campaign_name,
+                            channel_source,
+                            currency_code,
+                            amount,
+                            estimated_value,
+                            impact_unit,
+                            notes,
+                            referral_post_id
+                        ) {overrideClause}VALUES (
+                            @donation_id,
+                            @supporter_id,
+                            @donation_type,
+                            @donation_date,
+                            @is_recurring,
+                            NULL,
+                            @channel_source,
+                            @currency_code,
+                            @amount,
+                            @estimated_value,
+                            @impact_unit,
+                            NULL,
+                            NULL
+                        )
+                        """,
+                        cmd =>
+                        {
+                            cmd.Parameters.AddWithValue("donation_id", donationId);
+                            cmd.Parameters.AddWithValue("supporter_id", supporterId);
+                            cmd.Parameters.AddWithValue("donation_type", "monetary");
+                            cmd.Parameters.AddWithValue("donation_date", donationDate);
+                            cmd.Parameters.AddWithValue("is_recurring", isRecurring);
+                            cmd.Parameters.AddWithValue("channel_source", "direct");
+                            cmd.Parameters.AddWithValue("currency_code", "PHP");
+                            cmd.Parameters.AddWithValue("amount", amount);
+                            cmd.Parameters.AddWithValue("estimated_value", amount);
+                            cmd.Parameters.AddWithValue("impact_unit", "pesos");
+                        },
+                        cancellationToken);
+
+                    await ExecuteNpgsqlNonQueryAsync(
+                        npgConn,
+                        npgTx,
+                        $"""
+                        INSERT INTO donation_allocations (
+                            allocation_id,
+                            donation_id,
+                            safehouse_id,
+                            program_area,
+                            amount_allocated,
+                            allocation_date,
+                            allocation_notes
+                        ) {overrideClause}VALUES (
+                            @allocation_id,
+                            @donation_id,
+                            @safehouse_id,
+                            NULL,
+                            @amount,
+                            @allocation_date,
+                            NULL
+                        )
+                        """,
+                        cmd =>
+                        {
+                            cmd.Parameters.AddWithValue("allocation_id", allocationId);
+                            cmd.Parameters.AddWithValue("donation_id", donationId);
+                            cmd.Parameters.AddWithValue("safehouse_id", safehouseId);
+                            cmd.Parameters.AddWithValue("amount", amount);
+                            cmd.Parameters.AddWithValue("allocation_date", donationDate);
+                        },
+                        cancellationToken);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(strategy));
+            }
+
+            await tx.CommitAsync(cancellationToken);
+            return donationId;
+        }
+        catch
+        {
+            await tx.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    private static async Task<int> ExecuteNpgsqlScalarIntAsync(
+        NpgsqlConnection conn,
+        NpgsqlTransaction tx,
+        string sql,
+        Action<NpgsqlCommand> bind,
+        CancellationToken cancellationToken)
+    {
+        await using var cmd = new NpgsqlCommand(sql, conn, tx);
+        bind(cmd);
+        var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
+    }
+
+    private static async Task ExecuteNpgsqlNonQueryAsync(
+        NpgsqlConnection conn,
+        NpgsqlTransaction tx,
+        string sql,
+        Action<NpgsqlCommand> bind,
+        CancellationToken cancellationToken)
+    {
+        await using var cmd = new NpgsqlCommand(sql, conn, tx);
+        bind(cmd);
+        await cmd.ExecuteNonQueryAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

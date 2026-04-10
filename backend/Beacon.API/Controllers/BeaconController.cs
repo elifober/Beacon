@@ -2871,10 +2871,13 @@ public class BeaconController : ControllerBase
         }
         catch (Exception ex)
         {
+            var pg = ex as PostgresException ?? ex.InnerException as PostgresException;
             _logger.LogError(ex, "SubmitMonetaryDonation failed for supporter {SupporterId}", supporterId.Value);
             return StatusCode(StatusCodes.Status500InternalServerError, new
             {
-                message = "Could not save the donation. If this continues, contact support with the time you tried."
+                message = pg?.MessageText
+                    ?? "Could not save the donation. If this continues, contact support with the time you tried.",
+                sqlState = pg?.SqlState,
             });
         }
     }

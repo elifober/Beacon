@@ -2,7 +2,6 @@ import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
 import { SiteAnnouncementBar } from "../components/SiteAnnouncementBar";
-import { BASE_URL } from "../config/api";
 import { useCountUp } from "../hooks/useCountUp";
 
 /* ── helpers ── */
@@ -72,12 +71,6 @@ const fallbackImpactStats = [
   { value: "95%", label: "Recovery Rate" },
   { value: "30+", label: "Community Partners" },
 ] as const;
-
-type ProgramAreaAllocationShare = {
-  programArea: string;
-  percentOfTotal: number;
-  amountAllocated: number;
-};
 
 const programs: { title: string; desc: string; image: string; points: string[] }[] = [
   {
@@ -302,44 +295,15 @@ const stories = [
 function LandingPage() {
   const location = useLocation();
   const [showHeroButtons, setShowHeroButtons] = useState(false);
-  const [impactStats, setImpactStats] = useState<
-    { value: string; label: string; key: string }[]
-  >(() =>
+  const impactStats = useMemo(
+    () =>
     fallbackImpactStats.map((s) => ({
       value: s.value,
       label: s.label,
       key: s.label,
     })),
+    [],
   );
-  const [impactStatsFromApi, setImpactStatsFromApi] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const url = new URL("Impact/ProgramAreaPercentages", `${BASE_URL}/`);
-    fetch(url.toString())
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: ProgramAreaAllocationShare[] | null) => {
-        if (cancelled || !Array.isArray(data) || data.length === 0) return;
-        setImpactStatsFromApi(true);
-        setImpactStats(
-          data.map((row, i) => {
-            const pct = Math.round(Number(row.percentOfTotal));
-            const label = row.programArea?.trim() || "Program area";
-            return {
-              key: `${label}-${i}`,
-              value: `${pct}%`,
-              label,
-            };
-          }),
-        );
-      })
-      .catch(() => {
-        /* keep fallbackImpactStats */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const raw = location.hash?.replace(/^#/, "");
@@ -478,11 +442,6 @@ function LandingPage() {
           <h2 className="landing-section__heading landing-section__heading--light">
             Making a measurable difference
           </h2>
-          {impactStatsFromApi ? (
-            <p className="landing-impact-stats__lead">
-              Share of recorded gifts by program area (from donation allocations).
-            </p>
-          ) : null}
           <div className="row g-4 mt-3 justify-content-center">
             {impactStats.map((s) => (
               <div key={s.key} className="col-6 col-md-3">

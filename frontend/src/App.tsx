@@ -31,7 +31,6 @@ import ImpactPage from './pages/ImpactPage.tsx'
 import AboutPage from './pages/AboutPage.tsx'
 import RiskManagementCenter from './pages/RiskManagementCenter.tsx'
 import ScrollToTop from './components/ScrollToTop.tsx'
-import RouteTransitionOverlay from './components/RouteTransitionOverlay.tsx'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.tsx'
 import CookieBanner from './components/CookieBanner.tsx'
 
@@ -63,7 +62,6 @@ function App() {
       <AuthProvider>
         <Router>
           <ScrollToTop />
-          <RouteTransitionOverlay />
           <a href="#main-content" className="visually-hidden-focusable position-absolute top-0 start-0 z-3 m-2 btn btn-sm btn-primary">
             Skip to main content
           </a>

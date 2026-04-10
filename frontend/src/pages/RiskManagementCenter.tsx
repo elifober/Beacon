@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
   getResidentRisks,
@@ -11,8 +11,21 @@ import {
 import AdminDashboardBackLink from "../components/AdminDashboardBackLink";
 import Pagination from "../components/Pagination";
 import BeaconLoadingMark from "../components/BeaconLoadingMark.tsx";
+import heroForestImage from "../assets/forrest.jpg";
 
 type Tab = "residents-incident" | "residents-reintegration" | "supporters";
+type QuickFilter =
+  | "incident-high"
+  | "incident-medium"
+  | "incident-low"
+  | "reintegration-ready"
+  | "reintegration-developing"
+  | "reintegration-not-ready"
+  | "supporter-high"
+  | "supporter-medium"
+  | "supporter-low"
+  | null;
+type BandCount = { label: string; count: number; tone: "high" | "medium" | "low"; onClick?: () => void };
 
 function tierTone(band: string | null | undefined): "high" | "medium" | "low" {
   const b = (band ?? "").toLowerCase();
@@ -46,7 +59,9 @@ export default function RiskManagementCenter() {
   const [supporters, setSupporters] = useState<SupporterRisk[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [heroFallback, setHeroFallback] = useState(false);
   const [tab, setTab] = useState<Tab>("residents-incident");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   const [incidentPage, setIncidentPage] = useState(1);
   const [reintegrationPage, setReintegrationPage] = useState(1);
   const [supporterPage, setSupporterPage] = useState(1);
@@ -57,7 +72,7 @@ export default function RiskManagementCenter() {
     setIncidentPage(1);
     setReintegrationPage(1);
     setSupporterPage(1);
-    }, [tab]);
+  }, [tab, quickFilter]);
 
   useEffect(() => {
     Promise.all([getRiskSummary(), getResidentRisks(), getSupporterRisks()])
@@ -94,6 +109,46 @@ export default function RiskManagementCenter() {
     [supporters],
   );
 
+  const residentsIncidentDisplay = useMemo(() => {
+    const incidentBandMap: Record<string, string> = {
+      "incident-high": "high",
+      "incident-medium": "medium",
+      "incident-low": "low",
+    };
+    const target = quickFilter ? incidentBandMap[quickFilter] : undefined;
+    if (!target) return residentsByIncident;
+    return residentsByIncident.filter((r) => (r.incidentRiskBand ?? "").toLowerCase() === target);
+  }, [quickFilter, residentsByIncident]);
+
+  const residentsReintegrationDisplay = useMemo(() => {
+    const reintegrationBandMap: Record<string, string> = {
+      "reintegration-ready": "ready",
+      "reintegration-developing": "developing",
+      "reintegration-not-ready": "not ready",
+    };
+    const target = quickFilter ? reintegrationBandMap[quickFilter] : undefined;
+    if (!target) return residentsByReintegration;
+    return residentsByReintegration.filter((r) => (r.reintegrationBand ?? "").toLowerCase() === target);
+  }, [quickFilter, residentsByReintegration]);
+
+  const supportersDisplay = useMemo(() => {
+    const supporterTierMap: Record<string, string> = {
+      "supporter-high": "high",
+      "supporter-medium": "medium",
+      "supporter-low": "low",
+    };
+    const target = quickFilter ? supporterTierMap[quickFilter] : undefined;
+    if (target) {
+      return supportersByChurn.filter((s) => (s.riskTier ?? "").toLowerCase() === target);
+    }
+    return supportersByChurn;
+  }, [quickFilter, supportersByChurn]);
+
+  const jumpToFilter = (targetTab: Tab, targetFilter: QuickFilter) => {
+    setTab(targetTab);
+    setQuickFilter(targetFilter);
+  };
+
   if (loading) {
     return (
       <div className="beacon-page beacon-page--loading text-center admin-list-page">
@@ -119,65 +174,173 @@ export default function RiskManagementCenter() {
     )?.count ?? 0;
 
   return (
-    <div className="beacon-page container py-4 admin-list-page">
-      <AdminDashboardBackLink />
-      {/* Centered header */}
-      <div className="row justify-content-center text-center mb-4">
-        <div className="col-lg-8">
-          <p className="landing-section__eyebrow mb-2">Admin</p>
-          <h1>Risk Management Center</h1>
-          <p className="post-planner__lead mb-0">
-            Predictive risk scores for residents and supporters, powered by
-            the Beacon ML pipelines.
+    <div className="admin-dashboard beacon-page">
+      <header className="admin-dashboard__hero" aria-label="Risk management header">
+        <img
+          className="admin-dashboard__hero-img"
+          src={heroFallback ? heroForestImage : "/riskcenter.jpg"}
+          alt=""
+          decoding="async"
+          onError={() => setHeroFallback(true)}
+        />
+        <div className="admin-dashboard__hero-overlay" aria-hidden="true" />
+        <div className="container admin-dashboard__hero-content">
+          <p className="admin-dashboard__hero-eyebrow">Admin</p>
+          <h1 className="admin-dashboard__hero-title">Risk Management Center</h1>
+          <p className="post-planner__lead admin-dashboard__hero-subtitle mb-0" style={{ color: "rgba(242, 244, 240, 0.88)" }}>
+            Predictive risk scores for residents and supporters, powered by the Beacon ML pipelines.
           </p>
         </div>
-      </div>
-      <div className="text-center mb-4">
-        <Link to="/admin/post-planner" className="btn btn-primary btn-sm">
-          Open Post Planner
-        </Link>
-      </div>
+      </header>
 
-      {/* Summary cards */}
-      <div className="row g-3 mb-4">
-        <SummaryCard
-            label="High incident risk residents"
-            value={countFor(summary?.residentIncidentBands, "High")}
-            tone="low"
-        />
-        <SummaryCard
-            label="Residents ready for reintegration"
-            value={countFor(summary?.residentReintegrationBands, "Ready")}
-            tone="high"
-        />
-        <SummaryCard
-            label="High churn risk supporters"
-            value={countFor(summary?.supporterChurnTiers, "High")}
-            tone="low"
-        />
-        <SummaryCard
-            label="Low churn risk supporters"
-            value={countFor(summary?.supporterChurnTiers, "Low")}
-            tone="high"
-        />
-      </div>
+      <section className="admin-dashboard__main">
+        <div className="container">
+          <div className="mb-4">
+            <AdminDashboardBackLink />
+          </div>
 
-      {/* Tab switcher */}
-      <div className="btn-group btn-group-sm flex-wrap mb-3 w-100 w-md-auto" role="tablist">
+          {/* Summary cards */}
+          <div className="row g-3 mb-4">
+            <SummaryCard
+              label="High incident risk residents"
+              value={countFor(summary?.residentIncidentBands, "High")}
+              tone="low"
+              onClick={() => jumpToFilter("residents-incident", "incident-high")}
+            />
+            <SummaryCard
+              label="Residents ready for reintegration"
+              value={countFor(summary?.residentReintegrationBands, "Ready")}
+              tone="high"
+              onClick={() => jumpToFilter("residents-reintegration", "reintegration-ready")}
+            />
+            <SummaryCard
+              label="High churn risk supporters"
+              value={countFor(summary?.supporterChurnTiers, "High")}
+              tone="low"
+              onClick={() => jumpToFilter("supporters", "supporter-high")}
+            />
+            <SummaryCard
+              label="Low churn risk supporters"
+              value={countFor(summary?.supporterChurnTiers, "Low")}
+              tone="high"
+              onClick={() => jumpToFilter("supporters", "supporter-low")}
+            />
+          </div>
+
+          <div className="card beacon-detail-card risk-distribution-card mb-4">
+            <div className="card-body">
+              <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+                <h3 className="risk-distribution__title mb-0">Risk distribution snapshot</h3>
+                <div className="risk-distribution__meta">
+                  <span className="risk-distribution__totals">
+                    Residents: <strong>{residents.length}</strong> | Supporters: <strong>{supporters.length}</strong>
+                  </span>
+                  <span className="risk-distribution__hint">Click a segment to drill into that group</span>
+                </div>
+              </div>
+
+              <DonutBandRow
+                label="Incident risk (residents)"
+                bands={[
+                  {
+                    label: "High",
+                    count: countFor(summary?.residentIncidentBands, "High"),
+                    tone: "low",
+                    onClick: () => jumpToFilter("residents-incident", "incident-high"),
+                  },
+                  {
+                    label: "Medium",
+                    count: countFor(summary?.residentIncidentBands, "Medium"),
+                    tone: "medium",
+                    onClick: () => jumpToFilter("residents-incident", "incident-medium"),
+                  },
+                  {
+                    label: "Low",
+                    count: countFor(summary?.residentIncidentBands, "Low"),
+                    tone: "high",
+                    onClick: () => jumpToFilter("residents-incident", "incident-low"),
+                  },
+                ]}
+              />
+
+              <DonutBandRow
+                label="Reintegration readiness (residents)"
+                bands={[
+                  {
+                    label: "Ready",
+                    count: countFor(summary?.residentReintegrationBands, "Ready"),
+                    tone: "high",
+                    onClick: () => jumpToFilter("residents-reintegration", "reintegration-ready"),
+                  },
+                  {
+                    label: "Developing",
+                    count: countFor(summary?.residentReintegrationBands, "Developing"),
+                    tone: "medium",
+                    onClick: () => jumpToFilter("residents-reintegration", "reintegration-developing"),
+                  },
+                  {
+                    label: "Not ready",
+                    count: countFor(summary?.residentReintegrationBands, "Not Ready"),
+                    tone: "low",
+                    onClick: () => jumpToFilter("residents-reintegration", "reintegration-not-ready"),
+                  },
+                ]}
+              />
+
+              <DonutBandRow
+                label="Supporter churn risk"
+                bands={[
+                  {
+                    label: "High",
+                    count: countFor(summary?.supporterChurnTiers, "High"),
+                    tone: "low",
+                    onClick: () => jumpToFilter("supporters", "supporter-high"),
+                  },
+                  {
+                    label: "Medium",
+                    count: countFor(summary?.supporterChurnTiers, "Medium"),
+                    tone: "medium",
+                    onClick: () => jumpToFilter("supporters", "supporter-medium"),
+                  },
+                  {
+                    label: "Low",
+                    count: countFor(summary?.supporterChurnTiers, "Low"),
+                    tone: "high",
+                    onClick: () => jumpToFilter("supporters", "supporter-low"),
+                  },
+                ]}
+              />
+            </div>
+          </div>
+
+          {quickFilter ? (
+            <div className="mb-3">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setQuickFilter(null)}
+              >
+                Show all
+              </button>
+            </div>
+          ) : null}
+
+          {/* Tab switcher */}
+          <div className="risk-tabs mb-3" role="tablist" aria-label="Risk view tabs">
         <button
-          className={`btn ${tab === "residents-incident" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "residents-incident" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("residents-incident")}
         >
           Incident risk
         </button>
         <button
-          className={`btn ${tab === "residents-reintegration" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "residents-reintegration" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("residents-reintegration")}
         >
           Reintegration
         </button>
         <button
-          className={`btn ${tab === "supporters" ? "btn-primary" : "btn-outline-primary"}`}
+          className={`risk-tabs__btn ${tab === "supporters" ? "risk-tabs__btn--active" : ""}`}
           onClick={() => setTab("supporters")}
         >
           Supporter Churn
@@ -186,7 +349,7 @@ export default function RiskManagementCenter() {
 
       {/* Tables */}
       {tab === "residents-incident" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -199,7 +362,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByIncident
+                {residentsIncidentDisplay
                     .slice((incidentPage - 1) * pageSize, incidentPage * pageSize)
                     .map((r) => (
                   <tr key={r.residentId}>
@@ -218,15 +381,15 @@ export default function RiskManagementCenter() {
           <Pagination
             page={incidentPage}
             pageSize={pageSize}
-            totalCount={residentsByIncident.length}
+            totalCount={residentsIncidentDisplay.length}
             onPageChange={setIncidentPage}
-            className="mt-4"
+            className="mt-3 d-flex justify-content-center"
             />
         </div>
       )}
 
       {tab === "residents-reintegration" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -239,7 +402,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {residentsByReintegration
+                {residentsReintegrationDisplay
                     .slice((reintegrationPage - 1) * pageSize, reintegrationPage * pageSize)
                     .map((r) => (
                   <tr key={r.residentId}>
@@ -258,15 +421,15 @@ export default function RiskManagementCenter() {
           <Pagination
             page={reintegrationPage}
             pageSize={pageSize}
-            totalCount={residentsByReintegration.length}
+            totalCount={residentsReintegrationDisplay.length}
             onPageChange={setReintegrationPage}
-            className="mt-4"
+            className="mt-3 d-flex justify-content-center"
             />
         </div>
       )}
 
       {tab === "supporters" && (
-        <div className="card beacon-detail-card">
+        <div className="card beacon-detail-card risk-center-table-card">
           <div className="card-body table-responsive">
             <table className="table table-striped table-hover mb-0">
               <thead>
@@ -279,7 +442,7 @@ export default function RiskManagementCenter() {
                 </tr>
               </thead>
               <tbody>
-                {supportersByChurn
+                {supportersDisplay
                     .slice((supporterPage - 1) * pageSize, supporterPage * pageSize)
                     .map((s) => (
                   <tr key={s.supporterId}>
@@ -295,8 +458,17 @@ export default function RiskManagementCenter() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={supporterPage}
+            pageSize={pageSize}
+            totalCount={supportersDisplay.length}
+            onPageChange={setSupporterPage}
+            className="mt-3 d-flex justify-content-center"
+          />
         </div>
       )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -305,19 +477,73 @@ function SummaryCard({
   label,
   value,
   tone,
+  onClick,
 }: {
   label: string;
   value: number;
   tone: "high" | "medium" | "low";
+  onClick: () => void;
 }) {
   return (
     <div className="col-sm-6 col-lg-3">
-      <div className="card h-100 shadow-sm admin-hub-summary-card">
+      <button
+        type="button"
+        onClick={onClick}
+        className="card h-100 shadow-sm admin-hub-summary-card risk-summary-card-btn text-start w-100"
+      >
         <div className="card-body">
           <p className="landing-section__eyebrow mb-2">{label}</p>
           <div className={`post-planner__score post-planner__gauge--${tone}`}>
             {value}
           </div>
+        </div>
+      </button>
+    </div>
+  );
+}
+
+function DonutBandRow({ label, bands }: { label: string; bands: BandCount[] }) {
+  const total = bands.reduce((acc, b) => acc + b.count, 0);
+  const slices = bands.map((b) => (total > 0 ? (b.count / total) * 100 : 0));
+  const highSlice = slices.find((_, i) => bands[i]?.tone === "high") ?? 0;
+  const mediumSlice = slices.find((_, i) => bands[i]?.tone === "medium") ?? 0;
+  const lowSlice = slices.find((_, i) => bands[i]?.tone === "low") ?? 0;
+  const donutStyle = {
+    "--risk-high": `${highSlice}%`,
+    "--risk-medium": `${mediumSlice}%`,
+    "--risk-low": `${lowSlice}%`,
+  } as CSSProperties;
+
+  return (
+    <div className="risk-distribution__row">
+      <div className="risk-distribution__label">{label}</div>
+      <div
+        className="risk-distribution__donut-wrap"
+        role="img"
+        aria-label={`${label}: ${bands.map((b) => `${b.label} ${b.count}`).join(", ")}`}
+      >
+        <div className="risk-distribution__donut" style={donutStyle}>
+          <div className="risk-distribution__donut-center" aria-hidden="true" />
+        </div>
+        <div className="risk-distribution__legend">
+        {bands.map((b) => {
+          const ratio = total > 0 ? Math.round((b.count / total) * 100) : 0;
+          return (
+            <button
+              key={b.label}
+              type="button"
+              className={`risk-distribution__legend-item risk-distribution__legend-item--${b.tone} ${b.onClick ? "risk-distribution__legend-item--clickable" : ""}`}
+              onClick={b.onClick}
+              disabled={!b.onClick || b.count === 0}
+              title={`${b.label}: ${b.count} (${ratio}%)`}
+            >
+              <span className="risk-distribution__legend-dot" aria-hidden="true" />
+              <span className="risk-distribution__legend-text">{b.label}</span>
+              <span className="risk-distribution__legend-count">{b.count}</span>
+              <span className="risk-distribution__legend-ratio">{ratio}%</span>
+            </button>
+          );
+        })}
         </div>
       </div>
     </div>

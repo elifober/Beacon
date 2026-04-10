@@ -5,6 +5,7 @@ using Beacon.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using System.Security.Claims;
 
 namespace Beacon.API.Controllers;
 
@@ -20,6 +21,24 @@ public class BeaconController : ControllerBase
     {
         _beaconContext = temp;
         _logger = logger;
+    }
+
+    private bool IsAdminUser() =>
+        User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == AuthRoles.Admin);
+
+    private async Task<int?> GetCurrentSupporterIdAsync()
+    {
+        var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(identityUserId))
+        {
+            return null;
+        }
+
+        return await _beaconContext.Supporters
+            .AsNoTracking()
+            .Where(s => s.IdentityUserId == identityUserId)
+            .Select(s => (int?)s.SupporterId)
+            .FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -1174,6 +1193,128 @@ public class BeaconController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Impact/PublicStats: years of operation failed.");
+        }
+
+        return Ok(dto);
+    }
+
+    /// <summary>
+    /// Admin dashboard: aggregate KPIs for the Overview panel (no PII).
+    /// </summary>
+    [Authorize(Policy = AuthPolicies.AdminOnly)]
+    [HttpGet("Admin/OverviewStats")]
+    public async Task<ActionResult<AdminOverviewStatsDto>> GetAdminOverviewStats(
+        CancellationToken cancellationToken = default)
+    {
+        var dto = new AdminOverviewStatsDto();
+
+        var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+        var days30 = todayUtc.AddDays(-30);
+        var days7 = todayUtc.AddDays(-7);
+
+        try
+        {
+            dto.TotalResidentsServed = await _beaconContext.Residents.AsNoTracking()
+                .CountAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: total residents count failed.");
+        }
+
+        try
+        {
+            dto.CurrentResidents = await _beaconContext.Residents.AsNoTracking()
+                .CountAsync(r => r.DateClosed == null, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: current residents count failed.");
+        }
+
+        try
+        {
+            var statuses = await _beaconContext.Safehouses.AsNoTracking()
+                .Select(s => s.Status)
+                .ToListAsync(cancellationToken);
+            dto.ActiveSafehouses = statuses.Count(s =>
+                string.IsNullOrWhiteSpace(s) || !string.Equals(s.Trim(), "Closed", StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: active safehouses count failed.");
+        }
+
+        try
+        {
+            dto.TotalPartners = await _beaconContext.Partners.AsNoTracking()
+                .CountAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: partners count failed.");
+        }
+
+        try
+        {
+            dto.TotalSupporters = await _beaconContext.Supporters.AsNoTracking()
+                .CountAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: supporters count failed.");
+        }
+
+        try
+        {
+            dto.DonationsLast30Days = await _beaconContext.Donations.AsNoTracking()
+                .CountAsync(d => d.DonationDate >= days30, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: donations last 30 days count failed.");
+        }
+
+        try
+        {
+            dto.IncidentsLast7Days = await _beaconContext.IncidentReports.AsNoTracking()
+                .CountAsync(i => i.IncidentDate >= days7, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: incidents last 7 days count failed.");
+        }
+
+        try
+        {
+            dto.UnresolvedIncidents = await _beaconContext.IncidentReports.AsNoTracking()
+                .CountAsync(i => i.Resolved != true, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: unresolved incidents count failed.");
+        }
+
+        try
+        {
+            dto.SafehousesOverCapacity = await _beaconContext.Safehouses.AsNoTracking()
+                .CountAsync(s => s.CapacityGirls.HasValue
+                                 && s.CurrentOccupancy.HasValue
+                                 && s.CurrentOccupancy.Value > s.CapacityGirls.Value, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: safehouses over capacity count failed.");
+        }
+
+        try
+        {
+            dto.ResidentsMissingRiskLevel = await _beaconContext.Residents.AsNoTracking()
+                .CountAsync(r => r.DateClosed == null && string.IsNullOrWhiteSpace(r.CurrentRiskLevel), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Admin/OverviewStats: residents missing risk level count failed.");
         }
 
         return Ok(dto);
@@ -2435,8 +2576,20 @@ public class BeaconController : ControllerBase
     //GET SINGLE DONOR WITH FULL DONATION HISTORY
     [Authorize(Policy = AuthPolicies.DonorOnly)]
     [HttpGet("Donor/{id}")]
-    public IActionResult GetDonor(int id)
+    public async Task<IActionResult> GetDonor(int id)
     {
+        if (!IsAdminUser())
+        {
+            var supporterId = await GetCurrentSupporterIdAsync();
+            if (supporterId is null || supporterId.Value != id)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "You do not have access to this account."
+                });
+            }
+        }
+
         var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
         if (supporter == null) return NotFound();
 
@@ -2647,8 +2800,20 @@ public class BeaconController : ControllerBase
     //GET DONOR DASHBOARD: personal info + donation history with program areas
     [Authorize(Policy = AuthPolicies.DonorOnly)]
     [HttpGet("DonorDashboard/{id}")]
-    public IActionResult GetDonorDashboard(int id)
+    public async Task<IActionResult> GetDonorDashboard(int id)
     {
+        if (!IsAdminUser())
+        {
+            var supporterId = await GetCurrentSupporterIdAsync();
+            if (supporterId is null || supporterId.Value != id)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "You do not have access to this account."
+                });
+            }
+        }
+
         var supporter = _beaconContext.Supporters.FirstOrDefault(s => s.SupporterId == id);
         if (supporter == null) return NotFound();
 

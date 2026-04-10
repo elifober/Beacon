@@ -2857,34 +2857,25 @@ public class BeaconController : ControllerBase
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        var donation = new Donation
+        try
         {
-            SupporterId = supporterId.Value,
-            DonationType = "monetary",
-            DonationDate = today,
-            IsRecurring = body.IsRecurring,
-            CampaignName = null,
-            ChannelSource = "direct",
-            CurrencyCode = "PHP",
-            Amount = body.Amount,
-            EstimatedValue = body.Amount,
-            ImpactUnit = "pesos",
-            Notes = null,
-            ReferralPostId = null
-        };
+            var donationId = await _beaconContext.InsertMonetaryDonationForSupporterAsync(
+                supporterId.Value,
+                safehouseId.Value,
+                body.Amount,
+                body.IsRecurring,
+                today,
+                HttpContext.RequestAborted);
 
-        donation.DonationAllocations.Add(new DonationAllocation
+            return Ok(new { donationId });
+        }
+        catch (Exception ex)
         {
-            SafehouseId = safehouseId.Value,
-            ProgramArea = null,
-            AmountAllocated = body.Amount,
-            AllocationDate = today,
-            AllocationNotes = null
-        });
-
-        _beaconContext.Donations.Add(donation);
-        await _beaconContext.SaveChangesAsync();
-
-        return Ok(new { donationId = donation.DonationId });
+            _logger.LogError(ex, "SubmitMonetaryDonation failed for supporter {SupporterId}", supporterId.Value);
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "Could not save the donation. If this continues, contact support with the time you tried."
+            });
+        }
     }
 }

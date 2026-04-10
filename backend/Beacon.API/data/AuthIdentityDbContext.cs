@@ -1,3 +1,4 @@
+using System.Data;
 using Beacon.API.Models;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -148,6 +149,100 @@ public class AuthIdentityDbContext : IdentityDbContext<ApplicationUser>, IDataPr
             .Select(s => s.SafehouseId)
             .FirstOrDefaultAsync(cancellationToken);
         return maxId + 1;
+    }
+
+    /// <summary>
+    /// Inserts <c>donations</c> and one <c>donation_allocations</c> row using explicit PKs. Production DBs
+    /// imported without PostgreSQL IDENTITY on these columns reject EF-generated INSERTs (500); this matches
+    /// the manual-key pattern used for residents and supporters.
+    /// </summary>
+    public async Task<int> InsertMonetaryDonationForSupporterAsync(
+        int supporterId,
+        int safehouseId,
+        decimal amount,
+        bool isRecurring,
+        DateOnly donationDate,
+        CancellationToken cancellationToken = default)
+    {
+        await using var tx = await Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        try
+        {
+            var maxDonationId = await Donations
+                .AsNoTracking()
+                .OrderByDescending(d => d.DonationId)
+                .Select(d => d.DonationId)
+                .FirstOrDefaultAsync(cancellationToken);
+            var donationId = maxDonationId + 1;
+
+            var maxAllocationId = await DonationAllocations
+                .AsNoTracking()
+                .OrderByDescending(a => a.AllocationId)
+                .Select(a => a.AllocationId)
+                .FirstOrDefaultAsync(cancellationToken);
+            var allocationId = maxAllocationId + 1;
+
+            await Database.ExecuteSqlInterpolatedAsync(
+                $@"
+                INSERT INTO donations (
+                    donation_id,
+                    supporter_id,
+                    donation_type,
+                    donation_date,
+                    is_recurring,
+                    campaign_name,
+                    channel_source,
+                    currency_code,
+                    amount,
+                    estimated_value,
+                    impact_unit,
+                    notes,
+                    referral_post_id
+                ) VALUES (
+                    {donationId},
+                    {supporterId},
+                    {"monetary"},
+                    {donationDate},
+                    {isRecurring},
+                    NULL,
+                    {"direct"},
+                    {"PHP"},
+                    {amount},
+                    {amount},
+                    {"pesos"},
+                    NULL,
+                    NULL
+                )",
+                cancellationToken);
+
+            await Database.ExecuteSqlInterpolatedAsync(
+                $@"
+                INSERT INTO donation_allocations (
+                    allocation_id,
+                    donation_id,
+                    safehouse_id,
+                    program_area,
+                    amount_allocated,
+                    allocation_date,
+                    allocation_notes
+                ) VALUES (
+                    {allocationId},
+                    {donationId},
+                    {safehouseId},
+                    NULL,
+                    {amount},
+                    {donationDate},
+                    NULL
+                )",
+                cancellationToken);
+
+            await tx.CommitAsync(cancellationToken);
+            return donationId;
+        }
+        catch
+        {
+            await tx.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     /// <summary>
